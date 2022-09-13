@@ -1,0 +1,6 @@
+name: SiegeGame
+version: '${project.version}'
+main: me.cedric.siegegame.SiegeGame
+api-version: 1.19
+depend:
+  - Towny

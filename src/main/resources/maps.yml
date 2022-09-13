@@ -1,0 +1,21 @@
+maps:
+  atiermap:
+    worldname: 'atiermap'
+    defaultspawn:
+      x: 812
+      y: 170
+      z: 1254
+    worldborder:
+      center:
+        x: 2
+        z: 2
+      size: 150
+    teams:
+      gaiarands:
+        name: 'Gaia Randos'
+        color: '#694200'
+        town: 'gaiarands'
+      datblockers:
+        name: 'DATBLOCKERS'
+        color: '#420699'
+        town: 'datblockers'
