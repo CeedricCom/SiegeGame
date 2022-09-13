@@ -26,7 +26,7 @@ public class Main {
 
     @Test
     public void test() {
-        System.out.println("test");
+        fail();
         createTeams(mockWorldGame, 20);
         createPlayers(playerManager, 10);
         assertTrue(areTeamsFair(mockWorldGame));
