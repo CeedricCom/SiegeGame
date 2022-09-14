@@ -12,6 +12,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class WorldGameImpl implements WorldGame {
@@ -38,8 +39,17 @@ public class WorldGameImpl implements WorldGame {
     }
 
     @Override
-    public ImmutableSet<Team> getTeams() {
-        return ImmutableSet.copyOf(teams);
+    public Set<Team> getTeams() {
+        return teams;
+    }
+
+    @Override
+    public Team getTeam(String configKey) {
+        for (Team team : teams) {
+            if (team.getConfigKey().equalsIgnoreCase(configKey))
+                return team;
+        }
+        return null;
     }
 
     @Override

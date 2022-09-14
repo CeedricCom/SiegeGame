@@ -45,6 +45,15 @@ public class MockWorldGame implements WorldGame {
     }
 
     @Override
+    public Team getTeam(String configKey) {
+        for (Team team : teams) {
+            if (team.getConfigKey().equalsIgnoreCase(configKey))
+                return team;
+        }
+        return null;
+    }
+
+    @Override
     public void addTeam(Team team) {
         teams.add(team);
     }

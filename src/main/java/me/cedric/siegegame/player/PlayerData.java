@@ -25,6 +25,10 @@ public class PlayerData {
         return team;
     }
 
+    public boolean hasTeam() {
+        return team != null;
+    }
+
     public void setTeam(Team team) {
         this.team = team;
     }

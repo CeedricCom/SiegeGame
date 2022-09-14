@@ -2,6 +2,7 @@ package me.cedric.siegegame;
 
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.player.PlayerData;
+import me.cedric.siegegame.player.PlayerManager;
 import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.world.WorldGame;
 
@@ -58,37 +59,28 @@ public final class GameManager {
         worldQueue.add(lastMap);
     }
 
-    public void assignTeams(WorldGame worldGame) {
+    public void assignTeams(WorldGame worldGame, Set<UUID> players, PlayerManager manager) {
         Random r = new Random();
-        ImmutableSet<PlayerData> players = plugin.getPlayerManager().getPlayers();
 
-        int amountTeams = worldGame.getTeams().size();
-        int amountPeople = players.size();
+        List<UUID> list = new ArrayList<>(players);
+        Set<Team> teams = worldGame.getTeams();
 
-        int peoplePerTeam = amountPeople / amountTeams;
+        while (list.size() != 0) {
+            for (Team team : teams) {
+                if (list.size() == 0)
+                    break;
 
-        List<PlayerData> remainingPlayers = new ArrayList<>();
+                int chosenPlayer = list.size() == 1 ? 0 : r.nextInt(0, list.size() - 1);
+                PlayerData player = manager.getPlayer(list.get(chosenPlayer));
 
-        for (PlayerData playerData : players) {
-            int i = r.nextInt(0, (amountTeams - 1));
-            Team team = worldGame.getTeams().asList().get(i);
-
-            if (team.getPlayers().size() >= peoplePerTeam) {
-                remainingPlayers.add(playerData);
-                continue;
+                team.addPlayer(player);
+                list.remove(chosenPlayer);
             }
-
-            team.addPlayer(playerData);
         }
+    }
 
-        int i = 0;
-        for (PlayerData player : remainingPlayers) {
-            if (i >= (amountTeams - 1))
-                i = 0;
-            worldGame.getTeams().asList().get(i).addPlayer(player);
-            i++;
-        }
-
+    public void assignTeams(WorldGame worldGame) {
+        assignTeams(worldGame, plugin.getPlayerManager().getPlayers(), plugin.getPlayerManager());
     }
 
     public WorldGame getLastMap() {

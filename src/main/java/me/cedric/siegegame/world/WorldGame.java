@@ -5,6 +5,8 @@ import me.cedric.siegegame.teams.Team;
 import org.bukkit.Location;
 import org.bukkit.World;
 
+import java.util.Set;
+
 public interface WorldGame {
 
     World getBukkitWorld();
@@ -15,7 +17,9 @@ public interface WorldGame {
 
     String getConfigKey();
 
-    ImmutableSet<Team> getTeams();
+    Set<Team> getTeams();
+
+    Team getTeam(String configKey);
 
     void addTeam(Team team);
 

@@ -3,9 +3,7 @@ package me.cedric.siegegame.player;
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGame;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public final class PlayerManager {
 
@@ -28,8 +26,8 @@ public final class PlayerManager {
         return players.get(uuid);
     }
 
-    public ImmutableSet<PlayerData> getPlayers() {
-        return ImmutableSet.copyOf(players.values());
+    public Set<UUID> getPlayers() {
+        return new HashSet<>(players.keySet());
     }
 
     public void clear() {
