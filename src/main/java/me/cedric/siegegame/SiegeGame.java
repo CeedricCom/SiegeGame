@@ -2,6 +2,7 @@ package me.cedric.siegegame;
 
 import me.cedric.siegegame.command.SiegeGameCommand;
 import me.cedric.siegegame.config.ConfigLoader;
+import me.cedric.siegegame.config.WorldLoadListener;
 import me.cedric.siegegame.display.shop.ShopGUI;
 import me.cedric.siegegame.player.PlayerListener;
 import me.cedric.siegegame.player.PlayerManager;
@@ -25,6 +26,7 @@ public final class SiegeGame extends BukkitPlugin {
         this.shopGUI = new ShopGUI(this);
 
         this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+        this.getServer().getPluginManager().registerEvents(new WorldLoadListener(this), this);
 
         apiPlugin.registerCommand(new SiegeGameCommand(this), "siegegame", "sg", "siegeg");
         apiPlugin.registerDependency("Towny", true);

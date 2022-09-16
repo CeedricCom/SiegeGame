@@ -24,6 +24,7 @@ import org.bukkit.inventory.ItemFlag;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -62,6 +63,8 @@ public class ConfigLoader {
     private static final String SHOP_SECTION_ENCHANTMENTS_KEY = "enchantments";
     private static final String SHOP_SECTION_HIDE_ITEM_FLAGS_KEY = "item-flags";
 
+    private HashMap<String, String> lateLoadWorlds = new HashMap<>();
+
     public ConfigLoader(SiegeGame plugin) {
         this.plugin = plugin;
     }
@@ -98,28 +101,34 @@ public class ConfigLoader {
 
             if (world == null) {
                 plugin.getApiPlugin().getPluginLogger().severe("Could not retrieve world object for map key " + mapKey + " - Skipping!");
+                lateLoadWorlds.put(worldName, mapKey);
+                // Iris worlds may potentially load in late. Let's add them to a list and load them again if needed
                 continue;
             }
 
-            int x = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_KEY + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_X);
-            int y = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_KEY + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_Y);
-            int z = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_KEY + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_Z);
-
-            int mapBorderX = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_CENTER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_CENTER_X);
-            int mapBorderZ = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_CENTER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_CENTER_Z);
-            int mapBorderSize = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_SIZE);
-
-            //Border border = new Border(world, x + mapBorderSize, -64, z + mapBorderSize, x - mapBorderSize, 50000000, z - mapBorderSize);
-
-            WorldGameImpl worldGame = new WorldGameImpl(mapKey, world, new Location(world, x, y, z));
-            ConfigSection teamsSection = mapsYml.getConfigurationSection(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_TEAMS_KEY);
-            Set<Team> teams = loadTeams(worldGame, teamsSection);
-            worldGame.addTeams(teams);
-
-            plugin.getGameManager().addWorld(worldGame);
+            loadWorld(world, mapKey);
         }
 
         plugin.getLogger().info("Maps loaded.");
+    }
+
+    public void loadWorld(World world, String mapKey) {
+        int x = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_KEY + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_X);
+        int y = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_KEY + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_Y);
+        int z = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_KEY + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_Z);
+
+        int mapBorderX = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_CENTER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_CENTER_X);
+        int mapBorderZ = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_CENTER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_CENTER_Z);
+        int mapBorderSize = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_SIZE);
+
+        //Border border = new Border(world, x + mapBorderSize, -64, z + mapBorderSize, x - mapBorderSize, 50000000, z - mapBorderSize);
+
+        WorldGameImpl worldGame = new WorldGameImpl(mapKey, world, new Location(world, x, y, z));
+        ConfigSection teamsSection = mapsYml.getConfigurationSection(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_TEAMS_KEY);
+        Set<Team> teams = loadTeams(worldGame, teamsSection);
+        worldGame.addTeams(teams);
+
+        plugin.getGameManager().addWorld(worldGame);
     }
 
     private void loadShop() {
@@ -202,6 +211,18 @@ public class ConfigLoader {
 
         mapsYml.mergeDefaults();
         shopYml.mergeDefaults();
+    }
+
+    public Set<String> getLateLoadWorldNames() {
+        return lateLoadWorlds.keySet();
+    }
+
+    public String getLateWorldMapKey(String s) {
+        return lateLoadWorlds.get(s);
+    }
+
+    public void removeLateWorld(String worldName) {
+        lateLoadWorlds.remove(worldName);
     }
 }
 
