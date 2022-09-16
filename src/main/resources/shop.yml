@@ -1,0 +1,15 @@
+shop:
+  diamond_sword:
+    material: DIAMOND_SWORD
+    slot: 0
+    price: 0
+    display-name: '&7 bom dia'
+    lore:
+      - 'eae rapaziada'
+      - '&fpra q isso'
+    enchantments:
+      - sharpness;5
+      - unbreaking;3
+    item-flags:
+      - 'hide_attributes'
+shop-name: 'Shop'

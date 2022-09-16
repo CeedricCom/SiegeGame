@@ -1,6 +1,5 @@
 package me.cedric.siegegame;
 
-import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.player.PlayerData;
 import me.cedric.siegegame.player.PlayerManager;
 import me.cedric.siegegame.teams.Team;
