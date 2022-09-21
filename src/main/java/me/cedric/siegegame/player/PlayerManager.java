@@ -1,13 +1,12 @@
 package me.cedric.siegegame.player;
 
-import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGame;
 
 import java.util.*;
 
 public final class PlayerManager {
 
-    private final Map<UUID, PlayerData> players = new HashMap<>();
+    private final Map<UUID, GamePlayer> players = new HashMap<>();
     private final SiegeGame plugin;
 
     public PlayerManager(SiegeGame plugin) {
@@ -15,14 +14,14 @@ public final class PlayerManager {
     }
 
     public void addPlayer(UUID uuid) {
-        players.put(uuid, new PlayerData(uuid));
+        players.put(uuid, new GamePlayer(uuid, plugin));
     }
 
     public void removePlayer(UUID uuid) {
         players.remove(uuid);
     }
 
-    public PlayerData getPlayer(UUID uuid) {
+    public GamePlayer getPlayer(UUID uuid) {
         return players.get(uuid);
     }
 

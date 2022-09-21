@@ -6,10 +6,12 @@ maps:
       y: 170
       z: 1254
     worldborder:
-      center:
-        x: 2
-        z: 2
-      size: 150
+      x1: 23
+      y1: 5000
+      z1: 23
+      x2: -23
+      y2: -64
+      z2: -23
     teams:
       gaiarands:
         name: 'Gaia Randos'

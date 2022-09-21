@@ -1,6 +1,7 @@
 package me.cedric.siegegame.world;
 
 import com.google.common.collect.ImmutableSet;
+import me.cedric.siegegame.border.Border;
 import me.cedric.siegegame.teams.Team;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -24,4 +25,8 @@ public interface WorldGame {
     void addTeam(Team team);
 
     void removeTeam(Team team);
+
+    Border getBorder();
+
+    void setBorder(Border border);
 }

@@ -1,6 +1,7 @@
 package me.cedric.tests;
 
 import com.google.common.collect.ImmutableSet;
+import me.cedric.siegegame.border.Border;
 import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Location;
@@ -61,5 +62,15 @@ public class MockWorldGame implements WorldGame {
     @Override
     public void removeTeam(Team team) {
         teams.remove(team);
+    }
+
+    @Override
+    public Border getBorder() {
+        return null;
+    }
+
+    @Override
+    public void setBorder(Border border) {
+
     }
 }

@@ -2,7 +2,7 @@ package me.cedric.siegegame.teams;
 
 import com.google.common.collect.ImmutableSet;
 import com.palmergames.bukkit.towny.object.Town;
-import me.cedric.siegegame.player.PlayerData;
+import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Color;
 
@@ -10,7 +10,7 @@ public interface Team {
 
     WorldGame getWorldGame();
 
-    ImmutableSet<PlayerData> getPlayers();
+    ImmutableSet<GamePlayer> getPlayers();
 
     String getName();
 
@@ -26,9 +26,9 @@ public interface Team {
 
     void setColor(Color color);
 
-    void addPlayer(PlayerData player);
+    void addPlayer(GamePlayer player);
 
-    void removePlayer(PlayerData player);
+    void removePlayer(GamePlayer player);
 
     void clear();
 

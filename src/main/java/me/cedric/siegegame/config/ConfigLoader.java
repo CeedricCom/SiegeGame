@@ -2,6 +2,8 @@ package me.cedric.siegegame.config;
 
 import com.palmergames.bukkit.towny.TownyAPI;
 import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.border.Border;
+import me.cedric.siegegame.border.BoundingBox;
 import me.cedric.siegegame.display.shop.ShopItem;
 import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.teams.TeamImpl;
@@ -21,6 +23,7 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,10 +46,12 @@ public class ConfigLoader {
     private static final String MAPS_SECTION_DEFAULT_SPAWN_Y = "y";
     private static final String MAPS_SECTION_DEFAULT_SPAWN_Z = "z";
     private static final String MAPS_SECTION_MAP_MAPBORDER_KEY = "worldborder";
-    private static final String MAPS_SECTION_MAP_MAPBORDER_CENTER_KEY = "center";
-    private static final String MAPS_SECTION_MAP_MAPBORDER_SIZE = "size";
-    private static final String MAPS_SECTION_MAP_MAPBORDER_CENTER_X = "x";
-    private static final String MAPS_SECTION_MAP_MAPBORDER_CENTER_Z = "z";
+    private static final String MAPS_SECTION_MAP_MAPBORDER_X1_KEY = "x1";
+    private static final String MAPS_SECTION_MAP_MAPBORDER_Y1_KEY = "y1";
+    private static final String MAPS_SECTION_MAP_MAPBORDER_Z1_KEY = "z1";
+    private static final String MAPS_SECTION_MAP_MAPBORDER_X2_KEY = "x2";
+    private static final String MAPS_SECTION_MAP_MAPBORDER_Y2_KEY = "y2";
+    private static final String MAPS_SECTION_MAP_MAPBORDER_Z2_KEY = "z2";
     private static final String MAPS_SECTION_WORLD_TEAMS_KEY = "teams";
     private static final String MAPS_SECTION_WORLD_TEAMS_NAME = "name";
     private static final String MAPS_SECTION_WORLD_TEAMS_COLOR = "color";
@@ -102,7 +107,7 @@ public class ConfigLoader {
             if (world == null) {
                 plugin.getApiPlugin().getPluginLogger().severe("Could not retrieve world object for map key " + mapKey + " - Skipping!");
                 lateLoadWorlds.put(worldName, mapKey);
-                // Iris worlds may potentially load in late. Let's add them to a list and load them again if needed
+                // Iris loads its worlds late. Let's add them to a list and listen to WorldLoadEvent - Iris fires it when loading a world
                 continue;
             }
 
@@ -117,18 +122,28 @@ public class ConfigLoader {
         int y = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_KEY + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_Y);
         int z = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_KEY + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_Z);
 
-        int mapBorderX = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_CENTER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_CENTER_X);
-        int mapBorderZ = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_CENTER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_CENTER_Z);
-        int mapBorderSize = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_SIZE);
+        int x1 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_X1_KEY);
+        int y1 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_Y1_KEY);
+        int z1 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_Z1_KEY);
 
-        //Border border = new Border(world, x + mapBorderSize, -64, z + mapBorderSize, x - mapBorderSize, 50000000, z - mapBorderSize);
+        int x2 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_X2_KEY);
+        int y2 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_Y2_KEY);
+        int z2 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_Z2_KEY);
 
-        WorldGameImpl worldGame = new WorldGameImpl(mapKey, world, new Location(world, x, y, z));
+        Vector corner1Vector = new Vector(x1, y1, z1);
+        Vector corner2Vector = new Vector(x2, y2, z2);
+
+        Border border = new Border(new BoundingBox(world, corner1Vector, corner2Vector));
+
+        WorldGameImpl worldGame = new WorldGameImpl(mapKey, world, border, new Location(world, x, y, z));
         ConfigSection teamsSection = mapsYml.getConfigurationSection(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_TEAMS_KEY);
         Set<Team> teams = loadTeams(worldGame, teamsSection);
         worldGame.addTeams(teams);
 
         plugin.getGameManager().addWorld(worldGame);
+
+        if (lateLoadWorlds.containsKey(world.getName()))
+            removeLateWorld(world.getName());
     }
 
     private void loadShop() {

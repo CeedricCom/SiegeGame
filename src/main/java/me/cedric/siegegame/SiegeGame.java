@@ -1,5 +1,8 @@
 package me.cedric.siegegame;
 
+import com.comphenix.protocol.ProtocolLibrary;
+import me.cedric.siegegame.border.BlockChangePacketAdapter;
+import me.cedric.siegegame.border.BorderListener;
 import me.cedric.siegegame.command.SiegeGameCommand;
 import me.cedric.siegegame.config.ConfigLoader;
 import me.cedric.siegegame.config.WorldLoadListener;
@@ -27,6 +30,9 @@ public final class SiegeGame extends BukkitPlugin {
 
         this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         this.getServer().getPluginManager().registerEvents(new WorldLoadListener(this), this);
+        this.getServer().getPluginManager().registerEvents(new BorderListener(this), this);
+
+        ProtocolLibrary.getProtocolManager().addPacketListener(new BlockChangePacketAdapter(this));
 
         apiPlugin.registerCommand(new SiegeGameCommand(this), "siegegame", "sg", "siegeg");
         apiPlugin.registerDependency("Towny", true);

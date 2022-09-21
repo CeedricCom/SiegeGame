@@ -2,7 +2,7 @@ package me.cedric.tests;
 
 import com.google.common.collect.ImmutableSet;
 import com.palmergames.bukkit.towny.object.Town;
-import me.cedric.siegegame.player.PlayerData;
+import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Color;
@@ -15,7 +15,7 @@ public class MockTeam implements Team {
     private Color color;
     private String name;
     private final String configKey;
-    private final Set<PlayerData> players = new HashSet<>();
+    private final Set<GamePlayer> players = new HashSet<>();
     private final WorldGame worldGame;
 
     public MockTeam(WorldGame worldGame, Color color, String name, String configKey) {
@@ -41,12 +41,12 @@ public class MockTeam implements Team {
     }
 
     @Override
-    public void addPlayer(PlayerData player) {
+    public void addPlayer(GamePlayer player) {
         players.add(player);
     }
 
     @Override
-    public void removePlayer(PlayerData player) {
+    public void removePlayer(GamePlayer player) {
         players.remove(player);
     }
 
@@ -80,7 +80,7 @@ public class MockTeam implements Team {
     }
 
     @Override
-    public ImmutableSet<PlayerData> getPlayers() {
+    public ImmutableSet<GamePlayer> getPlayers() {
         return ImmutableSet.copyOf(players);
     }
 }

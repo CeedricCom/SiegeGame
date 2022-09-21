@@ -1,9 +1,10 @@
 package me.cedric.siegegame;
 
-import me.cedric.siegegame.player.PlayerData;
+import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.PlayerManager;
 import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.world.WorldGame;
+import org.bukkit.World;
 
 import java.util.*;
 
@@ -42,14 +43,14 @@ public final class GameManager {
         assignTeams(worldGame);
 
         for (Team team : worldGame.getTeams()) {
-            for (PlayerData playerData : team.getPlayers()) {
+            for (GamePlayer gamePlayer : team.getPlayers()) {
                 if (team.getTeamTown().getSpawnOrNull() == null) {
-                    playerData.getBukkitPlayer().teleport(worldGame.getDefaultSpawnPoint());
+                    gamePlayer.getBukkitPlayer().teleport(worldGame.getDefaultSpawnPoint());
                     System.out.println("TEAM " + team.getTeamTown().getName() + " DOES NOT HAVE A TOWN SPAWN. TELEPORTING TO WORLD SPAWN!");
                     continue;
                 }
 
-                playerData.getBukkitPlayer().teleport(team.getTeamTown().getSpawnOrNull());
+                gamePlayer.getBukkitPlayer().teleport(team.getTeamTown().getSpawnOrNull());
             }
         }
 
@@ -70,7 +71,7 @@ public final class GameManager {
                     break;
 
                 int chosenPlayer = list.size() == 1 ? 0 : r.nextInt(0, list.size() - 1);
-                PlayerData player = manager.getPlayer(list.get(chosenPlayer));
+                GamePlayer player = manager.getPlayer(list.get(chosenPlayer));
 
                 team.addPlayer(player);
                 list.remove(chosenPlayer);
@@ -84,5 +85,9 @@ public final class GameManager {
 
     public WorldGame getLastMap() {
         return lastMap;
+    }
+
+    public WorldGame getWorldGame(World world) {
+        return worlds.stream().filter(worldGame -> worldGame.getBukkitWorld().equals(world)).findFirst().orElse(null);
     }
 }

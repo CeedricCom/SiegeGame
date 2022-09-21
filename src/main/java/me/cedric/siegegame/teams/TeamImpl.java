@@ -2,7 +2,7 @@ package me.cedric.siegegame.teams;
 
 import com.google.common.collect.ImmutableSet;
 import com.palmergames.bukkit.towny.object.Town;
-import me.cedric.siegegame.player.PlayerData;
+import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Color;
 
@@ -16,7 +16,7 @@ public class TeamImpl implements Team {
     private String name;
     private final WorldGame worldGame;
     private final String configKey;
-    private final Set<PlayerData> players = new HashSet<>();
+    private final Set<GamePlayer> players = new HashSet<>();
 
     public TeamImpl(WorldGame worldGame, Color color, Town town, String name, String configKey) {
         this.color = color;
@@ -27,7 +27,7 @@ public class TeamImpl implements Team {
     }
 
     @Override
-    public ImmutableSet<PlayerData> getPlayers() {
+    public ImmutableSet<GamePlayer> getPlayers() {
         return ImmutableSet.copyOf(players);
     }
 
@@ -72,13 +72,13 @@ public class TeamImpl implements Team {
     }
 
     @Override
-    public void addPlayer(PlayerData player) {
+    public void addPlayer(GamePlayer player) {
         players.add(player);
         player.setTeam(this);
     }
 
     @Override
-    public void removePlayer(PlayerData player) {
+    public void removePlayer(GamePlayer player) {
         players.remove(player);
     }
 
