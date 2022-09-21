@@ -2,6 +2,8 @@ package me.cedric.siegegame.teams;
 
 import com.google.common.collect.ImmutableSet;
 import com.palmergames.bukkit.towny.object.Town;
+import me.cedric.siegegame.border.Border;
+import me.cedric.siegegame.border.BoundingBox;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Color;
@@ -17,13 +19,15 @@ public class TeamImpl implements Team {
     private final WorldGame worldGame;
     private final String configKey;
     private final Set<GamePlayer> players = new HashSet<>();
+    private final Border safeArea;
 
-    public TeamImpl(WorldGame worldGame, Color color, Town town, String name, String configKey) {
+    public TeamImpl(WorldGame worldGame, Border safeArea, Color color, Town town, String name, String configKey) {
         this.color = color;
         this.town = town;
         this.name = name;
         this.configKey = configKey;
         this.worldGame = worldGame;
+        this.safeArea = safeArea;
     }
 
     @Override
@@ -75,6 +79,7 @@ public class TeamImpl implements Team {
     public void addPlayer(GamePlayer player) {
         players.add(player);
         player.setTeam(this);
+        player.getBorderHandler().addBorder(getSafeArea());
     }
 
     @Override
@@ -85,5 +90,10 @@ public class TeamImpl implements Team {
     @Override
     public void clear() {
         players.clear();
+    }
+
+    @Override
+    public Border getSafeArea() {
+        return safeArea;
     }
 }

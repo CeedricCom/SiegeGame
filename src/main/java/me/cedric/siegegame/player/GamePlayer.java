@@ -25,6 +25,7 @@ public class GamePlayer {
         this.team = null;
         this.plugin = plugin;
         this.borderHandler = new BorderHandler(plugin, this, getWorldGame());
+        this.borderHandler.addBorder(getWorldGame().getBorder());
     }
 
     private WorldGame getWorldGame() {

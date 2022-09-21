@@ -14,6 +14,7 @@ public class Border {
     private boolean blockBreakAllowed = false;
     private boolean blockPlaceAllowed = false;
     private boolean canLeave = false;
+    private boolean inverse = false;
 
     public Border(@NotNull BoundingBox boundingBox) {
         this.boundingBox = boundingBox;
@@ -31,6 +32,14 @@ public class Border {
 
     public static Border load(String borderId, BoundingBox boundingBox) {
         return new Border(UUID.fromString(borderId),boundingBox);
+    }
+
+    public boolean isInverse() {
+        return inverse;
+    }
+
+    public void setInverse(boolean inverse) {
+        this.inverse = inverse;
     }
 
     @NotNull
@@ -70,8 +79,6 @@ public class Border {
     public void setCanLeave(boolean canLeave) {
         this.canLeave = canLeave;
     }
-
-
 
     @Override
     public boolean equals(Object o) {

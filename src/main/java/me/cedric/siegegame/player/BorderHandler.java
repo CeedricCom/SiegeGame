@@ -2,6 +2,8 @@ package me.cedric.siegegame.player;
 
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.border.Border;
+import me.cedric.siegegame.border.BorderDisplay;
+import me.cedric.siegegame.border.BoundingBox;
 import me.cedric.siegegame.border.FakeBlockManager;
 import me.cedric.siegegame.border.FakeBorderWall;
 import me.cedric.siegegame.world.WorldGame;
@@ -11,7 +13,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 public class BorderHandler {
@@ -20,16 +26,14 @@ public class BorderHandler {
     private final WorldGame worldGame;
     private final GamePlayer player;
     private final FakeBlockManager fakeBlockManager;
-    private final FakeBorderWall fakeBorderWall;
-    private LastSafe<Player> playerLastSafe;
-    private List<LastSafe<Projectile>> playerProjectiles;
-    private Border border;
+    private final LastSafe<Player> playerLastSafe;
+    private final List<LastSafe<Projectile>> playerProjectiles;
+    private final Map<Border, BorderDisplay> borders = new HashMap<>();
 
     public BorderHandler(SiegeGame plugin, GamePlayer player, WorldGame worldGame) {
         this.plugin = plugin;
         this.worldGame = worldGame;
         this.player = player;
-        this.fakeBorderWall = new FakeBorderWall(player, 10, 5, Material.GLASS);
         this.fakeBlockManager = new FakeBlockManager(plugin, player.getBukkitPlayer());
         this.playerProjectiles = new ArrayList<>();
         this.playerLastSafe = new LastSafe<>(player.getBukkitPlayer().getLocation(), player.getBukkitPlayer());
@@ -39,12 +43,48 @@ public class BorderHandler {
         return fakeBlockManager;
     }
 
-    public FakeBorderWall getFakeBorderWall() {
-        return fakeBorderWall;
+    public BorderDisplay getBorderDisplay(Border border) {
+        return borders.get(border);
     }
 
-    public Border getBorder() {
-        return border == null ? worldGame.getBorder() : border;
+    public void addBorder(Border border) {
+        borders.put(border, new FakeBorderWall(player, border, 10, 5, Material.GLASS));
+    }
+
+    public Set<Border> getBorders() {
+        return new HashSet<>(borders.keySet());
+    }
+
+    public void removeBorder(Border key) {
+        borders.remove(key);
+    }
+
+    public boolean isCollidingAnyBorder(Location location, int expansion) {
+        for (Map.Entry<Border, BorderDisplay> entry : borders.entrySet()) {
+            if (entry.getKey().getBoundingBox().clone().expand(expansion).isColliding(location))
+                return true;
+        }
+        return false;
+    }
+
+    public Set<Border> getNearbyBorders(Location location) {
+        Set<Border> b = new HashSet<>();
+        for (Map.Entry<Border, BorderDisplay> entry : borders.entrySet()) {
+            Border border = entry.getKey();
+            int distance = FakeBorderWall.MIN_DISTANCE;
+            BoundingBox borderBox = border.getBoundingBox();
+            BoundingBox minBox = borderBox.clone().expand(-distance);
+
+            BoundingBox inverseBox = borderBox.clone().expand(distance);
+
+            if (borderBox.isColliding(location) && !minBox.isColliding(location) && !border.isInverse())
+                b.add(entry.getValue().getBorder());
+
+            if (border.isInverse() && !borderBox.isColliding(location) && inverseBox.isColliding(location))
+                b.add(entry.getValue().getBorder());
+        }
+
+        return b;
     }
 
     private boolean isAtSpawn() {
@@ -57,10 +97,6 @@ public class BorderHandler {
 
     public WorldGame getWorldGame() {
         return worldGame;
-    }
-
-    public void setBorder(Border border) {
-        this.border = border;
     }
 
     public Location getLastSafe() {

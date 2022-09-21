@@ -16,6 +16,8 @@ import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.util.Set;
+
 public class BorderListener implements Listener {
 
     private final SiegeGame plugin;
@@ -23,8 +25,6 @@ public class BorderListener implements Listener {
     public BorderListener(SiegeGame plugin) {
         this.plugin = plugin;
     }
-
-    // TODO: - Fix pearls being able to go through walls
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
@@ -44,16 +44,20 @@ public class BorderListener implements Listener {
         if (!worldGame.getBukkitWorld().equals(gamePlayer.getBukkitPlayer().getWorld()))
             return;
 
-        Border border = worldGame.getBorder();
+        BorderHandler handler = gamePlayer.getBorderHandler();
+        Location location = gamePlayer.getBukkitPlayer().getLocation();
 
         if (changedBlock(event)) {
-            gamePlayer.getBorderHandler().getFakeBorderWall().setBorder(border);
-            gamePlayer.getBorderHandler().getFakeBorderWall().update(worldGame);
+            Set<Border> borders = handler.getNearbyBorders(location);
+            borders.forEach(border -> {
+                gamePlayer.getBorderHandler().getBorderDisplay(border).update(worldGame, border);
+            });
+
+            updateOtherBorders(handler, borders);
         }
 
-        if (!analyseMove(gamePlayer, border)) {
+        if (handler.getNearbyBorders(location).stream().anyMatch(border -> !analyseMove(gamePlayer, border)))
             rollback(gamePlayer);
-        }
 
         gamePlayer.getBorderHandler().setLastSafe(gamePlayer.getBukkitPlayer(), event.getTo().clone());
     }
@@ -77,9 +81,9 @@ public class BorderListener implements Listener {
 
                 BorderHandler borderHandler = gamePlayer.getBorderHandler();
                 Location lastSafe = borderHandler.getProjectileLastSafe(projectile.getUniqueId());
-                BoundingBox border = gamePlayer.getBorderHandler().getBorder().getBoundingBox().clone().expand(-1);
+                int expansion = -1;
 
-                if (!border.isColliding(projectile.getLocation())) {
+                if (!borderHandler.isCollidingAnyBorder(projectile.getLocation(), expansion)) {
                     if (projectile instanceof EnderPearl) {
                         lastSafe.setYaw(player.getLocation().getYaw());
                         lastSafe.setPitch(player.getLocation().getPitch());
@@ -93,7 +97,7 @@ public class BorderListener implements Listener {
                 }
 
                 // changed block
-                if (!projectile.getLocation().equals(lastSafe) && border.isColliding(projectile.getLocation())) {
+                if (!projectile.getLocation().equals(lastSafe) && borderHandler.isCollidingAnyBorder(projectile.getLocation(), expansion)) {
                     borderHandler.setProjectileLastSafe(projectile.getUniqueId(), projectile.getLocation());
                 }
 
@@ -105,8 +109,12 @@ public class BorderListener implements Listener {
             }
         }.runTaskTimer(plugin, 0, 1);
 
+    }
 
-
+    private void updateOtherBorders(BorderHandler handler, Set<Border> alreadyUpdated) {
+        Set<Border> allBorders = handler.getBorders();
+        allBorders.removeIf(alreadyUpdated::contains);
+        allBorders.forEach(border -> handler.getBorderDisplay(border).update(handler.getWorldGame(), border));
     }
 
     private boolean analyseMove(GamePlayer player, Border gameBorder) {

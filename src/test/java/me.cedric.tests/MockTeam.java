@@ -2,6 +2,7 @@ package me.cedric.tests;
 
 import com.google.common.collect.ImmutableSet;
 import com.palmergames.bukkit.towny.object.Town;
+import me.cedric.siegegame.border.Border;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.world.WorldGame;
@@ -53,6 +54,11 @@ public class MockTeam implements Team {
     @Override
     public void clear() {
         players.clear();
+    }
+
+    @Override
+    public Border getSafeArea() {
+        return null;
     }
 
     public Town getTeamTown() {

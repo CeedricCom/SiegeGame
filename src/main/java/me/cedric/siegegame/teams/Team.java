@@ -2,6 +2,8 @@ package me.cedric.siegegame.teams;
 
 import com.google.common.collect.ImmutableSet;
 import com.palmergames.bukkit.towny.object.Town;
+import me.cedric.siegegame.border.Border;
+import me.cedric.siegegame.border.BoundingBox;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Color;
@@ -31,5 +33,7 @@ public interface Team {
     void removePlayer(GamePlayer player);
 
     void clear();
+
+    Border getSafeArea();
 
 }

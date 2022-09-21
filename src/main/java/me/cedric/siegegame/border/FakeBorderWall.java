@@ -8,21 +8,17 @@ import org.bukkit.World;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-public class FakeBorderWall {
+public class FakeBorderWall extends BorderDisplay {
 
-    private final GamePlayer player;
     private final int width;
     private final int height;
-    private final static int MIN_DISTANCE = 20;
     private final Material material;
     private final List<Wall> walls;
-    private Border border;
     private boolean wallVisible;
 
-    public FakeBorderWall(GamePlayer player, int width, int height, Material material) {
-        this.player = player;
+    public FakeBorderWall(GamePlayer player, Border border, int width, int height, Material material) {
+        super(player, border);
         this.width = width;
         this.height = height;
         this.material = material;
@@ -30,44 +26,34 @@ public class FakeBorderWall {
         wallVisible = false;
     }
 
-    public void update(WorldGame worldGame) {
+    public void update(WorldGame worldGame, Border border) {
         Location location = player.getBukkitPlayer().getLocation();
 
         boolean destroy = false;
         boolean update = false;
 
-        if(border.canLeave()) {
-            border = worldGame.getBorder();
-            System.out.println("Making the game border");
-        }
-
         BoundingBox borderBox = border.getBoundingBox();
         BoundingBox minBox = borderBox.clone().expand(-MIN_DISTANCE);
+        BoundingBox inverseBox = borderBox.clone().expand(MIN_DISTANCE);
 
-        if (border != null) {
-            if (borderBox.isColliding(location) && !minBox.isColliding(location)) {
-                if (wallVisible)
-                    update = true;
-
-                wallVisible = true;
-            } else {
-                if (!wallVisible)
-                    return;
-
-                wallVisible = false;
-                destroy = true;
-            }
+        if (borderBox.isColliding(location) && !minBox.isColliding(location) && !border.isInverse()) {
+            if (wallVisible)
+                update = true;
+            wallVisible = true;
+        } else if (!borderBox.isColliding(location) && inverseBox.isColliding(location) && border.isInverse()) {
+            if (wallVisible)
+                update = true;
+            wallVisible = true;
         } else {
             if (!wallVisible)
                 return;
-
-            destroy = true;
             wallVisible = false;
+            destroy = true;
         }
 
         if (destroy) {
             //System.out.println("Destroying");
-            destroyWalls();
+            destroy(worldGame, border);
             return;
         }
 
@@ -78,10 +64,11 @@ public class FakeBorderWall {
         }
 
         //System.out.println("Creating");
-        createWalls(borderBox);
+        create(worldGame, border);
     }
 
-    private void destroyWalls() {
+    @Override
+    public void destroy(WorldGame worldGame, Border border) {
         FakeBlockManager fakeBlockManager = player.getBorderHandler().getFakeBlockManager();
         fakeBlockManager.removeAll();
         World world = player.getBukkitPlayer().getWorld();
@@ -147,12 +134,12 @@ public class FakeBorderWall {
         return null;
     }
 
-    private void createWalls(BoundingBox borderBox) {
-        WallProjection wallProjection = projectXZ(borderBox,
-                player.getBukkitPlayer().getLocation());
+    @Override
+    public void create(WorldGame worldGame, Border border) {
+        WallProjection wallProjection = projectXZ(border.getBoundingBox(), player.getBukkitPlayer().getLocation());
 
         walls.clear();
-        createWall(borderBox, wallProjection.XZ, wallProjection.perpendicular, wallProjection.Y, wallProjection.xDimension, 0, width,wallProjection.facingPositive);
+        createWall(border.getBoundingBox(), wallProjection.XZ, wallProjection.perpendicular, wallProjection.Y, wallProjection.xDimension, 0, width,wallProjection.facingPositive);
         buildWalls();
     }
 
@@ -343,13 +330,6 @@ public class FakeBorderWall {
         return border;
     }
 
-    public void setBorder(Border border) {
-        if (Objects.equals(border, this.border))
-            return;
-
-        this.border = border;
-    }
-
     private static final class WallProjection {
         private final int XZ;
         private final int perpendicular;
@@ -444,5 +424,4 @@ public class FakeBorderWall {
             return xz;
         }
     }
-
 }

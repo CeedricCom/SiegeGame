@@ -56,6 +56,13 @@ public class ConfigLoader {
     private static final String MAPS_SECTION_WORLD_TEAMS_NAME = "name";
     private static final String MAPS_SECTION_WORLD_TEAMS_COLOR = "color";
     private static final String MAPS_SECTION_WORLD_TEAMS_TOWN = "town";
+    private static final String MAPS_SECTION_TEAMS_SPAWN = "spawn";
+    private static final String MAPS_SECTION_TEAMS_SPAWN_X1 = "x1";
+    private static final String MAPS_SECTION_TEAMS_SPAWN_Y1 = "y1";
+    private static final String MAPS_SECTION_TEAMS_SPAWN_Z1 = "z1";
+    private static final String MAPS_SECTION_TEAMS_SPAWN_X2 = "x2";
+    private static final String MAPS_SECTION_TEAMS_SPAWN_Y2 = "y2";
+    private static final String MAPS_SECTION_TEAMS_SPAWN_Z2 = "z2";
 
     private FileConfig shopYml;
     private static final String SHOP_SECTION_KEY = "shop";
@@ -192,7 +199,18 @@ public class ConfigLoader {
             String hexColor = mapsYml.getString(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_TEAMS_COLOR);
             String townName = mapsYml.getString(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_TEAMS_TOWN);
 
-            TeamImpl team = new TeamImpl(worldGame, color(hexColor), TownyAPI.getInstance().getTown(townName), name, key);
+            int x1 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_X1);
+            int y1 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_Y1);
+            int z1 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_Z1);
+
+            int x2 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_X2);
+            int y2 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_Y2);
+            int z2 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_Z2);
+
+            Border border = new Border(new BoundingBox(worldGame.getBukkitWorld(), x1, y1, z1, x2, y2, z2));
+            border.setCanLeave(true);
+            border.setInverse(true);
+            TeamImpl team = new TeamImpl(worldGame, border, color(hexColor), TownyAPI.getInstance().getTown(townName), name, key);
             teams.add(team);
         }
 
