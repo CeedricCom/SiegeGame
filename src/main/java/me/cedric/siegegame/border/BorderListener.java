@@ -48,18 +48,13 @@ public class BorderListener implements Listener {
         Location location = gamePlayer.getBukkitPlayer().getLocation();
 
         if (changedBlock(event)) {
-            Set<Border> borders = handler.getNearbyBorders(location);
-            borders.forEach(border -> {
-                gamePlayer.getBorderHandler().getBorderDisplay(border).update(worldGame, border);
-            });
-
-            updateOtherBorders(handler, borders);
+            handler.getBorders().forEach(border -> handler.getBorderDisplay(border).update(worldGame, border));
         }
 
-        if (handler.getNearbyBorders(location).stream().anyMatch(border -> !analyseMove(gamePlayer, border)))
+        if (handler.getCollidingBorder(location).stream().anyMatch(border -> !analyseMove(gamePlayer, border)))
             rollback(gamePlayer);
 
-        gamePlayer.getBorderHandler().setLastSafe(gamePlayer.getBukkitPlayer(), event.getTo().clone());
+        gamePlayer.getBorderHandler().setLastSafe(event.getTo().clone());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -81,9 +76,8 @@ public class BorderListener implements Listener {
 
                 BorderHandler borderHandler = gamePlayer.getBorderHandler();
                 Location lastSafe = borderHandler.getProjectileLastSafe(projectile.getUniqueId());
-                int expansion = -1;
 
-                if (!borderHandler.isCollidingAnyBorder(projectile.getLocation(), expansion)) {
+                if (!borderHandler.isCollidingAnyBorder(projectile.getLocation())) {
                     if (projectile instanceof EnderPearl) {
                         lastSafe.setYaw(player.getLocation().getYaw());
                         lastSafe.setPitch(player.getLocation().getPitch());
@@ -97,7 +91,7 @@ public class BorderListener implements Listener {
                 }
 
                 // changed block
-                if (!projectile.getLocation().equals(lastSafe) && borderHandler.isCollidingAnyBorder(projectile.getLocation(), expansion)) {
+                if (!projectile.getLocation().equals(lastSafe) && borderHandler.isCollidingAnyBorder(projectile.getLocation())) {
                     borderHandler.setProjectileLastSafe(projectile.getUniqueId(), projectile.getLocation());
                 }
 
@@ -109,12 +103,6 @@ public class BorderListener implements Listener {
             }
         }.runTaskTimer(plugin, 0, 1);
 
-    }
-
-    private void updateOtherBorders(BorderHandler handler, Set<Border> alreadyUpdated) {
-        Set<Border> allBorders = handler.getBorders();
-        allBorders.removeIf(alreadyUpdated::contains);
-        allBorders.forEach(border -> handler.getBorderDisplay(border).update(handler.getWorldGame(), border));
     }
 
     private boolean analyseMove(GamePlayer player, Border gameBorder) {

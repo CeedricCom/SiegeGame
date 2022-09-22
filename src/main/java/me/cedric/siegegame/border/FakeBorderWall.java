@@ -34,13 +34,8 @@ public class FakeBorderWall extends BorderDisplay {
 
         BoundingBox borderBox = border.getBoundingBox();
         BoundingBox minBox = borderBox.clone().expand(-MIN_DISTANCE);
-        BoundingBox inverseBox = borderBox.clone().expand(MIN_DISTANCE);
 
-        if (borderBox.isColliding(location) && !minBox.isColliding(location) && !border.isInverse()) {
-            if (wallVisible)
-                update = true;
-            wallVisible = true;
-        } else if (!borderBox.isColliding(location) && inverseBox.isColliding(location) && border.isInverse()) {
+        if (borderBox.isColliding(location) && !minBox.isColliding(location)) {
             if (wallVisible)
                 update = true;
             wallVisible = true;

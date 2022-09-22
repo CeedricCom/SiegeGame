@@ -59,28 +59,24 @@ public class BorderHandler {
         borders.remove(key);
     }
 
-    public boolean isCollidingAnyBorder(Location location, int expansion) {
+    public boolean isCollidingAnyBorder(Location location) {
         for (Map.Entry<Border, BorderDisplay> entry : borders.entrySet()) {
-            if (entry.getKey().getBoundingBox().clone().expand(expansion).isColliding(location))
+            Border border = entry.getKey();
+            if (border.getBoundingBox().isCollidingIgnoreInverse(location.clone().toVector()))
                 return true;
         }
         return false;
     }
 
-    public Set<Border> getNearbyBorders(Location location) {
+    public Set<Border> getCollidingBorder(Location location) {
         Set<Border> b = new HashSet<>();
         for (Map.Entry<Border, BorderDisplay> entry : borders.entrySet()) {
             Border border = entry.getKey();
-            int distance = FakeBorderWall.MIN_DISTANCE;
+
             BoundingBox borderBox = border.getBoundingBox();
-            BoundingBox minBox = borderBox.clone().expand(-distance);
+            int expand = borderBox.isInverse() ? 1 : -1;
 
-            BoundingBox inverseBox = borderBox.clone().expand(distance);
-
-            if (borderBox.isColliding(location) && !minBox.isColliding(location) && !border.isInverse())
-                b.add(entry.getValue().getBorder());
-
-            if (border.isInverse() && !borderBox.isColliding(location) && inverseBox.isColliding(location))
+            if (borderBox.clone().expand(expand).isColliding(location))
                 b.add(entry.getValue().getBorder());
         }
 
@@ -103,7 +99,7 @@ public class BorderHandler {
         return playerLastSafe.getLocation();
     }
 
-    public void setLastSafe(Player player, Location lastSafe) {
+    public void setLastSafe(Location lastSafe) {
         playerLastSafe.setLocation(lastSafe);
     }
 

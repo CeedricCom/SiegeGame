@@ -18,6 +18,7 @@ public class BoundingBox {
     private Vector min;
     private Vector max;
     private final World world;
+    private boolean inverse = false;
 
     public BoundingBox(World world ,Vector p1, Vector p2) {
         this.min = new Vector(Math.min(p1.getX(),p2.getX()),Math.min(p1.getY(), p2.getY()),Math.min(p1.getZ(),p2.getZ()));
@@ -90,6 +91,14 @@ public class BoundingBox {
         this.min.setZ(z);
     }
 
+    public void setInverse(boolean inverse) {
+        this.inverse = inverse;
+    }
+
+    public boolean isInverse() {
+        return inverse;
+    }
+
     public void update(Consumer<BoundingBox> box) {
         box.accept(this);
     }
@@ -105,9 +114,10 @@ public class BoundingBox {
         if(!world.equals(b.world))
             return false;
 
-        return (min.getX() <= b.max.getX() && max.getX() >= b.min.getX()) &&
+        boolean colliding = (min.getX() <= b.max.getX() && max.getX() >= b.min.getX()) &&
                 (min.getY() <= b.max.getY() && max.getY() >= b.min.getY()) &&
                 (min.getZ() <= b.max.getZ() && max.getZ() >= b.min.getZ());
+        return inverse != colliding;
     }
 
     public boolean isColliding(Location l) {
@@ -115,6 +125,13 @@ public class BoundingBox {
     }
 
     public boolean isColliding(Vector p) {
+        boolean colliding = (p.getX() >= min.getX() && p.getX() <= max.getX()) &&
+                (p.getY() >= min.getY() && p.getY() <= max.getY()) &&
+                (p.getZ() >= min.getZ() && p.getZ() <= max.getZ());
+        return inverse != colliding;
+    }
+
+    public boolean isCollidingIgnoreInverse(Vector p) {
         return (p.getX() >= min.getX() && p.getX() <= max.getX()) &&
                 (p.getY() >= min.getY() && p.getY() <= max.getY()) &&
                 (p.getZ() >= min.getZ() && p.getZ() <= max.getZ());
