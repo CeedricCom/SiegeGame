@@ -131,12 +131,6 @@ public class BoundingBox {
         return inverse != colliding;
     }
 
-    public boolean isCollidingIgnoreInverse(Vector p) {
-        return (p.getX() >= min.getX() && p.getX() <= max.getX()) &&
-                (p.getY() >= min.getY() && p.getY() <= max.getY()) &&
-                (p.getZ() >= min.getZ() && p.getZ() <= max.getZ());
-    }
-
     public boolean contains(@Nullable BoundingBox b) {
         if(b==null)
             return false;

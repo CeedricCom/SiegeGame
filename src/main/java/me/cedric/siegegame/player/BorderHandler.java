@@ -62,7 +62,7 @@ public class BorderHandler {
     public boolean isCollidingAnyBorder(Location location) {
         for (Map.Entry<Border, BorderDisplay> entry : borders.entrySet()) {
             Border border = entry.getKey();
-            if (border.getBoundingBox().isCollidingIgnoreInverse(location.clone().toVector()))
+            if (border.getBoundingBox().isColliding(location.clone().toVector()))
                 return true;
         }
         return false;
