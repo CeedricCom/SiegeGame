@@ -27,5 +27,6 @@ public class SiegeGameCommand extends FunctionalCommand {
     public void commandLogic(SentCommand sentCommand) throws CommandException {
         sentCommand.getSender().sendMessage("/siegegame start");
         sentCommand.getSender().sendMessage("/siegegame teams");
+        sentCommand.getSender().sendMessage("/siegegame resources");
     }
 }

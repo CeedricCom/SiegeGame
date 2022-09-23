@@ -3,6 +3,7 @@ package me.cedric.siegegame;
 import com.comphenix.protocol.ProtocolLibrary;
 import me.cedric.siegegame.border.BlockChangePacketAdapter;
 import me.cedric.siegegame.border.BorderListener;
+import me.cedric.siegegame.command.ResourcesCommand;
 import me.cedric.siegegame.command.SiegeGameCommand;
 import me.cedric.siegegame.config.ConfigLoader;
 import me.cedric.siegegame.config.WorldLoadListener;
@@ -20,6 +21,8 @@ public final class SiegeGame extends BukkitPlugin {
     private PlayerManager playerManager;
     private ShopGUI shopGUI;
 
+    public static int LEVELS_PER_KILL = 10;
+
     @Override
     public void onPluginEnable() {
         this.apiPlugin = this;
@@ -35,6 +38,7 @@ public final class SiegeGame extends BukkitPlugin {
         ProtocolLibrary.getProtocolManager().addPacketListener(new BlockChangePacketAdapter(this));
 
         apiPlugin.registerCommand(new SiegeGameCommand(this), "siegegame", "sg", "siegeg");
+        apiPlugin.registerCommand(new ResourcesCommand(this), "resources", "r", "rs");
         apiPlugin.registerDependency("Towny", true);
 
         configLoader.initializeAndLoad();

@@ -12,4 +12,7 @@ shop:
       - unbreaking;3
     item-flags:
       - 'hide_attributes'
+    includes-item: true
+    commands:
+      - 'bom dia'
 shop-name: 'Shop'

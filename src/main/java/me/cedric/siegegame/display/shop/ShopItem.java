@@ -4,18 +4,26 @@ import org.bukkit.inventory.ItemStack;
 
 public class ShopItem implements Buyable {
 
-    private final ItemStack item;
+    private Purchase purchase;
     private final int price;
     private final int slot;
+    private final ItemStack displayItem;
 
-    public ShopItem(ItemStack item, int price, int slot) {
-        this.item = item;
+    public ShopItem(Purchase purchase, ItemStack displayItem, int price, int slot) {
+        this.purchase = purchase;
         this.price = price;
         this.slot = slot;
+        this.displayItem = displayItem;
     }
 
-    public ItemStack getItemStack() {
-        return item;
+    @Override
+    public ItemStack getDisplayItem() {
+        return displayItem.clone();
+    }
+
+    @Override
+    public Purchase getPurchase() {
+        return purchase;
     }
 
     public int getPrice() {

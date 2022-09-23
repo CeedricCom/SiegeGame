@@ -22,11 +22,14 @@ import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -74,6 +77,8 @@ public class ConfigLoader {
     private static final String SHOP_SECTION_LORE_KEY = "lore";
     private static final String SHOP_SECTION_ENCHANTMENTS_KEY = "enchantments";
     private static final String SHOP_SECTION_HIDE_ITEM_FLAGS_KEY = "item-flags";
+    private static final String SHOP_SECTION_COMMAND_LIST_KEY = "commands";
+    private static final String SHOP_SECTION_INCLUDES_ITEM = "includes-item";
 
     private HashMap<String, String> lateLoadWorlds = new HashMap<>();
 
@@ -159,11 +164,16 @@ public class ConfigLoader {
             int slot = shopYml.getInt(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_SLOT_KEY);
             int price = shopYml.getInt(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_PRICE_KEY);
             String displayName = shopYml.getString(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_DISPLAY_NAME_KEY);
-            List<String> lore = shopYml.getStringList(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_LORE_KEY);
+            List<String> listOfLore = shopYml.getStringList(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_LORE_KEY);
             List<String> itemFlags = shopYml.getStringList(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_HIDE_ITEM_FLAGS_KEY);
             List<String> enchantments = shopYml.getStringList(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_ENCHANTMENTS_KEY);
+            List<String> commands = shopYml.getStringList(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_COMMAND_LIST_KEY);
+            boolean includesItem = shopYml.getBoolean(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_INCLUDES_ITEM);
 
-            lore.forEach(s -> s = ChatColor.translateAlternateColorCodes('&', s));
+            List<String> lore = new ArrayList<>();
+            for (String s : listOfLore) {
+                lore.add(ChatColor.translateAlternateColorCodes('&', s));
+            }
 
             ItemBuilder itemBuilder = new ItemBuilder(EMaterial.valueOf(material.toUpperCase()))
                     .setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName))
@@ -181,7 +191,22 @@ public class ConfigLoader {
             }
             itemBuilder.transformNBT(nbtItem -> nbtItem.addCompound("siege-game").setInteger("price", price));
 
-            ShopItem button = new ShopItem(itemBuilder.build(), price, slot);
+            ItemStack item = itemBuilder.build();
+            ShopItem button = new ShopItem(gamePlayer -> {
+                Player player = gamePlayer.getBukkitPlayer();
+                if (includesItem) {
+                    if (player.getInventory().firstEmpty() == -1) {
+                        player.sendMessage("You do not have any empty inventory slots");
+                    }
+
+                    gamePlayer.getBukkitPlayer().getInventory().addItem(item);
+                }
+
+                for (String command : commands) {
+                    Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
+                }
+            }, item, price, slot);
+
             plugin.getShopGUI().addItem(button);
         }
 

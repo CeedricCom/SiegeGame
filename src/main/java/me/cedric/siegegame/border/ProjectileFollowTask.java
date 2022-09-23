@@ -62,9 +62,6 @@ public class ProjectileFollowTask extends BukkitRunnable {
 
     private boolean checkBorder(BoundingBox safeArea, Vector lastSafe) {
         int distance = safeArea.isInverse() ? 3 : -2;
-        System.out.println("inverse: " + safeArea.isInverse());
-        System.out.println("distance: " +  distance);
-        System.out.println("");
         if (safeArea.clone().expand(distance).isCollidingIgnoreInverse(lastSafe) && safeArea.isInverse()) {
             return true;
         }
@@ -81,6 +78,6 @@ public class ProjectileFollowTask extends BukkitRunnable {
         borderHandler.stopTrackingProjectile(projectile.getUniqueId());
         projectile.remove();
         this.cancel();
-        player.getBukkitPlayer().sendMessage(ChatColor.RED + "You cannot use projectiles near a border!");
+        player.getBukkitPlayer().sendMessage(ChatColor.RED + "You cannot use projectiles near a border or your safe area");
     }
 }
