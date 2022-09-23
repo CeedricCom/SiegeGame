@@ -6,7 +6,6 @@ import me.cedric.siegegame.player.BorderHandler;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Location;
-import org.bukkit.entity.EnderPearl;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -14,9 +13,6 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.scheduler.BukkitRunnable;
-
-import java.util.Set;
 
 public class BorderListener implements Listener {
 
@@ -59,7 +55,12 @@ public class BorderListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
+
         Projectile projectile = event.getEntity();
+        WorldGame worldGame = plugin.getGameManager().getWorldGame(projectile.getWorld());
+
+        if (worldGame == null)
+            return;
 
         if (!(projectile.getShooter() instanceof Player))
             return;
@@ -67,42 +68,8 @@ public class BorderListener implements Listener {
         Player player = (Player) projectile.getShooter();
         GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
 
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-
-                if (!gamePlayer.getBorderHandler().isTrackingProjectile(projectile.getUniqueId()))
-                    gamePlayer.getBorderHandler().trackProjectile(projectile);
-
-                BorderHandler borderHandler = gamePlayer.getBorderHandler();
-                Location lastSafe = borderHandler.getProjectileLastSafe(projectile.getUniqueId());
-
-                if (!borderHandler.isCollidingAnyBorder(projectile.getLocation())) {
-                    if (projectile instanceof EnderPearl) {
-                        lastSafe.setYaw(player.getLocation().getYaw());
-                        lastSafe.setPitch(player.getLocation().getPitch());
-                        player.teleport(lastSafe);
-                    }
-
-                    borderHandler.stopTrackingProjectile(projectile.getUniqueId());
-                    projectile.remove();
-                    cancel();
-                    return;
-                }
-
-                // changed block
-                if (!projectile.getLocation().equals(lastSafe) && borderHandler.isCollidingAnyBorder(projectile.getLocation())) {
-                    borderHandler.setProjectileLastSafe(projectile.getUniqueId(), projectile.getLocation());
-                }
-
-                if (projectile.isDead()) {
-                    borderHandler.stopTrackingProjectile(projectile.getUniqueId());
-                    cancel();
-                }
-
-            }
-        }.runTaskTimer(plugin, 0, 1);
-
+        ProjectileFollowTask followTask = new ProjectileFollowTask(plugin, gamePlayer, worldGame, projectile);
+        followTask.runTaskTimer(plugin, 0, 1);
     }
 
     private boolean analyseMove(GamePlayer player, Border gameBorder) {

@@ -1,6 +1,5 @@
 package me.cedric.siegegame.border;
 
-import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -18,10 +17,6 @@ public class Border {
     public Border(@NotNull BoundingBox boundingBox) {
         this.boundingBox = boundingBox;
         uniqueId = UUID.randomUUID();
-    }
-
-    public Border(World world, int x1, int y1, int z1, int x2, int y2, int z2) {
-        this(new BoundingBox(world,x1,y1,z1,x2,y2,z2));
     }
 
     protected Border(@NotNull UUID borderId, @NotNull BoundingBox boundingBox) {

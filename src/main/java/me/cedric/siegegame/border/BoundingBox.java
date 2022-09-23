@@ -124,6 +124,12 @@ public class BoundingBox {
         return isColliding(l.toVector());
     }
 
+    public boolean isCollidingIgnoreInverse(Vector p) {
+        return (p.getX() >= min.getX() && p.getX() <= max.getX()) &&
+                (p.getY() >= min.getY() && p.getY() <= max.getY()) &&
+                (p.getZ() >= min.getZ() && p.getZ() <= max.getZ());
+    }
+
     public boolean isColliding(Vector p) {
         boolean colliding = (p.getX() >= min.getX() && p.getX() <= max.getX()) &&
                 (p.getY() >= min.getY() && p.getY() <= max.getY()) &&
@@ -282,7 +288,9 @@ public class BoundingBox {
     @NotNull
     @Override
     public BoundingBox clone() {
-        return new BoundingBox(this.world, this.min.clone(), this.max.clone());
+        BoundingBox box = new BoundingBox(this.world, this.min.clone(), this.max.clone());
+        box.setInverse(inverse);
+        return box;
     }
 }
 
