@@ -1,4 +1,4 @@
-package me.cedric.siegegame.permissions;
+package me.cedric.siegegame.enums;
 
 public enum Permissions {
 

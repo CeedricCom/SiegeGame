@@ -36,4 +36,7 @@ public interface Team {
 
     Border getSafeArea();
 
+    int getPoints();
+
+    void addPoints(int i);
 }

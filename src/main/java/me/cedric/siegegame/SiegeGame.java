@@ -7,11 +7,13 @@ import me.cedric.siegegame.command.ResourcesCommand;
 import me.cedric.siegegame.command.SiegeGameCommand;
 import me.cedric.siegegame.config.ConfigLoader;
 import me.cedric.siegegame.config.WorldLoadListener;
+import me.cedric.siegegame.display.placeholderapi.SiegeGameExpansion;
 import me.cedric.siegegame.display.shop.ShopGUI;
 import me.cedric.siegegame.player.PlayerListener;
 import me.cedric.siegegame.player.PlayerManager;
 import me.deltaorion.bukkit.plugin.plugin.BukkitPlugin;
 import me.deltaorion.common.plugin.ApiPlugin;
+import org.bukkit.Bukkit;
 
 public final class SiegeGame extends BukkitPlugin {
 
@@ -20,6 +22,8 @@ public final class SiegeGame extends BukkitPlugin {
     private GameManager gameManager;
     private PlayerManager playerManager;
     private ShopGUI shopGUI;
+
+    // TODO: configs, messages (perhaps locale?), PRIORITY: super-items
 
     public static int LEVELS_PER_KILL = 10;
 
@@ -40,6 +44,10 @@ public final class SiegeGame extends BukkitPlugin {
         apiPlugin.registerCommand(new SiegeGameCommand(this), "siegegame", "sg", "siegeg");
         apiPlugin.registerCommand(new ResourcesCommand(this), "resources", "r", "rs");
         apiPlugin.registerDependency("Towny", true);
+
+        if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new SiegeGameExpansion(this).register();
+        }
 
         configLoader.initializeAndLoad();
     }

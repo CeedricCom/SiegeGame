@@ -61,6 +61,16 @@ public class MockTeam implements Team {
         return null;
     }
 
+    @Override
+    public int getPoints() {
+        return 0;
+    }
+
+    @Override
+    public void addPoints(int i) {
+
+    }
+
     public Town getTeamTown() {
         return null;
     }

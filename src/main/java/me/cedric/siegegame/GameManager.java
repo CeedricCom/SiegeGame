@@ -59,10 +59,10 @@ public final class GameManager {
         worldQueue.add(lastMap);
     }
 
-    public void assignTeams(WorldGame worldGame, Set<UUID> players, PlayerManager manager) {
+    public void assignTeams(WorldGame worldGame, List<GamePlayer> players, PlayerManager manager) {
         Random r = new Random();
 
-        List<UUID> list = new ArrayList<>(players);
+        List<GamePlayer> list = new ArrayList<>(players);
         Set<Team> teams = worldGame.getTeams();
 
         while (list.size() != 0) {
@@ -71,7 +71,7 @@ public final class GameManager {
                     break;
 
                 int chosenPlayer = list.size() == 1 ? 0 : r.nextInt(0, list.size() - 1);
-                GamePlayer player = manager.getPlayer(list.get(chosenPlayer));
+                GamePlayer player = list.get(chosenPlayer);
 
                 team.addPlayer(player);
                 list.remove(chosenPlayer);

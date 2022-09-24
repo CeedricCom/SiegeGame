@@ -25,8 +25,8 @@ public final class PlayerManager {
         return players.get(uuid);
     }
 
-    public Set<UUID> getPlayers() {
-        return new HashSet<>(players.keySet());
+    public List<GamePlayer> getPlayers() {
+        return new ArrayList<>(players.values());
     }
 
     public void clear() {

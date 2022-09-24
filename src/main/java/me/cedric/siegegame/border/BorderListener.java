@@ -1,7 +1,7 @@
 package me.cedric.siegegame.border;
 
 import me.cedric.siegegame.SiegeGame;
-import me.cedric.siegegame.permissions.Permissions;
+import me.cedric.siegegame.enums.Permissions;
 import me.cedric.siegegame.player.BorderHandler;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.world.WorldGame;
