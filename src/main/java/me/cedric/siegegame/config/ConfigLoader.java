@@ -146,6 +146,7 @@ public class ConfigLoader {
         Vector corner2Vector = new Vector(x2, y2, z2);
 
         Border border = new Border(new BoundingBox(world, corner1Vector, corner2Vector));
+        System.out.println("GAME BORDER: "+border);
 
         WorldGameImpl worldGame = new WorldGameImpl(mapKey, world, border, new Location(world, x, y, z));
         ConfigSection teamsSection = mapsYml.getConfigurationSection(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_TEAMS_KEY);
@@ -235,6 +236,7 @@ public class ConfigLoader {
             Border border = new Border(new BoundingBox(worldGame.getBukkitWorld(), x1, y1, z1, x2, y2, z2));
             border.setCanLeave(true);
             border.setInverse(true);
+            System.out.println("TEAM BORDER: " + border);
             TeamImpl team = new TeamImpl(worldGame, border, color(hexColor), TownyAPI.getInstance().getTown(townName), name, key);
             teams.add(team);
         }

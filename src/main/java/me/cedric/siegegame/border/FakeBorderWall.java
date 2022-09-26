@@ -32,11 +32,7 @@ public class FakeBorderWall extends BorderDisplay {
         boolean destroy = false;
         boolean update = false;
 
-        BoundingBox borderBox = border.getBoundingBox();
-        int m = border.getBoundingBox().isInverse() ? MIN_DISTANCE : -MIN_DISTANCE;
-        BoundingBox minBox = borderBox.clone().expand(m);
-
-        if (borderBox.isColliding(location) && !minBox.isColliding(location)) {
+        if (shouldDisplay(border,location)) {
             if (wallVisible)
                 update = true;
             wallVisible = true;
@@ -55,12 +51,32 @@ public class FakeBorderWall extends BorderDisplay {
 
         if(update) {
             //System.out.println("Updating");
-            updateWalls(borderBox);
+            updateWalls(border.getBoundingBox());
             return;
         }
 
         //System.out.println("Creating");
         create(worldGame, border);
+    }
+
+    private boolean shouldDisplay(Border border, Location location) {
+        if(border.isInverse()) {
+            return shouldDisplayInverse(border,location);
+        } else {
+            return shouldDisplayNorm(border,location);
+        }
+    }
+
+    private boolean shouldDisplayInverse(Border border, Location location) {
+        BoundingBox borderBox = border.getBoundingBox();
+        BoundingBox minBox = borderBox.clone().expand(MIN_DISTANCE);
+        return !borderBox.isColliding(location) && minBox.isColliding(location);
+    }
+
+    private boolean shouldDisplayNorm(Border border, Location location) {
+        BoundingBox borderBox = border.getBoundingBox();
+        BoundingBox minBox = borderBox.clone().expand(-MIN_DISTANCE);
+        return borderBox.isColliding(location) && !minBox.isColliding(location);
     }
 
     @Override
@@ -91,6 +107,7 @@ public class FakeBorderWall extends BorderDisplay {
         WallProjection wallProjection = projectXZ(borderBox,player.getBukkitPlayer().getLocation());
         List<Wall> oldWalls = new ArrayList<>(walls);
         walls.clear();
+        System.out.println("------ CREATING WALLS --------");
         createWall(borderBox, wallProjection.XZ, wallProjection.perpendicular, wallProjection.Y, wallProjection.xDimension,0, width,wallProjection.facingPositive);
         buildUpdate(oldWalls,walls);
     }
@@ -104,7 +121,7 @@ public class FakeBorderWall extends BorderDisplay {
             Wall oldWall = getEquivalentWall(oldWalls,newWall);
             if(oldWall==null) {
                 //there is no old equivalent, place the whole new wall
-                foundWall(manager,world,newWall);
+                createWall(manager,world,newWall);
             } else {
                 //otherwise mark the changes
                 changeDiff(manager,world,oldWall,newWall);
@@ -145,13 +162,13 @@ public class FakeBorderWall extends BorderDisplay {
         fakeBlockManager.removeAll();
         World world = player.getBukkitPlayer().getWorld();
         for (Wall wall : walls) {
-            foundWall(fakeBlockManager,world,wall);
+            createWall(fakeBlockManager,world,wall);
         }
 
         fakeBlockManager.update();
     }
 
-    private void foundWall(FakeBlockManager manager, World world ,Wall wall) {
+    private void createWall(FakeBlockManager manager, World world , Wall wall) {
         for (int xz = wall.minXZ; xz < wall.maxXZ; xz++) {
             for (int y = wall.minY; y < wall.maxY; y++) {
                 int x = wall.getX(xz);
@@ -162,7 +179,7 @@ public class FakeBorderWall extends BorderDisplay {
     }
 
     private void changeDiff(FakeBlockManager manager ,World world,Wall oldWall, Wall newWall) {
-        //if there are blocks in the new wall that are not present in the old wall add them
+        //if there are blocks in  the new wall that are not present in the old wall add them
         //if there are blocks present in the old wall that are not present in the new wall, remove them
         //look at the extremities
         if(oldWall.maxXZ > newWall.maxXZ) {
@@ -234,41 +251,52 @@ public class FakeBorderWall extends BorderDisplay {
         if (wallCount >= 4)
             return;
 
-        int[] minMax = new int[2];
+        int borderMinXZ = 0;
+        int borderMaxXZ = 0;
 
+        //get the x or z coordinate of the wall
         int minXZ = xz - width;
         int maxXZ = xz + width;
         int minY = y - height;
         int maxY = y + height;
 
+        //the wall is facing an x direction, therefore clamp to the x directions
         if (xDimension) {
-            minMax[0] = (int) borderBox.getMinX() - 1;
-            minMax[1] = (int) borderBox.getMaxX();
+            borderMinXZ = (int) borderBox.getMinX() - 1;
+            borderMaxXZ = (int) borderBox.getMaxX();
         } else {
-            minMax[0] = (int) borderBox.getMinZ() - 1;
-            minMax[1] = (int) borderBox.getMaxZ();
+            //else clamp to the z dimensions
+            borderMinXZ = (int) borderBox.getMinZ() - 1;
+            borderMaxXZ = (int) borderBox.getMaxZ();
         }
 
-        if (minXZ < minMax[0]) {
-            int newWidth = minMax[0] - minXZ;
-            minXZ = minMax[0];
+        if (minXZ < borderMinXZ) {
+            int newWidth = Math.abs(borderMinXZ - minXZ)/2;
+            minXZ = borderMinXZ;
 
-            createWall(borderBox, getNewMiddle(perpendicular,newWidth,facingPositive), minXZ, y, !xDimension, wallCount + 1, newWidth,false);
+            if(maxXZ<borderMinXZ) {
+                maxXZ = borderMinXZ;
+            }
+
+            createWall(borderBox, getNewMiddle(perpendicular,newWidth,facingPositive), minXZ, y, !xDimension, wallCount + 1,newWidth,false);
         }
 
-        if (maxXZ > minMax[1]) {
-            int newWidth = maxXZ - minMax[1];
-            maxXZ = minMax[1];
+        if (maxXZ > borderMaxXZ) {
+            int newWidth = Math.abs(maxXZ - borderMaxXZ)/2;
+            maxXZ = borderMaxXZ;
+
+            if(minXZ > borderMaxXZ) {
+                minXZ = borderMaxXZ;
+            }
             createWall(borderBox, getNewMiddle(perpendicular,newWidth,facingPositive), maxXZ, y, !xDimension, wallCount + 1, newWidth,true);
         }
 
-        if (maxY > borderBox.getMaxY()) {
-            maxY = (int) borderBox.getMaxY();
-        }
+        maxY = (int) Math.min(maxY,borderBox.getMaxY());
+        minY = (int) Math.min(minY,borderBox.getMaxY());
 
-        if (minY < borderBox.getMinY()) {
-            minY = (int) borderBox.getMinY();
-        }
+        maxY = (int) Math.max(maxY,borderBox.getMinY());
+        minY = (int) Math.max(minY,borderBox.getMinY());
+
         walls.add(new Wall(minXZ, maxXZ, perpendicular, minY, maxY, xDimension,facingPositive));
     }
 
@@ -279,13 +307,20 @@ public class FakeBorderWall extends BorderDisplay {
         return perpendicular + newWidth;
     }
 
-    private WallProjection projectXZ(BoundingBox borderBox, Location location) {
+    private WallProjection projectXZ(BoundingBox borderBox, Location playerLoc) {
         double[] distances = new double[4];
-        distances[0] = Math.abs(location.getX() - borderBox.getMinX());
-        distances[1] = Math.abs(location.getX() - borderBox.getMaxX());
-        distances[2] = Math.abs(location.getZ() - borderBox.getMinZ());
-        distances[3] = Math.abs(location.getZ() - borderBox.getMaxZ());
+        //see which part of the wall the player is closest too
+        //distances[0] = Math.abs(playerLoc.getX() - borderBox.getMinX());
+        //facing negative z
+        distances[2] = pDistance(playerLoc.getX(),playerLoc.getZ(),borderBox.getMinX(), borderBox.getMinZ(), borderBox.getMaxX(),borderBox.getMinZ());
+        //facing positive z
+        distances[3] = pDistance(playerLoc.getX(),playerLoc.getZ(),borderBox.getMinX(), borderBox.getMaxZ(), borderBox.getMaxX(),borderBox.getMaxZ());
+        //facing negative x
+        distances[0] = pDistance(playerLoc.getX(),playerLoc.getZ(),borderBox.getMinX(), borderBox.getMinZ(),borderBox.getMinX(),borderBox.getMaxZ());
+        //facing positive x
+        distances[1] = pDistance(playerLoc.getX(),playerLoc.getZ(),borderBox.getMaxX(), borderBox.getMinZ(),borderBox.getMaxX(),borderBox.getMaxZ());
 
+        //get the lowest distance
         double lowest = distances[0];
         for (double dist : distances) {
             if (dist <= lowest) {
@@ -294,24 +329,56 @@ public class FakeBorderWall extends BorderDisplay {
         }
 
         if (lowest == distances[0]) {
-            location.setX(borderBox.getMinX()); //facing negative x
-            return new WallProjection(location.getBlockZ(), location.getBlockX()-1, location.getBlockY(), false,false);
+            playerLoc.setX(borderBox.getMinX()); //facing negative x
+            return new WallProjection(playerLoc.getBlockZ(), playerLoc.getBlockX()-1, playerLoc.getBlockY(), false,false);
         }
 
         if (lowest == distances[1]) {
-            location.setX(borderBox.getMaxX()); //facing positive x
-            return new WallProjection(location.getBlockZ(), location.getBlockX(), location.getBlockY(), false,true);
+            playerLoc.setX(borderBox.getMaxX()); //facing positive x
+            return new WallProjection(playerLoc.getBlockZ(), playerLoc.getBlockX(), playerLoc.getBlockY(), false,true);
         }
         if (lowest == distances[2]) {
-            location.setZ(borderBox.getMinZ());//facing negative z
-            return new WallProjection(location.getBlockX(), location.getBlockZ()-1, location.getBlockY(), true,false);
+            playerLoc.setZ(borderBox.getMinZ());//facing negative z
+            return new WallProjection(playerLoc.getBlockX(), playerLoc.getBlockZ()-1, playerLoc.getBlockY(), true,false);
         }
         if (lowest == distances[3]) {
-            location.setZ(borderBox.getMaxZ()); //facing positive z
-            return new WallProjection(location.getBlockX(), location.getBlockZ(), location.getBlockY(), true,true);
+            playerLoc.setZ(borderBox.getMaxZ()); //facing positive z
+            return new WallProjection(playerLoc.getBlockX(), playerLoc.getBlockZ(), playerLoc.getBlockY(), true,true);
         }
 
         throw new IllegalStateException();
+    }
+
+    private double pDistance(double x, double y, double x1, double y1, double x2, double y2) {
+        double A = x - x1;
+        double B = y - y1;
+        double C = x2 - x1;
+        double D = y2 - y1;
+
+        double dot = A * C + B * D;
+        double len_sq = C * C + D * D;
+        double param = -1;
+        if (len_sq != 0) //in case of 0 length line
+            param = dot / len_sq;
+
+        double xx, yy;
+
+        if (param < 0) {
+            xx = x1;
+            yy = y1;
+        }
+        else if (param > 1) {
+            xx = x2;
+            yy = y2;
+        }
+        else {
+            xx = x1 + param * C;
+            yy = y1 + param * D;
+        }
+
+        double dx = x - xx;
+        double dy = y - yy;
+        return dx * dx + dy * dy;
     }
 
     public int getWidth() {
@@ -368,6 +435,8 @@ public class FakeBorderWall extends BorderDisplay {
         private final int minY;
         private final int maxY;
         private final int perpendicular;
+        //whether the wall is on the x-direction, that it the wall is facing
+        //a z direction!
         private final boolean xDimension;
         private final boolean facingPositive;
 

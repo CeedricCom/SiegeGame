@@ -1,6 +1,7 @@
 package me.cedric.siegegame.player;
 
 import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.border.BorderHandler;
 import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Bukkit;

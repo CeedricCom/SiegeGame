@@ -1,7 +1,6 @@
 package me.cedric.siegegame.border;
 
 import me.cedric.siegegame.SiegeGame;
-import me.cedric.siegegame.player.BorderHandler;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.world.WorldGame;
@@ -34,7 +33,7 @@ public class ProjectileFollowTask extends BukkitRunnable {
         BorderHandler borderHandler = player.getBorderHandler();
         Location lastSafe = borderHandler.getProjectileLastSafe(projectile.getUniqueId()).clone();
 
-        if (!checkBorder(worldGame.getBorder().getBoundingBox().clone(), lastSafe.toVector())) {
+        if (!checkBorder(worldGame.getBorder(), lastSafe.toVector())) {
             deleteProjectileAndCancel(projectile, lastSafe, borderHandler);
         }
 
@@ -42,7 +41,7 @@ public class ProjectileFollowTask extends BukkitRunnable {
 
             Border safeArea = team.getSafeArea();
 
-            if (!checkBorder(safeArea.getBoundingBox().clone(), lastSafe.toVector()))
+            if (!checkBorder(safeArea, lastSafe.toVector()))
                 continue;
 
             deleteProjectileAndCancel(projectile, lastSafe, borderHandler);
@@ -60,12 +59,12 @@ public class ProjectileFollowTask extends BukkitRunnable {
         }
     }
 
-    private boolean checkBorder(BoundingBox safeArea, Vector lastSafe) {
+    private boolean checkBorder(Border safeArea, Vector lastSafe) {
         int distance = safeArea.isInverse() ? 3 : -2;
-        if (safeArea.clone().expand(distance).isCollidingIgnoreInverse(lastSafe) && safeArea.isInverse()) {
+        if (safeArea.getBoundingBox().clone().expand(distance).isCollidingIgnoreInverse(lastSafe) && safeArea.isInverse()) {
             return true;
         }
-        return safeArea.clone().expand(distance).isCollidingIgnoreInverse(lastSafe) && !safeArea.isInverse();
+        return safeArea.getBoundingBox().clone().expand(distance).isCollidingIgnoreInverse(lastSafe) && !safeArea.isInverse();
     }
 
     private void deleteProjectileAndCancel(Projectile projectile, Location lastSafe, BorderHandler borderHandler) {
