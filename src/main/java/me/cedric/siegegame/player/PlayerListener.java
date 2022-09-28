@@ -5,6 +5,7 @@ import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.teams.Team;
+import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -23,6 +24,10 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
+        if (plugin.getGameManager().isOngoingGame()) {
+
+        }
+
         plugin.getPlayerManager().addPlayer(player.getUniqueId());
     }
 
@@ -57,6 +62,12 @@ public class PlayerListener implements Listener {
             int levels = res.getLevel();
 
             res.setLevel(levels + SiegeGame.LEVELS_PER_KILL);
+        }
+
+        team.addPoints(SiegeGame.POINTS_PER_KILL);
+
+        if (team.getPoints() == SiegeGame.POINTS_TO_END) {
+            plugin.getGameManager().startNextMap();
         }
     }
 

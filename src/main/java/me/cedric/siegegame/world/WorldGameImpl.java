@@ -7,31 +7,40 @@ import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Resident;
 import me.cedric.siegegame.border.Border;
 import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.superitems.SuperItem;
 import me.cedric.siegegame.teams.Team;
 import org.bukkit.Location;
 import org.bukkit.World;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class WorldGameImpl implements WorldGame {
 
-    private Location defaultSpawnLocation;
     private final Set<Team> teams = new HashSet<>();
     private final String configKey;
-    private final World bukkitWorld;
+    private final GameMap gameMap;
     private Border border;
+    private Location defaultSpawnLocation;
+    List<SuperItem> superItems = new ArrayList<>();
 
-    public WorldGameImpl(String configKey, World world, Border border, Location defaultSpawnLocation) {
+    public WorldGameImpl(String configKey, GameMap gameMap, Border border, Location defaultSpawnLocation) {
         this.defaultSpawnLocation = defaultSpawnLocation;
         this.configKey = configKey;
-        this.bukkitWorld = world;
+        this.gameMap = gameMap;
         this.border = border;
     }
 
     @Override
+    public GameMap getGameMap() {
+        return gameMap;
+    }
+
+    @Override
     public World getBukkitWorld() {
-        return bukkitWorld;
+        return gameMap.getWorld();
     }
 
     @Override
@@ -71,6 +80,16 @@ public class WorldGameImpl implements WorldGame {
     @Override
     public void setBorder(Border border) {
         this.border = border;
+    }
+
+    @Override
+    public List<SuperItem> getSuperItems() {
+        return new ArrayList<>(superItems);
+    }
+
+    @Override
+    public void addSuperItem(SuperItem item) {
+        superItems.add(item);
     }
 
     @Override

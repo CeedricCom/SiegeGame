@@ -7,6 +7,7 @@ import me.cedric.siegegame.border.BoundingBox;
 import me.cedric.siegegame.display.shop.ShopItem;
 import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.teams.TeamImpl;
+import me.cedric.siegegame.world.LocalGameMap;
 import me.cedric.siegegame.world.WorldGame;
 import me.cedric.siegegame.world.WorldGameImpl;
 import me.deltaorion.bukkit.item.EMaterial;
@@ -44,6 +45,7 @@ public class ConfigLoader {
     private FileConfig mapsYml;
     private static final String MAPS_SECTION_KEY = "maps";
     private static final String MAPS_SECTION_WORLD_NAME_KEY = "worldname";
+    private static final String MAPS_SECTION_WORLD_DISPLAY_NAME_KEY = "world-display-name";
     private static final String MAPS_SECTION_DEFAULT_SPAWN_KEY = "defaultspawn";
     private static final String MAPS_SECTION_DEFAULT_SPAWN_X = "x";
     private static final String MAPS_SECTION_DEFAULT_SPAWN_Y = "y";
@@ -80,8 +82,6 @@ public class ConfigLoader {
     private static final String SHOP_SECTION_COMMAND_LIST_KEY = "commands";
     private static final String SHOP_SECTION_INCLUDES_ITEM = "includes-item";
 
-    private HashMap<String, String> lateLoadWorlds = new HashMap<>();
-
     public ConfigLoader(SiegeGame plugin) {
         this.plugin = plugin;
     }
@@ -114,22 +114,13 @@ public class ConfigLoader {
                 continue;
             }
 
-            World world = Bukkit.getWorld(worldName);
-
-            if (world == null) {
-                plugin.getApiPlugin().getPluginLogger().severe("Could not retrieve world object for map key " + mapKey + " - Skipping!");
-                lateLoadWorlds.put(worldName, mapKey);
-                // Iris loads its worlds late. Let's add them to a list and listen to WorldLoadEvent - Iris fires it when loading a world
-                continue;
-            }
-
-            loadWorld(world, mapKey);
+            loadWorld(worldName, mapKey);
         }
 
         plugin.getLogger().info("Maps loaded.");
     }
 
-    public void loadWorld(World world, String mapKey) {
+    public void loadWorld(String worldName, String mapKey) {
         int x = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_KEY + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_X);
         int y = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_KEY + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_Y);
         int z = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_KEY + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_Z);
@@ -142,20 +133,21 @@ public class ConfigLoader {
         int y2 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_Y2_KEY);
         int z2 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_Z2_KEY);
 
+        String displayName = mapsYml.getString(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_DISPLAY_NAME_KEY);
+
         Vector corner1Vector = new Vector(x1, y1, z1);
         Vector corner2Vector = new Vector(x2, y2, z2);
 
-        Border border = new Border(new BoundingBox(world, corner1Vector, corner2Vector));
+        LocalGameMap localGameMap = new LocalGameMap(new File(Bukkit.getWorldContainer().getParentFile(), worldName), displayName);
+        localGameMap.load();
 
-        WorldGameImpl worldGame = new WorldGameImpl(mapKey, world, border, new Location(world, x, y, z));
+        Border border = new Border(new BoundingBox(localGameMap.getWorld(), corner1Vector, corner2Vector));
+        WorldGameImpl worldGame = new WorldGameImpl(mapKey, localGameMap, border, new Location(localGameMap.getWorld(), x, y, z));
         ConfigSection teamsSection = mapsYml.getConfigurationSection(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_TEAMS_KEY);
         Set<Team> teams = loadTeams(worldGame, teamsSection);
         worldGame.addTeams(teams);
 
         plugin.getGameManager().addWorld(worldGame);
-
-        if (lateLoadWorlds.containsKey(world.getName()))
-            removeLateWorld(world.getName());
     }
 
     private void loadShop() {
@@ -269,18 +261,6 @@ public class ConfigLoader {
 
         mapsYml.mergeDefaults();
         shopYml.mergeDefaults();
-    }
-
-    public Set<String> getLateLoadWorldNames() {
-        return lateLoadWorlds.keySet();
-    }
-
-    public String getLateWorldMapKey(String s) {
-        return lateLoadWorlds.get(s);
-    }
-
-    public void removeLateWorld(String worldName) {
-        lateLoadWorlds.remove(worldName);
     }
 }
 

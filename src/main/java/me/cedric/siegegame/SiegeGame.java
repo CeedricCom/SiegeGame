@@ -6,11 +6,12 @@ import me.cedric.siegegame.border.BorderListener;
 import me.cedric.siegegame.command.ResourcesCommand;
 import me.cedric.siegegame.command.SiegeGameCommand;
 import me.cedric.siegegame.config.ConfigLoader;
-import me.cedric.siegegame.config.WorldLoadListener;
 import me.cedric.siegegame.display.placeholderapi.SiegeGameExpansion;
 import me.cedric.siegegame.display.shop.ShopGUI;
 import me.cedric.siegegame.player.PlayerListener;
 import me.cedric.siegegame.player.PlayerManager;
+import me.cedric.siegegame.superitems.SuperItemManager;
+import me.cedric.siegegame.world.WorldGame;
 import me.deltaorion.bukkit.plugin.plugin.BukkitPlugin;
 import me.deltaorion.common.plugin.ApiPlugin;
 import org.bukkit.Bukkit;
@@ -21,11 +22,14 @@ public final class SiegeGame extends BukkitPlugin {
     private ConfigLoader configLoader;
     private GameManager gameManager;
     private PlayerManager playerManager;
+    private SuperItemManager superItemManager;
     private ShopGUI shopGUI;
 
     // TODO: configs, messages (perhaps locale?), PRIORITY: super-items
 
     public static int LEVELS_PER_KILL = 10;
+    public static int POINTS_PER_KILL = 500;
+    public static int POINTS_TO_END = 1000;
 
     @Override
     public void onPluginEnable() {
@@ -34,9 +38,9 @@ public final class SiegeGame extends BukkitPlugin {
         this.playerManager = new PlayerManager(this);
         this.configLoader = new ConfigLoader(this);
         this.shopGUI = new ShopGUI(this);
+        this.superItemManager = new SuperItemManager(this);
 
         this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
-        this.getServer().getPluginManager().registerEvents(new WorldLoadListener(this), this);
         this.getServer().getPluginManager().registerEvents(new BorderListener(this), this);
 
         ProtocolLibrary.getProtocolManager().addPacketListener(new BlockChangePacketAdapter(this));
@@ -50,6 +54,14 @@ public final class SiegeGame extends BukkitPlugin {
         }
 
         configLoader.initializeAndLoad();
+        superItemManager.initialize();
+    }
+
+    @Override
+    public void onPluginDisable() {
+        for (WorldGame worldGame : gameManager.getLoadedWorlds()) {
+            worldGame.getGameMap().unload();
+        }
     }
 
     public ApiPlugin getApiPlugin() {
@@ -70,5 +82,9 @@ public final class SiegeGame extends BukkitPlugin {
 
     public ShopGUI getShopGUI() {
         return shopGUI;
+    }
+
+    public SuperItemManager getSuperItemManager() {
+        return superItemManager;
     }
 }

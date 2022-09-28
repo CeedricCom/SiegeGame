@@ -2,12 +2,15 @@ package me.cedric.tests;
 
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.border.Border;
+import me.cedric.siegegame.superitems.SuperItem;
 import me.cedric.siegegame.teams.Team;
+import me.cedric.siegegame.world.GameMap;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Location;
 import org.bukkit.World;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class MockWorldGame implements WorldGame {
@@ -72,5 +75,20 @@ public class MockWorldGame implements WorldGame {
     @Override
     public void setBorder(Border border) {
 
+    }
+
+    @Override
+    public List<SuperItem> getSuperItems() {
+        return null;
+    }
+
+    @Override
+    public void addSuperItem(SuperItem item) {
+
+    }
+
+    @Override
+    public GameMap getGameMap() {
+        return null;
     }
 }

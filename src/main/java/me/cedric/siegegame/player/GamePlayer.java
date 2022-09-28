@@ -19,8 +19,7 @@ public class GamePlayer {
         this.uuid = uuid;
         this.team = null;
         this.plugin = plugin;
-        this.borderHandler = new BorderHandler(plugin, this, getWorldGame());
-        this.borderHandler.addBorder(getWorldGame().getBorder());
+        this.borderHandler = new BorderHandler(plugin, this);
     }
 
     private WorldGame getWorldGame() {

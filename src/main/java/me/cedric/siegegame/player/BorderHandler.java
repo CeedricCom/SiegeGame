@@ -23,16 +23,14 @@ import java.util.UUID;
 public class BorderHandler {
 
     private final SiegeGame plugin;
-    private final WorldGame worldGame;
     private final GamePlayer player;
     private final FakeBlockManager fakeBlockManager;
     private final LastSafe<Player> playerLastSafe;
     private final List<LastSafe<Projectile>> playerProjectiles;
     private final Map<Border, BorderDisplay> borders = new HashMap<>();
 
-    public BorderHandler(SiegeGame plugin, GamePlayer player, WorldGame worldGame) {
+    public BorderHandler(SiegeGame plugin, GamePlayer player) {
         this.plugin = plugin;
-        this.worldGame = worldGame;
         this.player = player;
         this.fakeBlockManager = new FakeBlockManager(plugin, player.getBukkitPlayer());
         this.playerProjectiles = new ArrayList<>();
@@ -91,10 +89,6 @@ public class BorderHandler {
         return player;
     }
 
-    public WorldGame getWorldGame() {
-        return worldGame;
-    }
-
     public Location getLastSafe() {
         return playerLastSafe.getLocation();
     }
@@ -128,6 +122,11 @@ public class BorderHandler {
 
     private LastSafe<Projectile> getProjectile(UUID uuid) {
         return playerProjectiles.stream().filter(projectileLastSafe -> projectileLastSafe.getEntity().getUniqueId().equals(uuid)).findFirst().orElse(null);
+    }
+
+    public void clear() {
+        borders.clear();
+        playerProjectiles.clear();
     }
 
 

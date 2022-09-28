@@ -4,6 +4,7 @@ import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.world.WorldGame;
+import org.bukkit.World;
 
 public enum Placeholder {
 
@@ -28,6 +29,12 @@ public enum Placeholder {
                 team.getConfigKey().equalsIgnoreCase(gamePlayer.getTeam().getConfigKey()))
             return "YOU";
         return "";
+    }),
+
+    MAP_NAME("map_name", (siegeGame, gamePlayer, s) -> {
+        World world = gamePlayer.getBukkitPlayer().getWorld();
+        WorldGame worldGame = siegeGame.getGameManager().getWorldGame(world);
+        return worldGame == null ? "" : worldGame.getGameMap().getDisplayName();
     });
 
     private final String param;
