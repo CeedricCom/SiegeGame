@@ -5,8 +5,12 @@ import me.cedric.siegegame.player.GamePlayer;
 import me.deltaorion.bukkit.item.ItemBuilder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -83,8 +87,6 @@ public abstract class SuperItem implements Listener {
         Player player = (Player) event.getEntity();
 
         if (this.owner == null) {
-            plugin.getLogger().warning("Super item is dropped but has no owner! Letting it be picked up");
-            plugin.getLogger().warning("Player who picked up will become the new owner. Name: " + player.getName());
             giveTo(plugin.getPlayerManager().getPlayer(player.getUniqueId()));
             event.setCancelled(true);
             event.getItem().remove();
@@ -93,6 +95,11 @@ public abstract class SuperItem implements Listener {
 
         if (!player.getUniqueId().equals(this.owner.getUUID()))
             event.setCancelled(true);
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPlayerDeath(PlayerDeathEvent event) {
+        remove();
     }
 
 }

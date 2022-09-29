@@ -6,6 +6,7 @@ import com.palmergames.bukkit.towny.exceptions.AlreadyRegisteredException;
 import com.palmergames.bukkit.towny.exceptions.EmptyTownException;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Resident;
+import me.cedric.siegegame.config.Settings;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.superitems.SuperItem;
 import me.cedric.siegegame.teams.Team;
@@ -118,7 +119,7 @@ public final class GameManager {
         List<GamePlayer> players = plugin.getPlayerManager().getPlayers();
 
         for (GamePlayer gamePlayer : players) {
-            if (gamePlayer.hasTeam() && gamePlayer.getTeam().getPoints() == SiegeGame.POINTS_TO_END) {
+            if (gamePlayer.hasTeam() && gamePlayer.getTeam().getPoints() >= Settings.POINTS_TO_END.getValue()) {
                 gamePlayer.getBukkitPlayer().sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "VICTORY", ChatColor.YELLOW + "gg ez yall are dog z tier rands");
             } else {
                 gamePlayer.getBukkitPlayer().sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "DEFEAT", ChatColor.RED + "L gg random");

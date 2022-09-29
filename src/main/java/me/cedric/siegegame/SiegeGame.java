@@ -25,11 +25,7 @@ public final class SiegeGame extends BukkitPlugin {
     private SuperItemManager superItemManager;
     private ShopGUI shopGUI;
 
-    // TODO: configs, messages (perhaps locale?)
-
-    public static int LEVELS_PER_KILL = 10;
-    public static int POINTS_PER_KILL = 500;
-    public static int POINTS_TO_END = 1000;
+    // TODO: messages (perhaps locale?)
 
     @Override
     public void onPluginEnable() {

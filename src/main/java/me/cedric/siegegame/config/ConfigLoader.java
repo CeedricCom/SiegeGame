@@ -22,7 +22,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
-import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
@@ -32,7 +31,6 @@ import org.bukkit.util.Vector;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -90,6 +88,11 @@ public class ConfigLoader {
     private static final String SHOP_SECTION_COMMAND_LIST_KEY = "commands";
     private static final String SHOP_SECTION_INCLUDES_ITEM = "includes-item";
 
+    private FileConfig configYml;
+    private static final String CONFIG_POINTS_PER_KILL_KEY = "points-per-kill";
+    private static final String CONFIG_POINTS_TO_END_KEY = "points-to-end";
+    private static final String CONFIG_LEVELS_PER_KILL_KEY = "levels-per-kill";
+
     public ConfigLoader(SiegeGame plugin) {
         this.plugin = plugin;
     }
@@ -110,6 +113,7 @@ public class ConfigLoader {
 
         loadMaps();
         loadShop();
+        loadSettings();
         plugin.getLogger().info("Config loaded.");
     }
 
@@ -261,6 +265,16 @@ public class ConfigLoader {
         return teams;
     }
 
+    private void loadSettings() {
+        int pointsPerKill = configYml.getInt(CONFIG_POINTS_PER_KILL_KEY);
+        int levelsPerKill = configYml.getInt(CONFIG_LEVELS_PER_KILL_KEY);
+        int pointsToEnd = configYml.getInt(CONFIG_POINTS_TO_END_KEY);
+
+        Settings.POINTS_PER_KILL.setValue(pointsPerKill);
+        Settings.LEVELS_PER_KILL.setValue(levelsPerKill);
+        Settings.POINTS_TO_END.setValue(pointsToEnd);
+    }
+
     private Color color(String hexColor) {
         int r = Integer.valueOf(hexColor.substring(1, 3), 16);
         int g = Integer.valueOf(hexColor.substring(3, 5), 16);
@@ -277,17 +291,22 @@ public class ConfigLoader {
     private void setupConfig() throws IOException, InvalidConfigurationException {
         File mapFile = new File(plugin.getDataFolder(), "maps.yml");
         File shopFile = new File(plugin.getDataFolder(), "shop.yml");
+        File configFile = new File(plugin.getDataFolder(), "config.yml");
 
         if (!mapFile.exists())
             plugin.saveResource("maps.yml", false);
         if (!shopFile.exists())
             plugin.saveResource("shop.yml", false);
+        if (!configFile.exists())
+            plugin.saveResource("config.yml", false);
 
         mapsYml = FileConfig.loadConfiguration(new YamlAdapter(), new File(plugin.getDataFolder(), "maps.yml"));
         shopYml = FileConfig.loadConfiguration(new YamlAdapter(), new File(plugin.getDataFolder(), "shop.yml"));
+        configYml = FileConfig.loadConfiguration(new YamlAdapter(), new File(plugin.getDataFolder(), "config.yml"));
 
         mapsYml.mergeDefaults();
         shopYml.mergeDefaults();
+        configYml.mergeDefaults();
     }
 }
 
