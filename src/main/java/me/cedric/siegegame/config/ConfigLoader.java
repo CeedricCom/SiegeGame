@@ -5,6 +5,7 @@ import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.border.Border;
 import me.cedric.siegegame.border.BoundingBox;
 import me.cedric.siegegame.display.shop.ShopItem;
+import me.cedric.siegegame.superitems.SuperItem;
 import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.teams.TeamImpl;
 import me.cedric.siegegame.world.LocalGameMap;
@@ -61,13 +62,20 @@ public class ConfigLoader {
     private static final String MAPS_SECTION_WORLD_TEAMS_NAME = "name";
     private static final String MAPS_SECTION_WORLD_TEAMS_COLOR = "color";
     private static final String MAPS_SECTION_WORLD_TEAMS_TOWN = "town";
-    private static final String MAPS_SECTION_TEAMS_SPAWN = "spawn";
+    private static final String MAPS_SECTION_TEAMS_SPAWN = "spawn-area";
     private static final String MAPS_SECTION_TEAMS_SPAWN_X1 = "x1";
     private static final String MAPS_SECTION_TEAMS_SPAWN_Y1 = "y1";
     private static final String MAPS_SECTION_TEAMS_SPAWN_Z1 = "z1";
     private static final String MAPS_SECTION_TEAMS_SPAWN_X2 = "x2";
     private static final String MAPS_SECTION_TEAMS_SPAWN_Y2 = "y2";
     private static final String MAPS_SECTION_TEAMS_SPAWN_Z2 = "z2";
+    private static final String MAPS_SECTION_TEAMS_SAFE_SPAWN = "safe-spawn";
+    private static final String MAPS_SECTION_TEAMS_SAFE_SPAWN_X1 = "x";
+    private static final String MAPS_SECTION_TEAMS_SAFE_SPAWN_Y1 = "y";
+    private static final String MAPS_SECTION_TEAMS_SAFE_SPAWN_Z1 = "z";
+    private static final String MAPS_SECTION_TEAMS_SAFE_SPAWN_YAW = "yaw";
+    private static final String MAPS_SECTION_TEAMS_SAFE_SPAWN_PITCH = "pitch";
+    private static final String MAPS_SECTION_SUPER_ITEM_LIST_KEY = "super-items";
 
     private FileConfig shopYml;
     private static final String SHOP_SECTION_KEY = "shop";
@@ -133,6 +141,8 @@ public class ConfigLoader {
         int y2 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_Y2_KEY);
         int z2 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_Z2_KEY);
 
+        List<String> superItems = mapsYml.getStringList(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_SUPER_ITEM_LIST_KEY);
+
         String displayName = mapsYml.getString(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_DISPLAY_NAME_KEY);
 
         Vector corner1Vector = new Vector(x1, y1, z1);
@@ -146,6 +156,15 @@ public class ConfigLoader {
         ConfigSection teamsSection = mapsYml.getConfigurationSection(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_TEAMS_KEY);
         Set<Team> teams = loadTeams(worldGame, teamsSection);
         worldGame.addTeams(teams);
+
+        for (String superItemKey : superItems) {
+            SuperItem superItem = plugin.getSuperItemManager().getSuperItem(superItemKey);
+
+            if (superItem == null)
+                continue;
+
+            worldGame.addSuperItem(superItem);
+        }
 
         plugin.getGameManager().addWorld(worldGame);
     }
@@ -224,10 +243,18 @@ public class ConfigLoader {
             int y2 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_Y2);
             int z2 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_Z2);
 
+            int safeSpawnX = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN_X1);
+            int safeSpawnY = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN_Y1);
+            int safeSpawnZ = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN_Z1);
+            float yaw = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN_YAW);
+            float pitch = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN_PITCH);
+
+            Location safeSpawn = new Location(worldGame.getBukkitWorld(), safeSpawnX, safeSpawnY, safeSpawnZ, yaw, pitch);
+
             Border border = new Border(new BoundingBox(worldGame.getBukkitWorld(), x1, y1, z1, x2, y2, z2));
             border.setCanLeave(true);
             border.setInverse(true);
-            TeamImpl team = new TeamImpl(worldGame, border, color(hexColor), TownyAPI.getInstance().getTown(townName), name, key);
+            TeamImpl team = new TeamImpl(worldGame, border, safeSpawn, color(hexColor), TownyAPI.getInstance().getTown(townName), name, key);
             teams.add(team);
         }
 

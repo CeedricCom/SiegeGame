@@ -2,6 +2,7 @@ maps:
   atiermap:
     worldname: 'atiermap'
     world-display-name: 'S TIER MAP'
+    super-items: []
     defaultspawn:
       x: 812
       y: 170
@@ -18,7 +19,7 @@ maps:
         name: 'Gaia Randos'
         color: '#694200'
         town: 'gaiarands'
-        spawn:
+        spawn-area:
           x1: 10
           y1: 140
           z1: 10
@@ -29,7 +30,7 @@ maps:
         name: 'DATBLOCKERS'
         color: '#420699'
         town: 'datblockers'
-        spawn:
+        spawn-area:
           x1: 10
           y1: 140
           z1: 10

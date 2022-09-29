@@ -78,6 +78,6 @@ public class ProjectileFollowTask extends BukkitRunnable {
         borderHandler.stopTrackingProjectile(projectile.getUniqueId());
         projectile.remove();
         this.cancel();
-        player.getBukkitPlayer().sendMessage(ChatColor.RED + "You cannot use projectiles near a border or your safe area");
+        player.getBukkitPlayer().sendMessage(ChatColor.RED + "You cannot use projectiles near a border or safe area");
     }
 }

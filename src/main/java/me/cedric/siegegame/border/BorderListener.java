@@ -88,8 +88,8 @@ public class BorderListener implements Listener {
 
     private void rollback(GamePlayer player) {
         if (player.getBorderHandler().getLastSafe() == null) {
-            if (player.getTeam() != null && player.getTeam().getTeamTown().getSpawnOrNull() != null)
-                player.getBukkitPlayer().teleport(player.getTeam().getTeamTown().getSpawnOrNull());
+            if (player.hasTeam())
+                player.getBukkitPlayer().teleport(player.getTeam().getSafeSpawn());
             return;
         }
         player.getBukkitPlayer().teleport(player.getBorderHandler().getLastSafe());

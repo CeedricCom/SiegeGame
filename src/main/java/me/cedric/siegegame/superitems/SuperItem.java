@@ -1,9 +1,7 @@
 package me.cedric.siegegame.superitems;
 
-import de.tr7zw.nbtapi.NBTItem;
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.world.WorldGame;
 import me.deltaorion.bukkit.item.ItemBuilder;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -33,6 +31,15 @@ public abstract class SuperItem implements Listener {
 
     protected abstract void initialize(SiegeGame plugin);
 
+    public abstract String getDisplayName();
+
+    public void remove() {
+        if (owner != null) {
+            owner.getBukkitPlayer().getInventory().removeItem(getItem());
+            removeDisplay(owner);
+        }
+    }
+
     public String getKey() {
         return key;
     }
@@ -45,16 +52,17 @@ public abstract class SuperItem implements Listener {
     }
 
     public void giveTo(GamePlayer newOwner) {
-        if (owner != null) {
-            newOwner.getBukkitPlayer().getInventory().removeItem(getItem());
-            removeDisplay(owner);
-        }
-
+        if (this.owner != null)
+            remove();
         this.owner = newOwner;
         if (!newOwner.getBukkitPlayer().getInventory().addItem(getItem()).isEmpty()) {
             newOwner.getBukkitPlayer().getWorld().dropItem(newOwner.getBukkitPlayer().getLocation(), getItem());
         }
         display(newOwner);
+    }
+
+    public GamePlayer getOwner() {
+        return owner;
     }
 
     @EventHandler
@@ -67,6 +75,9 @@ public abstract class SuperItem implements Listener {
     @EventHandler
     public void onPickupItem(EntityPickupItemEvent event) {
         if (!(event.getEntity() instanceof Player))
+            return;
+
+        if (!event.getItem().getItemStack().equals(getItem()))
             return;
 
         Player player = (Player) event.getEntity();

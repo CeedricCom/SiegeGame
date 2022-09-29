@@ -1,7 +1,18 @@
 package me.cedric.siegegame.world;
 
+import com.palmergames.bukkit.towny.TownyAPI;
+import com.palmergames.bukkit.towny.TownyUniverse;
+import com.palmergames.bukkit.towny.exceptions.AlreadyRegisteredException;
+import com.palmergames.bukkit.towny.exceptions.InvalidNameException;
+import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
+import com.palmergames.bukkit.towny.exceptions.TownyException;
+import com.palmergames.bukkit.towny.object.Town;
+import com.palmergames.bukkit.towny.object.TownBlock;
+import com.palmergames.bukkit.towny.object.TownyWorld;
+import com.palmergames.bukkit.towny.object.WorldCoord;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
 
@@ -34,20 +45,74 @@ public class LocalGameMap implements GameMap {
                 Bukkit.getWorldContainer().getParentFile(), // Root server folder
                 source.getName() + "_active_" + System.currentTimeMillis());
         try {
-            FileUtils.copyDirectory(source, activeWorldFolder);
+            FileUtils.copyDirectory(source, activeWorldFolder, pathname -> !(pathname.getName().endsWith("session.lock") || pathname.getName().endsWith("uid.dat")));
         } catch (IOException e) {
             e.printStackTrace();
             return false;
         }
 
         this.bukkitWorld = Bukkit.createWorld(new WorldCreator(activeWorldFolder.getName()));
-        if (bukkitWorld != null)
-            bukkitWorld.setAutoSave(false);
+
+        if (bukkitWorld == null)
+            return false;
+        bukkitWorld.setAutoSave(false);
+
+        if (!copyTowns())
+            return false;
+
         return isLoaded();
+    }
+
+    private boolean copyTowns() {
+        TownyWorld world = TownyUniverse.getInstance().getWorld(source.getName());
+        TownyWorld dest = TownyUniverse.getInstance().getWorld(activeWorldFolder.getName());
+
+        assert dest != null;
+
+        if (world == null)
+            return false;
+
+        for (Town town : world.getTowns().values()) {
+            try {
+                for (TownBlock townBlock : town.getTownBlocks()) {
+                    WorldCoord coord = townBlock.getWorldCoord();
+                    TownyUniverse.getInstance().addTownBlock(new TownBlock(coord.getX(), coord.getZ(), dest));
+                    TownBlock tb = dest.getTownBlock(coord.getX(), coord.getZ());
+                    tb.setTown(town);
+                    tb.save();
+                }
+                town.save();
+            } catch (NotRegisteredException x) {
+                System.out.println("Problem copying town claims over.");
+                System.out.println(x.getMessage());
+            }
+        }
+
+        return true;
+    }
+
+    private void deleteTownClaims() {
+        TownyWorld dest = TownyUniverse.getInstance().getWorld(activeWorldFolder.getName());
+
+        if (dest == null)
+            return;
+        for (TownBlock townBlock : dest.getTownBlocks()) {
+            if (townBlock.getTownOrNull() == null)
+                continue;
+            Town town = townBlock.getTownOrNull();
+            town.removeTownBlock(townBlock);
+            town.save();
+        }
+
+        // If we don't delete the townblock folder that corresponds to the temporary world, towny tries to load it after the world is deleted and goes into safe mode
+        File file = new File(Bukkit.getPluginsFolder() + File.separator + "Towny" + File.separator + "data" + File.separator + "townblocks", activeWorldFolder.getName());
+        delete(file);
     }
 
     @Override
     public void unload() {
+        deleteTownClaims();
+
         if (bukkitWorld != null)
             Bukkit.unloadWorld(bukkitWorld, false);
         if (activeWorldFolder != null)

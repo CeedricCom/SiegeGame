@@ -18,6 +18,10 @@ public final class PlayerManager {
     }
 
     public void removePlayer(UUID uuid) {
+        GamePlayer gamePlayer = players.get(uuid);
+        if (gamePlayer.hasTeam())
+            gamePlayer.getTeam().removePlayer(gamePlayer);
+        gamePlayer.getBorderHandler().clear();
         players.remove(uuid);
     }
 

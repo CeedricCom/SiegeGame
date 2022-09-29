@@ -7,14 +7,18 @@ import com.palmergames.bukkit.towny.exceptions.EmptyTownException;
 import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Resident;
 import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.superitems.SuperItem;
 import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.World;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -68,26 +72,43 @@ public final class GameManager {
             return;
         }
 
+        this.currentMap = worldGame;
+        if (!worldGame.getGameMap().isLoaded()) {
+            worldGame.getGameMap().load();
+        }
+
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
             worldGame.getBukkitWorld().setSpawnLocation(worldGame.getDefaultSpawnPoint());
             assignTeams(worldGame);
 
+            int superItemCounter = 0;
             for (Team team : worldGame.getTeams()) {
                 for (GamePlayer gamePlayer : team.getPlayers()) {
-                    if (team.getTeamTown().getSpawnOrNull() == null) {
-                        gamePlayer.getBukkitPlayer().teleport(worldGame.getDefaultSpawnPoint());
-                        plugin.getLogger().info("TEAM " + team.getTeamTown().getName() + " DOES NOT HAVE A TOWN SPAWN. TELEPORTING TO WORLD SPAWN!");
-                        continue;
-                    }
-
-                    gamePlayer.getBukkitPlayer().teleport(team.getTeamTown().getSpawnOrNull());
+                    gamePlayer.getBukkitPlayer().teleport(team.getSafeSpawn());
                 }
+
+                if (superItemCounter > currentMap.getSuperItems().size() - 1)
+                    continue;
+
+                int chance = 100 / (team.getPlayers().size() == 1 || team.getPlayers().size() == 0 ? 1 : team.getPlayers().size() - 1);
+                for (GamePlayer gamePlayer : team.getPlayers()) {
+                    Random r = new Random();
+                    if (r.nextInt(0, 100) <= chance) {
+                        currentMap.getSuperItems().get(superItemCounter).giveTo(gamePlayer);
+                        break;
+                    }
+                }
+
+                if (currentMap.getSuperItems().stream().noneMatch(superItem -> superItem.getOwner() != null && superItem.getOwner().getTeam().equals(team))) {
+                    int finalSuperItemCounter = superItemCounter;
+                    team.getPlayers().stream().findAny().ifPresent(player -> currentMap.getSuperItems().get(finalSuperItemCounter).giveTo(player));
+                }
+                superItemCounter++;
             }
 
             plugin.getPlayerManager().getPlayers().forEach(gamePlayer -> gamePlayer.getBorderHandler().addBorder(worldGame.getBorder()));
             worldGame.getTeams().forEach(team -> plugin.getPlayerManager().getPlayers().forEach(gamePlayer -> gamePlayer.getBorderHandler().addBorder(team.getSafeArea())));
 
-            this.currentMap = worldGame;
             if (this.lastMap != null)
                 this.lastMap.getGameMap().restoreFromSource();
         }, wait ? 30 * 20 : 20);
@@ -98,7 +119,7 @@ public final class GameManager {
 
         for (GamePlayer gamePlayer : players) {
             if (gamePlayer.hasTeam() && gamePlayer.getTeam().getPoints() == SiegeGame.POINTS_TO_END) {
-                gamePlayer.getBukkitPlayer().sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "VICTORY", ChatColor.YELLOW + "L dogs im S tier player");
+                gamePlayer.getBukkitPlayer().sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "VICTORY", ChatColor.YELLOW + "gg ez yall are dog z tier rands");
             } else {
                 gamePlayer.getBukkitPlayer().sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "DEFEAT", ChatColor.RED + "L gg random");
             }
@@ -109,8 +130,12 @@ public final class GameManager {
             gamePlayer.getBukkitPlayer().setLevel(0);
             gamePlayer.getBorderHandler().clear();
             gamePlayer.getTeam().addPoints(-gamePlayer.getTeam().getPoints());
-            gamePlayer.setTeam(null);
+            gamePlayer.getTeam().removePlayer(gamePlayer);
             gamePlayer.getBukkitPlayer().getInventory().clear();
+        }
+
+        for (SuperItem superItem : worldGame.getSuperItems()) {
+            superItem.remove();
         }
 
         lastMap = worldGame;
@@ -118,7 +143,7 @@ public final class GameManager {
         currentMap = null;
     }
 
-    public void assignTeams(WorldGame worldGame, List<GamePlayer> players) {
+    public void assignRandomTeams(WorldGame worldGame, List<GamePlayer> players) {
         Random r = new Random();
 
         List<GamePlayer> list = new ArrayList<>(players);
@@ -131,26 +156,43 @@ public final class GameManager {
 
                 int chosenPlayer = list.size() == 1 ? 0 : r.nextInt(0, list.size() - 1);
                 GamePlayer player = list.get(chosenPlayer);
-
-                Resident resident = TownyAPI.getInstance().getResident(player.getUUID());
-                if (resident != null) {
-                    try {
-                        resident.setTown(team.getTeamTown());
-                    } catch (AlreadyRegisteredException ignored) {}
-                }
-
-                team.addPlayer(player);
+                assignTeam(player, team);
                 list.remove(chosenPlayer);
             }
         }
     }
 
-    public void assignToATeam(WorldGame worldGame, GamePlayer player) {
+    public void assignTeam(GamePlayer player) {
+        // assign player to team with least amount of players if a team isnt chosen
+        getCurrentMap().getTeams().stream()
+                .min(Comparator.comparingInt(value -> value.getPlayers().size()))
+                .ifPresent(selected -> assignTeam(player, selected));
+    }
 
+    private void assignTeam(GamePlayer player, Team team) {
+        Resident resident = TownyAPI.getInstance().getResident(player.getUUID());
+        if (resident != null) {
+            try {
+                resident.setTown(team.getTeamTown());
+            } catch (AlreadyRegisteredException ignored) {}
+        }
+
+        team.addPlayer(player);
+
+        for (Team t : getCurrentMap().getTeams()) {
+            player.getBorderHandler().addBorder(t.getSafeArea());
+        }
+        player.getBorderHandler().addBorder(getCurrentMap().getBorder());
+
+        player.getBukkitPlayer().addPotionEffect(
+                new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false, false)
+        );
+
+        player.getBukkitPlayer().sendMessage(ChatColor.DARK_AQUA + "You have been assigned to the following team: " + team.getName());
     }
 
     public void assignTeams(WorldGame worldGame) {
-        assignTeams(worldGame, plugin.getPlayerManager().getPlayers());
+        assignRandomTeams(worldGame, plugin.getPlayerManager().getPlayers());
     }
 
     public WorldGame getLastMap() {

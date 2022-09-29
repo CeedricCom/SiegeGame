@@ -6,6 +6,7 @@ import me.cedric.siegegame.border.Border;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Color;
+import org.bukkit.Location;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -19,15 +20,17 @@ public class TeamImpl implements Team {
     private final String configKey;
     private final Set<GamePlayer> players = new HashSet<>();
     private final Border safeArea;
+    private final Location safeSpawn;
     private int points = 0;
 
-    public TeamImpl(WorldGame worldGame, Border safeArea, Color color, Town town, String name, String configKey) {
+    public TeamImpl(WorldGame worldGame, Border safeArea, Location safeSpawn, Color color, Town town, String name, String configKey) {
         this.color = color;
         this.town = town;
         this.name = name;
         this.configKey = configKey;
         this.worldGame = worldGame;
         this.safeArea = safeArea;
+        this.safeSpawn = safeSpawn;
     }
 
     @Override
@@ -61,6 +64,11 @@ public class TeamImpl implements Team {
     }
 
     @Override
+    public Location getSafeSpawn() {
+        return safeSpawn.clone();
+    }
+
+    @Override
     public void setTown(Town town) {
         this.town = town;
     }
@@ -79,12 +87,12 @@ public class TeamImpl implements Team {
     public void addPlayer(GamePlayer player) {
         players.add(player);
         player.setTeam(this);
-        player.getBorderHandler().addBorder(getSafeArea());
     }
 
     @Override
     public void removePlayer(GamePlayer player) {
         players.remove(player);
+        player.setTeam(null);
     }
 
     @Override

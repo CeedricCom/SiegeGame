@@ -25,7 +25,7 @@ public final class SiegeGame extends BukkitPlugin {
     private SuperItemManager superItemManager;
     private ShopGUI shopGUI;
 
-    // TODO: configs, messages (perhaps locale?), PRIORITY: super-items
+    // TODO: configs, messages (perhaps locale?)
 
     public static int LEVELS_PER_KILL = 10;
     public static int POINTS_PER_KILL = 500;
@@ -53,8 +53,8 @@ public final class SiegeGame extends BukkitPlugin {
             new SiegeGameExpansion(this).register();
         }
 
-        configLoader.initializeAndLoad();
         superItemManager.initialize();
+        configLoader.initializeAndLoad();
     }
 
     @Override

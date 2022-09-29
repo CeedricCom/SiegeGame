@@ -1,5 +1,7 @@
 package me.cedric.siegegame.superitems;
 
+import com.gmail.filoghost.holographicdisplays.api.Hologram;
+import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.player.GamePlayer;
 import me.deltaorion.bukkit.item.ItemBuilder;
@@ -10,9 +12,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.DisplaySlot;
 
-public class SharpnessVI extends SuperItem {
+public class KnockbackStick extends SuperItem {
 
-    protected SharpnessVI(SiegeGame plugin, String key) {
+    protected KnockbackStick(SiegeGame plugin, String key) {
         super(plugin, key);
     }
 
@@ -20,7 +22,7 @@ public class SharpnessVI extends SuperItem {
     protected void display(GamePlayer owner) {
         Player player = owner.getBukkitPlayer();
         player.sendMessage(ChatColor.LIGHT_PURPLE + "You have obtained a " + ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "SUPER ITEM" + ChatColor.LIGHT_PURPLE +"!" +
-                " Enjoy your " + ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Sharpness VI");
+                " Enjoy your " + ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Knockback Stick");
     }
 
     @Override
@@ -30,11 +32,10 @@ public class SharpnessVI extends SuperItem {
 
     @Override
     protected ItemStack itemStack() {
-        return new ItemBuilder(Material.NETHERITE_SWORD)
-                .addEnchantment(Enchantment.DAMAGE_ALL, 6)
-                .addEnchantment(Enchantment.DURABILITY, 3)
-                .addEnchantment(Enchantment.FIRE_ASPECT, 2)
+        return new ItemBuilder(Material.STICK)
+                .addEnchantment(Enchantment.KNOCKBACK, 10)
                 .setUnbreakable(true)
+                .setDisplayName(ChatColor.AQUA + "qxti stick")
                 .addLoreLine(ChatColor.DARK_PURPLE + "" + ChatColor.BOLD + "SUPER ITEM")
                 .build();
     }
@@ -46,6 +47,7 @@ public class SharpnessVI extends SuperItem {
 
     @Override
     public String getDisplayName() {
-        return "Sharpness VI";
+        return "Knockback Stick";
     }
 }
+

@@ -7,6 +7,7 @@ import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Color;
+import org.bukkit.Location;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -72,6 +73,11 @@ public class MockTeam implements Team {
     }
 
     public Town getTeamTown() {
+        return null;
+    }
+
+    @Override
+    public Location getSafeSpawn() {
         return null;
     }
 

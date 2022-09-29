@@ -16,11 +16,20 @@ public class SuperItemManager {
     private final Set<SuperItem> superItems = new HashSet<>();
 
     public void initialize() {
-        superItems.add(new SharpnessVI(plugin));
+        superItems.add(new SharpnessVI(plugin, "sharp-6"));
+        superItems.add(new KnockbackStick(plugin, "kb-stick"));
 
         for (SuperItem item : superItems) {
             item.initialize(plugin);
         }
+    }
+
+    public SuperItem getSuperItem(String key) {
+        for (SuperItem superItem : superItems) {
+            if (superItem.getKey().equalsIgnoreCase(key))
+                return superItem;
+        }
+        return null;
     }
 
     public Set<SuperItem> getSuperItems() {

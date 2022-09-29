@@ -7,6 +7,7 @@ import me.cedric.siegegame.border.BoundingBox;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Color;
+import org.bukkit.Location;
 
 public interface Team {
 
@@ -21,6 +22,8 @@ public interface Team {
     String getConfigKey();
 
     Town getTeamTown();
+
+    Location getSafeSpawn();
 
     void setTown(Town town);
 

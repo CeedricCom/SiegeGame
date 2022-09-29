@@ -8,10 +8,15 @@ import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 public class PlayerListener implements Listener {
 
@@ -24,11 +29,15 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        if (plugin.getGameManager().isOngoingGame()) {
+        plugin.getPlayerManager().addPlayer(player.getUniqueId());
 
+        if (plugin.getGameManager().isOngoingGame()) {
+            plugin.getGameManager().assignTeam(plugin.getPlayerManager().getPlayer(player.getUniqueId()));
         }
 
-        plugin.getPlayerManager().addPlayer(player.getUniqueId());
+        player.addPotionEffect(
+                new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false, false)
+        );
     }
 
     @EventHandler
@@ -69,6 +78,27 @@ public class PlayerListener implements Listener {
         if (team.getPoints() == SiegeGame.POINTS_TO_END) {
             plugin.getGameManager().startNextMap();
         }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onRespawn(PlayerRespawnEvent event) {
+        event.getPlayer().addPotionEffect(
+                new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false, false)
+        );
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onCommandProcess(PlayerCommandPreprocessEvent event) {
+        GamePlayer player = plugin.getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
+
+        if (!player.hasTeam())
+            return;
+
+        if (!(event.getMessage().endsWith("t spawn") || event.getMessage().endsWith("town spawn")))
+            return;
+
+        player.getBukkitPlayer().teleport(player.getTeam().getSafeSpawn());
+        event.setCancelled(true);
     }
 
 }

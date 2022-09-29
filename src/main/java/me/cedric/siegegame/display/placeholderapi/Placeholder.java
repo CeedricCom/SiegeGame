@@ -2,6 +2,7 @@ package me.cedric.siegegame.display.placeholderapi;
 
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.superitems.SuperItem;
 import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.World;
@@ -35,6 +36,17 @@ public enum Placeholder {
         World world = gamePlayer.getBukkitPlayer().getWorld();
         WorldGame worldGame = siegeGame.getGameManager().getWorldGame(world);
         return worldGame == null ? "" : worldGame.getGameMap().getDisplayName();
+    }),
+
+    SUPER_ITEM("super_item_or_nothing", (siegeGame, player, s) -> {
+        SuperItem item = siegeGame.getSuperItemManager().getSuperItems().stream()
+                .filter(superItem -> superItem.getOwner().equals(player))
+                .findAny()
+                .orElse(null);
+        if (item == null)
+            return "";
+
+        return item.getDisplayName();
     });
 
     private final String param;
