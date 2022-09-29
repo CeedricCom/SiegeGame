@@ -107,7 +107,7 @@ public class FakeBorderWall extends BorderDisplay {
         WallProjection wallProjection = projectXZ(borderBox,player.getBukkitPlayer().getLocation());
         List<Wall> oldWalls = new ArrayList<>(walls);
         walls.clear();
-        System.out.println("------ CREATING WALLS --------");
+        //System.out.println("------ CREATING WALLS --------");
         createWall(borderBox, wallProjection.XZ, wallProjection.perpendicular, wallProjection.Y, wallProjection.xDimension,0, width,wallProjection.facingPositive);
         buildUpdate(oldWalls,walls);
     }
