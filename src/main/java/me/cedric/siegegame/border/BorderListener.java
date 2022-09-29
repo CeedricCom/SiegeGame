@@ -2,7 +2,6 @@ package me.cedric.siegegame.border;
 
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.enums.Permissions;
-import me.cedric.siegegame.player.BorderHandler;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Location;
@@ -25,7 +24,8 @@ public class BorderListener implements Listener {
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
         GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
-
+        //way too much logic
+        //just call gamePlayer.getBorderHandler().update(event);
         if (gamePlayer == null)
             return;
 
@@ -43,7 +43,7 @@ public class BorderListener implements Listener {
         BorderHandler handler = gamePlayer.getBorderHandler();
         Location location = gamePlayer.getBukkitPlayer().getLocation();
 
-        if (changedBlock(event)) {
+        if (event.hasChangedBlock()) {
             handler.getBorders().forEach(border -> handler.getBorderDisplay(border).update(worldGame, border));
         }
 
@@ -93,12 +93,6 @@ public class BorderListener implements Listener {
             return;
         }
         player.getBukkitPlayer().teleport(player.getBorderHandler().getLastSafe());
-    }
-
-    private boolean changedBlock(PlayerMoveEvent event) {
-        Location to = event.getTo().clone();
-        Location from = event.getFrom().clone();
-        return !to.equals(from);
     }
 
     private boolean shouldCheck(GamePlayer gamePlayer) {

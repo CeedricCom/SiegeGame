@@ -1,24 +1,15 @@
-package me.cedric.siegegame.player;
+package me.cedric.siegegame.border;
 
 import me.cedric.siegegame.SiegeGame;
-import me.cedric.siegegame.border.Border;
-import me.cedric.siegegame.border.BorderDisplay;
-import me.cedric.siegegame.border.BoundingBox;
-import me.cedric.siegegame.border.FakeBlockManager;
-import me.cedric.siegegame.border.FakeBorderWall;
+import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.player.LastSafe;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class BorderHandler {
 
@@ -72,7 +63,7 @@ public class BorderHandler {
             Border border = entry.getKey();
 
             BoundingBox borderBox = border.getBoundingBox();
-            int expand = borderBox.isInverse() ? 1 : -1;
+            int expand = border.isInverse() ? 1 : -1;
 
             if (borderBox.clone().expand(expand).isColliding(location))
                 b.add(entry.getValue().getBorder());

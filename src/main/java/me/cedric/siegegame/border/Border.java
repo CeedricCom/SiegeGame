@@ -13,6 +13,7 @@ public class Border {
     private boolean blockBreakAllowed = false;
     private boolean blockPlaceAllowed = false;
     private boolean canLeave = false;
+    private boolean inverse = false;
 
     public Border(@NotNull BoundingBox boundingBox) {
         this.boundingBox = boundingBox;
@@ -29,11 +30,11 @@ public class Border {
     }
 
     public boolean isInverse() {
-        return this.boundingBox.isInverse();
+        return this.inverse;
     }
 
     public void setInverse(boolean inverse) {
-        this.boundingBox.setInverse(inverse);
+        this.inverse = inverse;
     }
 
     @NotNull
