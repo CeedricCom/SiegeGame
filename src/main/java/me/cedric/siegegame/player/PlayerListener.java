@@ -1,13 +1,11 @@
 package me.cedric.siegegame.player;
 
-import com.palmergames.bukkit.towny.event.player.PlayerKilledPlayerEvent;
 import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.config.Settings;
 import me.cedric.siegegame.display.Displayer;
 import me.cedric.siegegame.teams.Team;
-import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

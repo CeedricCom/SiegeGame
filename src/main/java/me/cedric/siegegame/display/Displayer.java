@@ -78,7 +78,7 @@ public abstract class Displayer {
         lines.add("");
         lines.add(ChatColor.YELLOW + "ceedric.com");
 
-        EScoreboard scoreboard = apiPlayer.setScoreboard(apiPlayer.getUniqueID().toString(), lines.size());
+        EScoreboard scoreboard = apiPlayer.getScoreboard() == null ? apiPlayer.setScoreboard(apiPlayer.getUniqueID().toString(), lines.size()) : apiPlayer.getScoreboard();
         scoreboard.setTitle(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Sieges");
 
         int i = 0;

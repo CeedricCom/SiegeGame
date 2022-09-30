@@ -64,6 +64,7 @@ public abstract class SuperItem implements Listener {
             newOwner.getBukkitPlayer().getWorld().dropItem(newOwner.getBukkitPlayer().getLocation(), getItem());
         }
         display(newOwner);
+        plugin.getGameManager().updateAllScoreboards();
     }
 
     public GamePlayer getOwner() {
