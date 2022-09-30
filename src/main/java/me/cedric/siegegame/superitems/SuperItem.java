@@ -83,7 +83,7 @@ public abstract class SuperItem implements Listener {
     @EventHandler
     public void onDropItem(PlayerDropItemEvent event) {
         ItemStack droppedItem = event.getItemDrop().getItemStack();
-        if (droppedItem.clone().equals(getItem()))
+        if (isItem(droppedItem))
             event.setCancelled(true);
     }
 
