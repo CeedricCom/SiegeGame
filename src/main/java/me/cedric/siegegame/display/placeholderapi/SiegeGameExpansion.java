@@ -3,11 +3,12 @@ package me.cedric.siegegame.display.placeholderapi;
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.player.GamePlayer;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
+import me.clip.placeholderapi.expansion.Relational;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class SiegeGameExpansion extends PlaceholderExpansion {
+public class SiegeGameExpansion extends PlaceholderExpansion implements Relational {
 
     private final SiegeGame plugin;
 
@@ -45,14 +46,43 @@ public class SiegeGameExpansion extends PlaceholderExpansion {
         GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
 
         for (Placeholder placeholder : Placeholder.values()) {
-            if (p.contains(placeholder.getParameter())) {
+            if (p.contains(placeholder.getParameter()) && !placeholder.isRelational()) {
 
                 String m = p.replace(placeholder.getParameter(), "");
                 // now _someteam
                 m = m.replaceAll("_", "");
                 // now someteam
 
-                return placeholder.getAction().apply(plugin, gamePlayer, m);
+                return placeholder.getAction().apply(plugin, gamePlayer, m, new Object[] {});
+            }
+
+        }
+
+        return null;
+    }
+
+    @Override
+    public String onPlaceholderRequest(Player player, Player two, String params) {
+        if (player == null)
+            return null;
+
+        if (params.equalsIgnoreCase(getIdentifier()))
+            return null;
+
+        //siegegame_team_name_someteam
+        String p = params.replace(getIdentifier() + "_", "");
+        // now team_name_someteam
+
+        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
+
+        for (Placeholder placeholder : Placeholder.values()) {
+            if (p.contains(placeholder.getParameter()) && placeholder.isRelational()) {
+
+                String m = p.replace(placeholder.getParameter(), "");
+                // now _someteam
+                m = m.replaceAll("_", "");
+                // now someteam
+                return placeholder.getAction().apply(plugin, gamePlayer, m, new Object[] {two});
             }
 
         }

@@ -3,6 +3,8 @@ package me.cedric.siegegame.superitems;
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.player.GamePlayer;
 import me.deltaorion.bukkit.item.ItemBuilder;
+import org.bukkit.World;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -13,6 +15,7 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 
 public abstract class SuperItem implements Listener {
@@ -115,6 +118,23 @@ public abstract class SuperItem implements Listener {
             giveTo(gameKiller);
         }
 
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        Player player = event.getPlayer();
+
+        if (owner == null)
+            return;
+
+        if (!player.getUniqueId().equals(owner.getUUID()))
+            return;
+
+        remove();
+
+        World world = event.getPlayer().getWorld();
+        Item item = world.dropItem(player.getLocation(), getItem().clone());
+        item.setGlowing(true);
     }
 
 }
