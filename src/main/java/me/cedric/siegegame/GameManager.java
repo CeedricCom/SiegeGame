@@ -3,8 +3,6 @@ package me.cedric.siegegame;
 import com.palmergames.bukkit.towny.TownyAPI;
 import com.palmergames.bukkit.towny.TownyUniverse;
 import com.palmergames.bukkit.towny.exceptions.AlreadyRegisteredException;
-import com.palmergames.bukkit.towny.exceptions.EmptyTownException;
-import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.object.Resident;
 import me.cedric.siegegame.config.Settings;
 import me.cedric.siegegame.display.Displayer;
@@ -17,7 +15,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.World;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -86,6 +83,9 @@ public final class GameManager {
             for (Team team : worldGame.getTeams()) {
                 for (GamePlayer gamePlayer : team.getPlayers()) {
                     gamePlayer.getBukkitPlayer().teleport(team.getSafeSpawn());
+                    gamePlayer.getBukkitPlayer().setLevel(0);
+                    gamePlayer.getBukkitPlayer().getInventory().clear();
+                    gamePlayer.getBukkitPlayer().getEnderChest().clear();
                     Displayer.updateScoreboard(plugin, gamePlayer, currentMap);
                 }
             }
@@ -118,6 +118,17 @@ public final class GameManager {
 
             superItemCounter++;
         }
+    }
+
+    public boolean hasSuperItem(Team team) {
+        for (GamePlayer gamePlayer : team.getPlayers()) {
+            for (SuperItem superItem : plugin.getSuperItemManager().getSuperItems()) {
+                if (superItem.getOwner() != null && superItem.getOwner().getUUID().equals(gamePlayer.getUUID()))
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     public void assignSuperItem(SuperItem superItem, Team team) {
@@ -159,6 +170,7 @@ public final class GameManager {
             gamePlayer.getTeam().addPoints(-gamePlayer.getTeam().getPoints());
             gamePlayer.getTeam().removePlayer(gamePlayer);
             gamePlayer.getBukkitPlayer().getInventory().clear();
+            gamePlayer.getBukkitPlayer().getEnderChest().clear();
             Displayer.wipeScoreboard(plugin, gamePlayer);
 
             gamePlayer.getBukkitPlayer().sendMessage(ChatColor.DARK_AQUA + "[ceedric.com]" + ChatColor.GOLD + "on gaia gods i would fk u up on eu boxing 1v1 z tier fkin rand dogs i swear my zuesimortal clicker can put u in 30 hit combo like dog random , I AM GAIA DEMON please dont disrespect me fkin dog rand i am known gaia player i swear on morudias gods ur a fkin rand ON HYTES ur my fkin dog Z tier dog randoms");

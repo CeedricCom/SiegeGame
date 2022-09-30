@@ -12,6 +12,7 @@ import me.cedric.siegegame.display.shop.ShopGUI;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.PlayerListener;
 import me.cedric.siegegame.player.PlayerManager;
+import me.cedric.siegegame.superitems.SuperItem;
 import me.cedric.siegegame.superitems.SuperItemManager;
 import me.cedric.siegegame.world.WorldGame;
 import me.deltaorion.bukkit.plugin.plugin.BukkitPlugin;
@@ -66,6 +67,13 @@ public final class SiegeGame extends BukkitPlugin {
 
         for (GamePlayer gamePlayer : deathManager.getDeadPlayers()) {
             deathManager.revivePlayer(gamePlayer);
+        }
+
+        if (gameManager.getCurrentMap() == null)
+            return;
+
+        for (SuperItem superItem : gameManager.getCurrentMap().getSuperItems()) {
+            superItem.remove();
         }
     }
 

@@ -2,21 +2,24 @@ package me.cedric.siegegame.superitems;
 
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.player.GamePlayer;
-import me.deltaorion.bukkit.item.ItemBuilder;
-import org.bukkit.World;
+import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 
 public abstract class SuperItem implements Listener {
 
@@ -46,6 +49,8 @@ public abstract class SuperItem implements Listener {
             owner.getBukkitPlayer().getInventory().removeItem(getItem());
             removeDisplay(owner);
         }
+        this.owner = null;
+        plugin.getGameManager().updateAllScoreboards();
     }
 
     public String getKey() {
@@ -54,9 +59,10 @@ public abstract class SuperItem implements Listener {
 
     private ItemStack getItem() {
         ItemStack item = itemStack().clone();
-        ItemBuilder builder = new ItemBuilder(item.clone())
-                .transformNBT(nbtItem -> nbtItem.setString(compoundKey, key));
-        return builder.build().clone();
+        ItemMeta meta = item.getItemMeta();
+        meta.getPersistentDataContainer().set(new NamespacedKey(plugin, compoundKey), PersistentDataType.STRING, getKey());
+        item.setItemMeta(meta);
+        return item.clone();
     }
 
     public void giveTo(GamePlayer newOwner) {
@@ -64,7 +70,7 @@ public abstract class SuperItem implements Listener {
             remove();
         this.owner = newOwner;
         if (!newOwner.getBukkitPlayer().getInventory().addItem(getItem()).isEmpty()) {
-            newOwner.getBukkitPlayer().getWorld().dropItem(newOwner.getBukkitPlayer().getLocation(), getItem());
+            dropItem(newOwner.getBukkitPlayer().getLocation());
         }
         display(newOwner);
         plugin.getGameManager().updateAllScoreboards();
@@ -90,33 +96,56 @@ public abstract class SuperItem implements Listener {
             return;
 
         Player player = (Player) event.getEntity();
+        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
 
-        if (this.owner == null) {
-            giveTo(plugin.getPlayerManager().getPlayer(player.getUniqueId()));
+        if (this.owner == null && !plugin.getGameManager().hasSuperItem(gamePlayer.getTeam())) {
+            giveTo(gamePlayer);
             event.setCancelled(true);
             event.getItem().remove();
             return;
         }
 
-        if (!player.getUniqueId().equals(this.owner.getUUID()))
+        if (this.owner == null || !player.getUniqueId().equals(this.owner.getUUID()))
             event.setCancelled(true);
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getPlayer();
         GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
 
-        if (gamePlayer.equals(owner)) {
-            Player killer = player.getKiller();
-            if (killer == null) {
-                plugin.getGameManager().assignSuperItem(this, gamePlayer.getTeam());
-                return;
-            }
+        if (!gamePlayer.equals(owner))
+            return;
 
-            GamePlayer gameKiller = plugin.getPlayerManager().getPlayer(killer.getUniqueId());
-            giveTo(gameKiller);
+        remove();
+
+        Player killer = player.getKiller();
+
+        event.getDrops().removeIf(this::isItem);
+
+        if (killer == null) {
+            dropItem(gamePlayer.getBukkitPlayer().getLocation());
+            return;
         }
+
+        GamePlayer gameKiller = plugin.getPlayerManager().getPlayer(killer.getUniqueId());
+
+        if (gameKiller.hasTeam() && plugin.getGameManager().hasSuperItem(gameKiller.getTeam())) {
+            dropItem(player.getLocation());
+            return;
+        }
+
+        giveTo(gameKiller);
+
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR) // very important this stays in monitor, the manager has to add it first and has to have team first
+    public void onJoin(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
+
+        if (gamePlayer.hasTeam() && !plugin.getGameManager().hasSuperItem(gamePlayer.getTeam()) && this.owner == null)
+            giveTo(gamePlayer);
 
     }
 
@@ -124,17 +153,44 @@ public abstract class SuperItem implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
 
-        if (owner == null)
-            return;
-
-        if (!player.getUniqueId().equals(owner.getUUID()))
+        if (owner == null || !player.getUniqueId().equals(owner.getUUID()))
             return;
 
         remove();
-
-        World world = event.getPlayer().getWorld();
-        Item item = world.dropItem(player.getLocation(), getItem().clone());
-        item.setGlowing(true);
+        dropItem(player.getLocation());
+        plugin.getGameManager().updateAllScoreboards();
     }
 
+    @EventHandler
+    public void onInventoryMove(InventoryClickEvent event) {
+        ItemStack item = event.getCurrentItem();
+        ItemStack cursor = event.getCursor();
+
+        if ((isItem(item) || isItem(cursor) || event.getClick().isKeyboardClick()) && event.getInventory().getType() != InventoryType.CRAFTING) {
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onInventoryDrag(InventoryDragEvent event) {
+        ItemStack item = event.getOldCursor();
+        ItemStack cursor = event.getCursor();
+
+        if ((isItem(item) || isItem(cursor)) && event.getInventory().getType() != InventoryType.CRAFTING)
+            event.setCancelled(true);
+    }
+
+    private boolean isItem(ItemStack itemStack) {
+        if (itemStack == null || itemStack.getItemMeta() == null)
+            return false;
+        NamespacedKey namespacedKey = new NamespacedKey(plugin, compoundKey);
+        if (!itemStack.getItemMeta().getPersistentDataContainer().has(namespacedKey, PersistentDataType.STRING))
+            return false;
+        return itemStack.getItemMeta().getPersistentDataContainer().get(namespacedKey, PersistentDataType.STRING) != null;
+    }
+
+    private void dropItem(Location location) {
+        Item item = location.getWorld().dropItem(location, getItem().clone());
+        item.setGlowing(true);
+    }
 }

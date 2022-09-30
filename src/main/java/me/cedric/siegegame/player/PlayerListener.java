@@ -38,7 +38,6 @@ public class PlayerListener implements Listener {
             if (gamePlayer.hasTeam()) {
                 player.teleport(gamePlayer.getTeam().getSafeSpawn());
                 Displayer.updateScoreboard(plugin, gamePlayer, gamePlayer.getTeam().getWorldGame());
-                plugin.getGameManager().assignSuperItems(false);
             }
         }
 
@@ -107,7 +106,7 @@ public class PlayerListener implements Listener {
     public void onCommandProcess(PlayerCommandPreprocessEvent event) {
         GamePlayer player = plugin.getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
 
-        if (!player.hasTeam())
+        if (player == null || !player.hasTeam())
             return;
 
         if (!(event.getMessage().endsWith("t spawn") || event.getMessage().endsWith("town spawn")))
