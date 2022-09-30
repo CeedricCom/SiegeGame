@@ -14,6 +14,7 @@ public class GamePlayer {
     private final SiegeGame plugin;
     private final UUID uuid;
     private final BorderHandler borderHandler;
+    private boolean dead = false;
     private Team team;
 
     public GamePlayer(UUID uuid, SiegeGame plugin) {
@@ -51,5 +52,13 @@ public class GamePlayer {
 
     public BorderHandler getBorderHandler() {
         return borderHandler;
+    }
+
+    public boolean isDead() {
+        return dead;
+    }
+
+    public void setDead(boolean dead) {
+        this.dead = dead;
     }
 }

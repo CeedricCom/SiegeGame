@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -99,7 +100,20 @@ public abstract class SuperItem implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onPlayerDeath(PlayerDeathEvent event) {
-        remove();
+        Player player = event.getPlayer();
+        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
+
+        if (gamePlayer.equals(owner)) {
+            Player killer = player.getKiller();
+            if (killer == null) {
+                plugin.getGameManager().assignSuperItem(this, gamePlayer.getTeam());
+                return;
+            }
+
+            GamePlayer gameKiller = plugin.getPlayerManager().getPlayer(killer.getUniqueId());
+            giveTo(gameKiller);
+        }
+
     }
 
 }

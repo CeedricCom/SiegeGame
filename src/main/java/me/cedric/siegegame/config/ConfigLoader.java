@@ -19,7 +19,7 @@ import me.deltaorion.common.config.InvalidConfigurationException;
 import me.deltaorion.common.config.yaml.YamlAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Color;
+import java.awt.Color;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
@@ -276,11 +276,7 @@ public class ConfigLoader {
     }
 
     private Color color(String hexColor) {
-        int r = Integer.valueOf(hexColor.substring(1, 3), 16);
-        int g = Integer.valueOf(hexColor.substring(3, 5), 16);
-        int b = Integer.valueOf(hexColor.substring(5, 7), 16);
-
-        return Color.fromRGB(r, g, b);
+        return Color.decode(hexColor);
     }
 
     private void cryAndDisable() {

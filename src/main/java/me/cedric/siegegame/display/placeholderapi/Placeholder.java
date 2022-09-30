@@ -7,6 +7,8 @@ import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.World;
 
+import java.util.Comparator;
+
 public enum Placeholder {
 
     TEAM_NAME("team_name", (siegeGame, gamePlayer, s) -> {
@@ -16,7 +18,7 @@ public enum Placeholder {
 
     TEAM_COLOR("team_color", (siegeGame, gamePlayer, s) -> {
         Team team = getTeam(siegeGame, gamePlayer, s);
-        return team == null ? "" : team.getColor().asRGB() + "";
+        return team == null ? "" : team.getColor().getRGB() + "";
     }),
 
     TEAM_POINTS("team_points", (siegeGame, gamePlayer, s) -> {

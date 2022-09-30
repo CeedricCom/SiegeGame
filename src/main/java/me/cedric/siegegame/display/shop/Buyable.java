@@ -31,6 +31,11 @@ public interface Buyable {
             return false;
         }
 
+        if (gamePlayer.isDead()) {
+            player.sendMessage(ChatColor.RED + "You cannot do this while dead");
+            return false;
+        }
+
         if (player.getLevel() < getPrice()) {
             player.sendMessage(ChatColor.RED + "You do not have enough levels to buy this");
             return false;

@@ -5,12 +5,14 @@ import com.palmergames.bukkit.towny.object.Resident;
 import com.palmergames.bukkit.towny.object.Town;
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.config.Settings;
+import me.cedric.siegegame.display.Displayer;
 import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -33,7 +35,13 @@ public class PlayerListener implements Listener {
         plugin.getPlayerManager().addPlayer(player.getUniqueId());
 
         if (plugin.getGameManager().isOngoingGame()) {
-            plugin.getGameManager().assignTeam(plugin.getPlayerManager().getPlayer(player.getUniqueId()));
+            GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
+            plugin.getGameManager().assignTeam(gamePlayer);
+            if (gamePlayer.hasTeam()) {
+                player.teleport(gamePlayer.getTeam().getSafeSpawn());
+                Displayer.updateScoreboard(plugin, gamePlayer, gamePlayer.getTeam().getWorldGame());
+                plugin.getGameManager().assignSuperItems(false);
+            }
         }
 
         player.addPotionEffect(
@@ -53,8 +61,13 @@ public class PlayerListener implements Listener {
     }
 
     @EventHandler
-    public void onKill(PlayerKilledPlayerEvent event) {
-        Player killer = event.getKiller();
+    public void onKill(PlayerDeathEvent event) {
+
+        Player killer = event.getPlayer().getKiller();
+
+        if (killer == null)
+            return;
+
         GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(killer.getUniqueId());
 
         if (!gamePlayer.hasTeam())
@@ -79,13 +92,17 @@ public class PlayerListener implements Listener {
         if (team.getPoints() >= Settings.POINTS_TO_END.getValue()) {
             plugin.getGameManager().startNextMap();
         }
+
+        plugin.getGameManager().updateAllScoreboards();
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onRespawn(PlayerRespawnEvent event) {
+        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
         event.getPlayer().addPotionEffect(
                 new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false, false)
         );
+        Displayer.updateScoreboard(plugin, gamePlayer, gamePlayer.getTeam().getWorldGame());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

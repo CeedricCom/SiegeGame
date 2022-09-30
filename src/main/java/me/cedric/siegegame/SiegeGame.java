@@ -6,8 +6,10 @@ import me.cedric.siegegame.border.BorderListener;
 import me.cedric.siegegame.command.ResourcesCommand;
 import me.cedric.siegegame.command.SiegeGameCommand;
 import me.cedric.siegegame.config.ConfigLoader;
+import me.cedric.siegegame.death.DeathManager;
 import me.cedric.siegegame.display.placeholderapi.SiegeGameExpansion;
 import me.cedric.siegegame.display.shop.ShopGUI;
+import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.PlayerListener;
 import me.cedric.siegegame.player.PlayerManager;
 import me.cedric.siegegame.superitems.SuperItemManager;
@@ -23,6 +25,7 @@ public final class SiegeGame extends BukkitPlugin {
     private GameManager gameManager;
     private PlayerManager playerManager;
     private SuperItemManager superItemManager;
+    private DeathManager deathManager;
     private ShopGUI shopGUI;
 
     // TODO: messages (perhaps locale?)
@@ -35,6 +38,7 @@ public final class SiegeGame extends BukkitPlugin {
         this.configLoader = new ConfigLoader(this);
         this.shopGUI = new ShopGUI(this);
         this.superItemManager = new SuperItemManager(this);
+        this.deathManager = new DeathManager(this);
 
         this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         this.getServer().getPluginManager().registerEvents(new BorderListener(this), this);
@@ -50,6 +54,7 @@ public final class SiegeGame extends BukkitPlugin {
         }
 
         superItemManager.initialize();
+        deathManager.initialize();
         configLoader.initializeAndLoad();
     }
 
@@ -57,6 +62,10 @@ public final class SiegeGame extends BukkitPlugin {
     public void onPluginDisable() {
         for (WorldGame worldGame : gameManager.getLoadedWorlds()) {
             worldGame.getGameMap().unload();
+        }
+
+        for (GamePlayer gamePlayer : deathManager.getDeadPlayers()) {
+            deathManager.revivePlayer(gamePlayer);
         }
     }
 

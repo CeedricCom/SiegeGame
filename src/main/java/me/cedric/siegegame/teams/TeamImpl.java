@@ -5,9 +5,9 @@ import com.palmergames.bukkit.towny.object.Town;
 import me.cedric.siegegame.border.Border;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.world.WorldGame;
-import org.bukkit.Color;
 import org.bukkit.Location;
 
+import java.awt.*;
 import java.util.HashSet;
 import java.util.Set;
 

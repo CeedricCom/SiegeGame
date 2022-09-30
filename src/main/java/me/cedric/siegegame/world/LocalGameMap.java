@@ -8,10 +8,12 @@ import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
 import com.palmergames.bukkit.towny.exceptions.TownyException;
 import com.palmergames.bukkit.towny.object.Town;
 import com.palmergames.bukkit.towny.object.TownBlock;
+import com.palmergames.bukkit.towny.object.TownyPermissionChange;
 import com.palmergames.bukkit.towny.object.TownyWorld;
 import com.palmergames.bukkit.towny.object.WorldCoord;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
@@ -55,7 +57,9 @@ public class LocalGameMap implements GameMap {
 
         if (bukkitWorld == null)
             return false;
+
         bukkitWorld.setAutoSave(false);
+        bukkitWorld.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
 
         if (!copyTowns())
             return false;

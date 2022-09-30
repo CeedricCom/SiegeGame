@@ -3,11 +3,11 @@ package me.cedric.siegegame.teams;
 import com.google.common.collect.ImmutableSet;
 import com.palmergames.bukkit.towny.object.Town;
 import me.cedric.siegegame.border.Border;
-import me.cedric.siegegame.border.BoundingBox;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.world.WorldGame;
-import org.bukkit.Color;
 import org.bukkit.Location;
+
+import java.awt.Color;
 
 public interface Team {
 
