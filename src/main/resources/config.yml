@@ -1,3 +1,9 @@
 levels-per-kill: 10
 points-per-kill: 500
 points-to-end: 10000
+respawn-timer: 15
+start-game-commands: []
+end-game-commands: []
+respawn-commands: []
+death-commands: []
+blacklisted-projectiles: []

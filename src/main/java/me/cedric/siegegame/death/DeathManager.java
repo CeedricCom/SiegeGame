@@ -16,6 +16,7 @@ import org.bukkit.potion.PotionEffectType;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -74,7 +75,7 @@ public class DeathManager {
             deadPlayers.remove(gamePlayer);
         }
 
-        RespawnTask respawnTask = new RespawnTask(plugin, this, gamePlayer, Settings.RESPAWN_TIMER.getValue(), respawnLocation);
+        RespawnTask respawnTask = new RespawnTask(plugin, this, gamePlayer, (int) Settings.RESPAWN_TIMER.getValue(), respawnLocation);
         deadPlayers.put(gamePlayer, respawnTask);
 
         respawnTask.start();
@@ -84,6 +85,10 @@ public class DeathManager {
         player.showTitle(Title.title(Component.text(title), Component.text(subtitle)));
 
         gamePlayer.setDead(true);
+
+        for (String s : (List<String>) Settings.DEATH_COMMANDS.getValue()) {
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
+        }
     }
 
     public void revivePlayer(GamePlayer gamePlayer) {
@@ -120,6 +125,10 @@ public class DeathManager {
 
         deadPlayers.remove(gamePlayer);
         gamePlayer.setDead(false);
+
+        for (String s : (List<String>) Settings.RESPAWN_COMMANDS.getValue()) {
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
+        }
     }
 
     public boolean isPlayerDead(UUID uuid) {

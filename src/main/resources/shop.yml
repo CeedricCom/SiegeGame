@@ -3,6 +3,7 @@ shop:
     material: DIAMOND_SWORD
     slot: 0
     price: 0
+    amount: 1
     display-name: '&7 bom dia'
     lore:
       - 'eae rapaziada'

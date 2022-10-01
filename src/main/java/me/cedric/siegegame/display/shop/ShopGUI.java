@@ -31,15 +31,14 @@ public class ShopGUI {
         this.pane.addItem(new GuiItem(button.getDisplayItem(), inventoryClickEvent -> {
             GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(inventoryClickEvent.getWhoClicked().getUniqueId());
             if (button.handlePurchase(gamePlayer)) {
-                plugin.getLogger().info("Player " + gamePlayer.getBukkitPlayer().getName() + " has successfully bought " +
-                        button.getDisplayItem().displayName() + " for " + button.getPrice());
+                plugin.getLogger().info("Player " + gamePlayer.getBukkitPlayer().getName() + " has successfully bought an item for " + button.getPrice());
             }
             inventoryClickEvent.setCancelled(true);
-        }), button.getSlot() % 8, button.getSlot() / rows);
+        }), button.getSlot() % 9, button.getSlot() / 9);
     }
 
     public void removeItem(ItemStack item) {
-        shopItems.remove(item);
+        shopItems.removeIf(shopItem -> shopItem.getDisplayItem().equals(item));
     }
 
     public List<ShopItem> getButtons() {
@@ -51,6 +50,10 @@ public class ShopGUI {
         this.pane = new StaticPane(0, 0, 9, rows);
         chestGui.addPane(pane);
         chestGui.setOnGlobalClick(inventoryClickEvent -> inventoryClickEvent.setCancelled(true));
+    }
+
+    public void clear() {
+        this.pane.clear();
     }
 
     public void setGUIName(String guiName) {

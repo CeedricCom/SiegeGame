@@ -1,7 +1,5 @@
 package me.cedric.siegegame.superitems;
 
-import com.gmail.filoghost.holographicdisplays.api.Hologram;
-import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.player.GamePlayer;
 import me.deltaorion.bukkit.item.ItemBuilder;

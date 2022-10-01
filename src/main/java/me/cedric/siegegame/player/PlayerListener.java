@@ -81,12 +81,12 @@ public class PlayerListener implements Listener {
 
             int levels = res.getLevel();
 
-            res.setLevel(levels + Settings.LEVELS_PER_KILL.getValue());
+            res.setLevel(levels + (int) Settings.LEVELS_PER_KILL.getValue());
         }
 
-        team.addPoints(Settings.POINTS_PER_KILL.getValue());
+        team.addPoints((int) Settings.POINTS_PER_KILL.getValue());
 
-        if (team.getPoints() >= Settings.POINTS_TO_END.getValue()) {
+        if (team.getPoints() >= (int) Settings.POINTS_TO_END.getValue()) {
             plugin.getGameManager().startNextMap();
         }
 

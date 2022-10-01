@@ -95,6 +95,10 @@ public final class GameManager {
             plugin.getPlayerManager().getPlayers().forEach(gamePlayer -> gamePlayer.getBorderHandler().addBorder(worldGame.getBorder()));
             worldGame.getTeams().forEach(team -> plugin.getPlayerManager().getPlayers().forEach(gamePlayer -> gamePlayer.getBorderHandler().addBorder(team.getSafeArea())));
 
+            for (String s : (List<String>) Settings.START_GAME_COMMANDS.getValue()) {
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
+            }
+
             if (this.lastMap != null)
                 this.lastMap.getGameMap().restoreFromSource();
         }, wait ? 30 * 20 : 20);
@@ -156,7 +160,7 @@ public final class GameManager {
         List<GamePlayer> players = plugin.getPlayerManager().getPlayers();
 
         for (GamePlayer gamePlayer : players) {
-            if (gamePlayer.hasTeam() && gamePlayer.getTeam().getPoints() >= Settings.POINTS_TO_END.getValue()) {
+            if (gamePlayer.hasTeam() && gamePlayer.getTeam().getPoints() >= (int) Settings.POINTS_TO_END.getValue()) {
                 gamePlayer.getBukkitPlayer().sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "VICTORY", ChatColor.YELLOW + "gg ez yall are dog z tier rands");
             } else {
                 gamePlayer.getBukkitPlayer().sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "DEFEAT", ChatColor.RED + "L gg random");
@@ -183,6 +187,10 @@ public final class GameManager {
         lastMap = worldGame;
         worldQueue.add(worldGame);
         currentMap = null;
+
+        for (String s : (List<String>) Settings.END_GAME_COMMANDS.getValue()) {
+            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
+        }
     }
 
     public void updateAllScoreboards() {

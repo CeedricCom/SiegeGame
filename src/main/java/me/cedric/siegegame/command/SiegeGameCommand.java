@@ -1,6 +1,7 @@
 package me.cedric.siegegame.command;
 
 import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.command.args.ReloadArg;
 import me.cedric.siegegame.command.args.StartGameArg;
 import me.cedric.siegegame.command.args.TeamsArg;
 import me.deltaorion.common.command.CommandException;
@@ -21,6 +22,7 @@ public class SiegeGameCommand extends FunctionalCommand {
     private void registerArguments() {
         registerArgument("start", new StartGameArg(plugin));
         registerArgument("teams", new TeamsArg(plugin));
+        registerArgument("reload", new ReloadArg(plugin));
     }
 
     @Override
@@ -28,5 +30,6 @@ public class SiegeGameCommand extends FunctionalCommand {
         sentCommand.getSender().sendMessage("/siegegame start");
         sentCommand.getSender().sendMessage("/siegegame teams");
         sentCommand.getSender().sendMessage("/siegegame resources");
+        sentCommand.getSender().sendMessage("/siegegame reload <file>");
     }
 }

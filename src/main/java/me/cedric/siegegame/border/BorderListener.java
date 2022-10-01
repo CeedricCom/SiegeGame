@@ -1,6 +1,7 @@
 package me.cedric.siegegame.border;
 
 import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.config.Settings;
 import me.cedric.siegegame.enums.Permissions;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.world.WorldGame;
@@ -12,6 +13,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+
+import java.util.List;
 
 public class BorderListener implements Listener {
 
@@ -63,6 +66,11 @@ public class BorderListener implements Listener {
             return;
 
         if (!(projectile.getShooter() instanceof Player))
+            return;
+
+        List<String> projectiles = (List<String>) Settings.BLACKLISTED_PROJECTILES.getValue();
+
+        if (!projectiles.contains(projectile.getType().name()))
             return;
 
         Player player = (Player) projectile.getShooter();

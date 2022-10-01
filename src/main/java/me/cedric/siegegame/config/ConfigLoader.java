@@ -26,6 +26,9 @@ import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.PotionMeta;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.Vector;
 
 import java.io.File;
@@ -87,11 +90,20 @@ public class ConfigLoader {
     private static final String SHOP_SECTION_HIDE_ITEM_FLAGS_KEY = "item-flags";
     private static final String SHOP_SECTION_COMMAND_LIST_KEY = "commands";
     private static final String SHOP_SECTION_INCLUDES_ITEM = "includes-item";
+    private static final String SHOP_SECTION_POTION_EFFECTS_KEY = "potion-effects";
+    private static final String SHOP_SECTION_POTION_COLOR_KEY = "potion-color";
+    private static final String SHOP_SECTION_AMOUNT_KEY = "amount";
 
     private FileConfig configYml;
     private static final String CONFIG_POINTS_PER_KILL_KEY = "points-per-kill";
     private static final String CONFIG_POINTS_TO_END_KEY = "points-to-end";
     private static final String CONFIG_LEVELS_PER_KILL_KEY = "levels-per-kill";
+    private static final String RESPAWN_TIMER_KEY = "respawn-timer";
+    private static final String DEATH_COMMANDS_KEY = "death-commands";
+    private static final String RESPAWN_COMMANDS_KEY = "respawn-commands";
+    private static final String START_COMMANDS_KEY = "start-game-commands";
+    private static final String END_COMMANDS_KEY = "end-game-commands";
+    private static final String BLACKLISTED_PROJECTILES_KEY = "blacklisted-projectiles";
 
     public ConfigLoader(SiegeGame plugin) {
         this.plugin = plugin;
@@ -178,24 +190,40 @@ public class ConfigLoader {
             String material = shopYml.getString(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_MATERIAL_KEY);
             int slot = shopYml.getInt(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_SLOT_KEY);
             int price = shopYml.getInt(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_PRICE_KEY);
+            int amount = shopYml.getInt(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_AMOUNT_KEY);
             String displayName = shopYml.getString(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_DISPLAY_NAME_KEY);
             List<String> listOfLore = shopYml.getStringList(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_LORE_KEY);
             List<String> itemFlags = shopYml.getStringList(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_HIDE_ITEM_FLAGS_KEY);
             List<String> enchantments = shopYml.getStringList(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_ENCHANTMENTS_KEY);
             List<String> commands = shopYml.getStringList(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_COMMAND_LIST_KEY);
-            boolean includesItem = shopYml.getBoolean(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_INCLUDES_ITEM);
+            boolean includesItem = Boolean.parseBoolean(shopYml.getString(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_INCLUDES_ITEM));
 
             List<String> lore = new ArrayList<>();
             for (String s : listOfLore) {
                 lore.add(ChatColor.translateAlternateColorCodes('&', s));
             }
 
-            ItemBuilder itemBuilder = new ItemBuilder(EMaterial.valueOf(material.toUpperCase()))
+            ItemBuilder itemBuilder = new ItemBuilder(EMaterial.matchMaterial(material.toUpperCase()))
                     .setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName))
                     .setLore(lore);
 
+            itemBuilder.setAmount(amount);
+
             for (String flag : itemFlags) {
                 itemBuilder.addFlags(ItemFlag.valueOf(flag.toUpperCase()));
+            }
+
+            if (material.equalsIgnoreCase("POTION") || material.equalsIgnoreCase("SPLASH_POTION")) {
+                itemBuilder.transformMeta(itemMeta -> {
+                    PotionMeta potionMeta = (PotionMeta) itemMeta;
+                    // messy asf but whatever
+                    for (String s : shopYml.getStringList(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_POTION_EFFECTS_KEY)) {
+                        String[] args = s.split(",");
+                        potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.getByKey(NamespacedKey.minecraft(args[0])), Integer.parseInt(args[1]) * 20, Integer.parseInt(args[2]), Boolean.parseBoolean(args[3]), Boolean.parseBoolean(args[4]), Boolean.parseBoolean(args[5])), true);
+                    }
+
+                    potionMeta.setColor(bukkitColor(shopYml.getString(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_POTION_COLOR_KEY)));
+                });
             }
 
             for (String enchantment : enchantments) {
@@ -214,7 +242,7 @@ public class ConfigLoader {
                         player.sendMessage("You do not have any empty inventory slots");
                     }
 
-                    gamePlayer.getBukkitPlayer().getInventory().addItem(item);
+                    gamePlayer.getBukkitPlayer().getInventory().addItem(item.clone());
                 }
 
                 for (String command : commands) {
@@ -269,14 +297,41 @@ public class ConfigLoader {
         int pointsPerKill = configYml.getInt(CONFIG_POINTS_PER_KILL_KEY);
         int levelsPerKill = configYml.getInt(CONFIG_LEVELS_PER_KILL_KEY);
         int pointsToEnd = configYml.getInt(CONFIG_POINTS_TO_END_KEY);
+        int respawnTimer = configYml.getInt(RESPAWN_TIMER_KEY);
+        List<String> respawnCommands = configYml.getStringList(RESPAWN_COMMANDS_KEY);
+        List<String> startCommands = configYml.getStringList(START_COMMANDS_KEY);
+        List<String> endCommands = configYml.getStringList(END_COMMANDS_KEY);
+        List<String> deathCommands = configYml.getStringList(DEATH_COMMANDS_KEY);
+        List<String> blacklistProjectiles = configYml.getStringList(BLACKLISTED_PROJECTILES_KEY);
 
         Settings.POINTS_PER_KILL.setValue(pointsPerKill);
         Settings.LEVELS_PER_KILL.setValue(levelsPerKill);
         Settings.POINTS_TO_END.setValue(pointsToEnd);
+        Settings.RESPAWN_TIMER.setValue(respawnTimer);
+        Settings.RESPAWN_COMMANDS.setValue(respawnCommands);
+        Settings.START_GAME_COMMANDS.setValue(startCommands);
+        Settings.END_GAME_COMMANDS.setValue(endCommands);
+        Settings.DEATH_COMMANDS.setValue(deathCommands);
+        Settings.BLACKLISTED_PROJECTILES.setValue(blacklistProjectiles);
+    }
+
+    public void reloadShop() {
+        try {
+            plugin.getShopGUI().clear();
+            shopYml = FileConfig.loadConfiguration(new YamlAdapter(), new File(plugin.getDataFolder(), "shop.yml"));
+            loadShop();
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
     }
 
     private Color color(String hexColor) {
         return Color.decode(hexColor);
+    }
+
+    private org.bukkit.Color bukkitColor(String hexColor) {
+        Color color = color(hexColor);
+        return org.bukkit.Color.fromRGB(color.getRed(), color.getGreen(), color.getBlue());
     }
 
     private void cryAndDisable() {

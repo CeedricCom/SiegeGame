@@ -60,7 +60,7 @@ public class ProjectileFollowTask extends BukkitRunnable {
     }
 
     private boolean checkBorder(Border safeArea, Vector lastSafe) {
-        int distance = safeArea.isInverse() ? 3 : -2;
+        int distance = safeArea.isInverse() ? 2 : -2;
         if (safeArea.getBoundingBox().clone().expand(distance).isCollidingIgnoreInverse(lastSafe) && safeArea.isInverse()) {
             return true;
         }

@@ -21,6 +21,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
 
+import java.util.Arrays;
+
 public abstract class SuperItem implements Listener {
 
     private final static String compoundKey = "superitem";
@@ -28,6 +30,7 @@ public abstract class SuperItem implements Listener {
     protected final SiegeGame plugin;
     private final String key;
     private GamePlayer owner = null;
+    private boolean isDropped = false;
 
     protected SuperItem(SiegeGame plugin, String key) {
         this.plugin = plugin;
@@ -46,7 +49,10 @@ public abstract class SuperItem implements Listener {
 
     public void remove() {
         if (owner != null) {
-            owner.getBukkitPlayer().getInventory().removeItem(getItem());
+            Arrays.stream(owner.getBukkitPlayer().getInventory().getContents()).forEach(itemStack -> {
+                if (isItem(itemStack))
+                    owner.getBukkitPlayer().getInventory().removeItemAnySlot(itemStack);
+            });
             removeDisplay(owner);
         }
         this.owner = null;
@@ -102,6 +108,7 @@ public abstract class SuperItem implements Listener {
             giveTo(gamePlayer);
             event.setCancelled(true);
             event.getItem().remove();
+            isDropped = false;
             return;
         }
 
@@ -136,7 +143,6 @@ public abstract class SuperItem implements Listener {
         }
 
         giveTo(gameKiller);
-
     }
 
     @EventHandler(priority = EventPriority.MONITOR) // very important this stays in monitor, the manager has to add it first and has to have team first
@@ -144,7 +150,7 @@ public abstract class SuperItem implements Listener {
         Player player = event.getPlayer();
         GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
 
-        if (gamePlayer.hasTeam() && !plugin.getGameManager().hasSuperItem(gamePlayer.getTeam()) && this.owner == null)
+        if (gamePlayer.hasTeam() && !plugin.getGameManager().hasSuperItem(gamePlayer.getTeam()) && this.owner == null && !isDropped())
             giveTo(gamePlayer);
 
     }
@@ -192,5 +198,11 @@ public abstract class SuperItem implements Listener {
     private void dropItem(Location location) {
         Item item = location.getWorld().dropItem(location, getItem().clone());
         item.setGlowing(true);
+        isDropped = true;
+        item.setUnlimitedLifetime(true);
+    }
+
+    public boolean isDropped() {
+        return isDropped;
     }
 }
