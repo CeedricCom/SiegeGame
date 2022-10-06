@@ -1,6 +1,7 @@
 package me.cedric.siegegame.territory;
 
 import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.enums.Permissions;
 import me.cedric.siegegame.player.GamePlayer;
 import me.deltaorion.bukkit.item.EMaterial;
 import org.bukkit.Location;
@@ -85,6 +86,9 @@ public class TerritoryBlockers implements Listener {
     }
 
     private void evaluateCancel(GamePlayer gamePlayer, Location location, Cancellable event) {
+        if (gamePlayer.getBukkitPlayer().hasPermission(Permissions.CLAIMS_BYPASS.getPermission()))
+            return;
+
         if (location == null || !territory.isInside(location.getWorld(), location.getBlockX(), location.getBlockZ()))
             return;
 

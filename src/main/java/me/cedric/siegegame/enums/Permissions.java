@@ -3,7 +3,8 @@ package me.cedric.siegegame.enums;
 public enum Permissions {
 
     BORDER_BYPASS("siegegame.bypass.border"),
-    RELOAD_FILES("siegegame.admin.reload");
+    RELOAD_FILES("siegegame.admin.reload"),
+    CLAIMS_BYPASS("siegegame.admin.bypass.claims");
 
     private String permission;
 
