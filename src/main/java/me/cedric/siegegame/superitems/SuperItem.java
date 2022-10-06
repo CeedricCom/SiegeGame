@@ -98,13 +98,18 @@ public abstract class SuperItem implements Listener {
         if (!(event.getEntity() instanceof Player))
             return;
 
-        if (!event.getItem().getItemStack().equals(getItem()))
+        if (!isItem(event.getItem().getItemStack()))
             return;
 
         Player player = (Player) event.getEntity();
         GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
 
-        if (this.owner == null && !plugin.getGameManager().hasSuperItem(gamePlayer.getTeam())) {
+        if (gamePlayer == null) {
+            event.setCancelled(true);
+            return;
+        }
+
+        if (this.owner == null && gamePlayer.hasTeam() && !plugin.getGameManager().ownsSuperItem(gamePlayer)) {
             giveTo(gamePlayer);
             event.setCancelled(true);
             event.getItem().remove();
@@ -121,7 +126,7 @@ public abstract class SuperItem implements Listener {
         Player player = event.getPlayer();
         GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
 
-        if (!gamePlayer.equals(owner))
+        if (gamePlayer == null || !gamePlayer.equals(owner))
             return;
 
         remove();
@@ -171,6 +176,13 @@ public abstract class SuperItem implements Listener {
     public void onInventoryMove(InventoryClickEvent event) {
         ItemStack item = event.getCurrentItem();
         ItemStack cursor = event.getCursor();
+
+        if (event.getInventory().getType() == InventoryType.CRAFTING) {
+            if (isItem(item) || isItem(cursor) && event.getSlot() == 40) {
+                event.setCancelled(true);
+                return;
+            }
+        }
 
         if ((isItem(item) || isItem(cursor) || event.getClick().isKeyboardClick()) && event.getInventory().getType() != InventoryType.CRAFTING) {
             event.setCancelled(true);

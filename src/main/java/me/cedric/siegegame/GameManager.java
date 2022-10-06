@@ -1,9 +1,5 @@
 package me.cedric.siegegame;
 
-import com.palmergames.bukkit.towny.TownyAPI;
-import com.palmergames.bukkit.towny.TownyUniverse;
-import com.palmergames.bukkit.towny.exceptions.AlreadyRegisteredException;
-import com.palmergames.bukkit.towny.object.Resident;
 import me.cedric.siegegame.config.Settings;
 import me.cedric.siegegame.display.Displayer;
 import me.cedric.siegegame.player.GamePlayer;
@@ -166,9 +162,9 @@ public final class GameManager {
                 gamePlayer.getBukkitPlayer().sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "DEFEAT", ChatColor.RED + "L gg random");
             }
 
-            Resident resident = TownyUniverse.getInstance().getResident(gamePlayer.getUUID());
-            if (resident != null)
-                resident.removeTown();
+            Team team = gamePlayer.getTeam();
+            team.removePlayer(gamePlayer);
+
             gamePlayer.getBukkitPlayer().setLevel(0);
             gamePlayer.getBorderHandler().clear();
             gamePlayer.getTeam().addPoints(-gamePlayer.getTeam().getPoints());
@@ -176,7 +172,6 @@ public final class GameManager {
             gamePlayer.getBukkitPlayer().getInventory().clear();
             gamePlayer.getBukkitPlayer().getEnderChest().clear();
             Displayer.wipeScoreboard(plugin, gamePlayer);
-
             gamePlayer.getBukkitPlayer().sendMessage(ChatColor.DARK_AQUA + "[ceedric.com]" + ChatColor.GOLD + "on gaia gods i would fk u up on eu boxing 1v1 z tier fkin rand dogs i swear my zuesimortal clicker can put u in 30 hit combo like dog random , I AM GAIA DEMON please dont disrespect me fkin dog rand i am known gaia player i swear on morudias gods ur a fkin rand ON HYTES ur my fkin dog Z tier dog randoms");
         }
 
@@ -231,13 +226,6 @@ public final class GameManager {
     }
 
     private void assignTeam(GamePlayer player, Team team) {
-        Resident resident = TownyAPI.getInstance().getResident(player.getUUID());
-        if (resident != null) {
-            try {
-                resident.setTown(team.getTeamTown());
-            } catch (AlreadyRegisteredException ignored) {}
-        }
-
         team.addPlayer(player);
 
         for (Team t : getCurrentMap().getTeams()) {
@@ -250,6 +238,12 @@ public final class GameManager {
         );
 
         player.getBukkitPlayer().sendMessage(ChatColor.DARK_AQUA + "You have been assigned to the following team: " + team.getName());
+    }
+
+    public boolean ownsSuperItem(GamePlayer player) {
+        if (currentMap == null)
+            return false;
+        return currentMap.getSuperItems().stream().anyMatch(superItem -> superItem.getOwner() != null && superItem.getOwner().getUUID().equals(player.getUUID()));
     }
 
     public void assignTeams(WorldGame worldGame) {

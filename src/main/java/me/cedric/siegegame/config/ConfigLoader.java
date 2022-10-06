@@ -1,6 +1,5 @@
 package me.cedric.siegegame.config;
 
-import com.palmergames.bukkit.towny.TownyAPI;
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.border.Border;
 import me.cedric.siegegame.border.BoundingBox;
@@ -170,6 +169,7 @@ public class ConfigLoader {
         Border border = new Border(new BoundingBox(localGameMap.getWorld(), corner1Vector, corner2Vector));
         WorldGameImpl worldGame = new WorldGameImpl(mapKey, localGameMap, border, new Location(localGameMap.getWorld(), x, y, z));
         ConfigSection teamsSection = mapsYml.getConfigurationSection(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_TEAMS_KEY);
+
         Set<Team> teams = loadTeams(worldGame, teamsSection);
         worldGame.addTeams(teams);
 
@@ -265,7 +265,6 @@ public class ConfigLoader {
         for (String key : section.getKeys(false)) {
             String name = mapsYml.getString(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_TEAMS_NAME);
             String hexColor = mapsYml.getString(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_TEAMS_COLOR);
-            String townName = mapsYml.getString(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_TEAMS_TOWN);
 
             int x1 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_X1);
             int y1 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_Y1);
@@ -286,7 +285,8 @@ public class ConfigLoader {
             Border border = new Border(new BoundingBox(worldGame.getBukkitWorld(), x1, y1, z1, x2, y2, z2));
             border.setCanLeave(true);
             border.setInverse(true);
-            TeamImpl team = new TeamImpl(worldGame, border, safeSpawn, color(hexColor), TownyAPI.getInstance().getTown(townName), name, key);
+
+            TeamImpl team = new TeamImpl(plugin, worldGame, border, safeSpawn, color(hexColor), name, key);
             teams.add(team);
         }
 

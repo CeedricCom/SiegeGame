@@ -1,11 +1,14 @@
 package me.cedric.siegegame.player;
 
-import com.palmergames.bukkit.towny.object.Resident;
-import com.palmergames.bukkit.towny.object.Town;
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.config.Settings;
 import me.cedric.siegegame.display.Displayer;
 import me.cedric.siegegame.teams.Team;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,6 +34,8 @@ public class PlayerListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         plugin.getPlayerManager().addPlayer(player.getUniqueId());
+        player.getInventory().clear();
+        player.setLevel(0);
 
         if (plugin.getGameManager().isOngoingGame()) {
             GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
@@ -65,23 +70,22 @@ public class PlayerListener implements Listener {
         if (killer == null)
             return;
 
-        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(killer.getUniqueId());
+        GamePlayer killerGamePlayer = plugin.getPlayerManager().getPlayer(killer.getUniqueId());
 
-        if (!gamePlayer.hasTeam())
+        if (!killerGamePlayer.hasTeam())
             return;
 
-        Team team = gamePlayer.getTeam();
-        Town town = team.getTeamTown();
+        Team team = killerGamePlayer.getTeam();
 
-        for (Resident resident : town.getResidents()) {
-            Player res = resident.getPlayer();
+        for (GamePlayer player : team.getPlayers()) {
+            Player bukkitPlayer = player.getBukkitPlayer();
 
-            if (res == null)
+            if (bukkitPlayer == null)
                 continue;
 
-            int levels = res.getLevel();
+            int levels = bukkitPlayer.getLevel();
 
-            res.setLevel(levels + (int) Settings.LEVELS_PER_KILL.getValue());
+            bukkitPlayer.setLevel(levels + (int) Settings.LEVELS_PER_KILL.getValue());
         }
 
         team.addPoints((int) Settings.POINTS_PER_KILL.getValue());
@@ -91,6 +95,23 @@ public class PlayerListener implements Listener {
         }
 
         plugin.getGameManager().updateAllScoreboards();
+
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.playSound(player.getLocation(), "entity.experience_orb.pickup", 1.0F, 0F);
+            TextComponent textComponent = Component.text("")
+                    .color(TextColor.color(88, 140, 252))
+                    .append(Component.text("[ceedric.com] ", TextColor.color(247, 80, 30)))
+                    .append(Component.text(killer.getName(), NamedTextColor.LIGHT_PURPLE))
+                    .append(Component.text(" has killed ", TextColor.color(252, 252, 53)))
+                    .append(Component.text(event.getPlayer().getName() + " ", NamedTextColor.LIGHT_PURPLE))
+                    .append(Component.text(team.getName() + ": ", TextColor.color(255, 194, 97)))
+                    .append(Component.text("+" + Settings.POINTS_PER_KILL.getValue() + " points ", TextColor.color(255, 73, 23)));
+            TextComponent xpLevels = Component.text("")
+                            .color(TextColor.color(0, 143, 26))
+                            .append(Component.text("+" + Settings.LEVELS_PER_KILL.getValue() + " XP Levels"));
+            player.sendMessage(textComponent);
+            player.sendMessage(xpLevels);
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

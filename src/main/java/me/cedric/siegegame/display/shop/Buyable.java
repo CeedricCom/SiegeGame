@@ -1,6 +1,5 @@
 package me.cedric.siegegame.display.shop;
 
-import com.palmergames.bukkit.towny.object.Town;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.teams.Team;
 import org.bukkit.ChatColor;
@@ -24,9 +23,8 @@ public interface Buyable {
         }
 
         Team team = gamePlayer.getTeam();
-        Town teamTown = team.getTeamTown();
 
-        if (!teamTown.isInsideTown(player.getLocation())) {
+        if (!team.getTerritory().isInside(player.getLocation())) {
             player.sendMessage(ChatColor.RED + "You need to be inside claims to do this");
             return false;
         }

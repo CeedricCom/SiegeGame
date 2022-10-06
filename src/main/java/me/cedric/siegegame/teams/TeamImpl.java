@@ -1,36 +1,37 @@
 package me.cedric.siegegame.teams;
 
 import com.google.common.collect.ImmutableSet;
-import com.palmergames.bukkit.towny.object.Town;
+import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.border.Border;
 import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.territory.Territory;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Location;
 
-import java.awt.*;
+import java.awt.Color;
 import java.util.HashSet;
 import java.util.Set;
 
 public class TeamImpl implements Team {
 
     private Color color;
-    private Town town;
     private String name;
     private final WorldGame worldGame;
     private final String configKey;
     private final Set<GamePlayer> players = new HashSet<>();
     private final Border safeArea;
     private final Location safeSpawn;
+    private final Territory territory;
     private int points = 0;
 
-    public TeamImpl(WorldGame worldGame, Border safeArea, Location safeSpawn, Color color, Town town, String name, String configKey) {
+    public TeamImpl(SiegeGame plugin, WorldGame worldGame, Border safeArea, Location safeSpawn, Color color, String name, String configKey) {
         this.color = color;
-        this.town = town;
         this.name = name;
         this.configKey = configKey;
         this.worldGame = worldGame;
         this.safeArea = safeArea;
         this.safeSpawn = safeSpawn;
+        this.territory = new Territory(plugin, worldGame, this);
     }
 
     @Override
@@ -59,18 +60,13 @@ public class TeamImpl implements Team {
     }
 
     @Override
-    public Town getTeamTown() {
-        return town;
+    public Territory getTerritory() {
+        return territory;
     }
 
     @Override
     public Location getSafeSpawn() {
         return safeSpawn.clone();
-    }
-
-    @Override
-    public void setTown(Town town) {
-        this.town = town;
     }
 
     @Override

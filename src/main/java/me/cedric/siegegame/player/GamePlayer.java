@@ -43,6 +43,8 @@ public class GamePlayer {
     }
 
     public void setTeam(Team team) {
+        if (team == null && hasTeam())
+            this.team.removePlayer(this);
         this.team = team;
     }
 

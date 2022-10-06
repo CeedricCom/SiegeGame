@@ -20,7 +20,7 @@ public class TeamsArg extends FunctionalCommand {
     public void commandLogic(SentCommand sentCommand) throws CommandException {
         for (Team team : plugin.getGameManager().getCurrentMap().getTeams()) {
             for (GamePlayer player : team.getPlayers()) {
-                sentCommand.getSender().sendMessage("TEAM " + team.getTeamTown().getName() + ": " + player.getBukkitPlayer().getName());
+                sentCommand.getSender().sendMessage("TEAM " + team.getName() + ": " + player.getBukkitPlayer().getName());
             }
         }
     }

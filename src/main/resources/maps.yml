@@ -18,7 +18,6 @@ maps:
       gaiarands:
         name: 'Gaia Randos'
         color: '#694200'
-        town: 'gaiarands'
         spawn-area:
           x1: 10
           y1: 140
@@ -29,7 +28,6 @@ maps:
       datblockers:
         name: 'DATBLOCKERS'
         color: '#420699'
-        town: 'datblockers'
         spawn-area:
           x1: 10
           y1: 140

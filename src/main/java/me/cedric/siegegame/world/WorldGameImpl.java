@@ -1,10 +1,5 @@
 package me.cedric.siegegame.world;
 
-import com.palmergames.bukkit.towny.TownyAPI;
-import com.palmergames.bukkit.towny.exceptions.AlreadyRegisteredException;
-import com.palmergames.bukkit.towny.exceptions.EmptyTownException;
-import com.palmergames.bukkit.towny.exceptions.NotRegisteredException;
-import com.palmergames.bukkit.towny.object.Resident;
 import me.cedric.siegegame.border.Border;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.superitems.SuperItem;
@@ -106,15 +101,11 @@ public class WorldGameImpl implements WorldGame {
         return configKey;
     }
 
-    public void swapTeam(GamePlayer player, Team newTeam) throws NotRegisteredException, EmptyTownException, AlreadyRegisteredException {
+    public void swapTeam(GamePlayer player, Team newTeam) {
         Team oldTeam = player.getTeam();
         if (oldTeam != null)
             player.getTeam().removePlayer(player);
 
-        Resident resident = TownyAPI.getInstance().getResident(player.getUUID());
-        oldTeam.getTeamTown().removeResident(resident);
-
-        resident.setTown(newTeam.getTeamTown());
         newTeam.addPlayer(player);
     }
 

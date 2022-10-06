@@ -1,9 +1,9 @@
 package me.cedric.siegegame.teams;
 
 import com.google.common.collect.ImmutableSet;
-import com.palmergames.bukkit.towny.object.Town;
 import me.cedric.siegegame.border.Border;
 import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.territory.Territory;
 import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Location;
 
@@ -21,11 +21,9 @@ public interface Team {
 
     String getConfigKey();
 
-    Town getTeamTown();
+    Territory getTerritory();
 
     Location getSafeSpawn();
-
-    void setTown(Town town);
 
     Color getColor();
 

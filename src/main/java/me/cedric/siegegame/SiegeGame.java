@@ -14,6 +14,7 @@ import me.cedric.siegegame.player.PlayerListener;
 import me.cedric.siegegame.player.PlayerManager;
 import me.cedric.siegegame.superitems.SuperItem;
 import me.cedric.siegegame.superitems.SuperItemManager;
+import me.cedric.siegegame.teams.Team;
 import me.cedric.siegegame.world.WorldGame;
 import me.deltaorion.bukkit.plugin.plugin.BukkitPlugin;
 import me.deltaorion.common.plugin.ApiPlugin;
@@ -48,7 +49,6 @@ public final class SiegeGame extends BukkitPlugin {
 
         apiPlugin.registerCommand(new SiegeGameCommand(this), "siegegame", "sg", "siegeg");
         apiPlugin.registerCommand(new ResourcesCommand(this), "resources", "r", "rs");
-        apiPlugin.registerDependency("Towny", true);
 
         if(Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new SiegeGameExpansion(this).register();
@@ -62,6 +62,10 @@ public final class SiegeGame extends BukkitPlugin {
     @Override
     public void onPluginDisable() {
         for (WorldGame worldGame : gameManager.getLoadedWorlds()) {
+
+            for (Team team : worldGame.getTeams())
+                team.getTerritory().save();
+
             worldGame.getGameMap().unload();
         }
 
