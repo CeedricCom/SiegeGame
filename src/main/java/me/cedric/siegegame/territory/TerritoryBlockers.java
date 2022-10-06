@@ -99,40 +99,40 @@ public class TerritoryBlockers implements Listener {
 
     static {
         // Regular blocks
-        interactProhibited.add(Material.HONEYCOMB);
-        interactProhibited.add(Material.ARMOR_STAND);
-        interactProhibited.add(Material.END_CRYSTAL);
-        interactProhibited.add(Material.CAKE);
-        interactProhibited.add(Material.CANDLE);
-        interactProhibited.add(Material.CHEST);
+        interactProhibited.add(EMaterial.HONEYCOMB.getBukkitMaterial());
+        interactProhibited.add(EMaterial.ARMOR_STAND.getBukkitMaterial());
+        interactProhibited.add(EMaterial.END_CRYSTAL.getBukkitMaterial());
+        interactProhibited.add(EMaterial.CAKE.getBukkitMaterial());
+        interactProhibited.add(EMaterial.CANDLE.getBukkitMaterial());
+        interactProhibited.add(EMaterial.CHEST.getBukkitMaterial());
 
         // Pressure plates
-        interactProhibited.add(Material.ACACIA_PRESSURE_PLATE);
-        interactProhibited.add(Material.MANGROVE_PRESSURE_PLATE);
-        interactProhibited.add(Material.LIGHT_WEIGHTED_PRESSURE_PLATE);
-        interactProhibited.add(Material.DARK_OAK_PRESSURE_PLATE);
-        interactProhibited.add(Material.BIRCH_PRESSURE_PLATE);
-        interactProhibited.add(Material.POLISHED_BLACKSTONE_PRESSURE_PLATE);
-        interactProhibited.add(Material.WARPED_PRESSURE_PLATE);
-        interactProhibited.add(Material.OAK_PRESSURE_PLATE);
-        interactProhibited.add(Material.SPRUCE_PRESSURE_PLATE);
-        interactProhibited.add(Material.HEAVY_WEIGHTED_PRESSURE_PLATE);
-        interactProhibited.add(Material.STONE_PRESSURE_PLATE);
-        interactProhibited.add(Material.JUNGLE_PRESSURE_PLATE);
-        interactProhibited.add(Material.CRIMSON_PRESSURE_PLATE);
+        interactProhibited.add(EMaterial.ACACIA_PRESSURE_PLATE.getBukkitMaterial());
+        interactProhibited.add(EMaterial.MANGROVE_PRESSURE_PLATE.getBukkitMaterial());
+        interactProhibited.add(EMaterial.LIGHT_WEIGHTED_PRESSURE_PLATE.getBukkitMaterial());
+        interactProhibited.add(EMaterial.DARK_OAK_PRESSURE_PLATE.getBukkitMaterial());
+        interactProhibited.add(EMaterial.BIRCH_PRESSURE_PLATE.getBukkitMaterial());
+        interactProhibited.add(EMaterial.POLISHED_BLACKSTONE_PRESSURE_PLATE.getBukkitMaterial());
+        interactProhibited.add(EMaterial.WARPED_PRESSURE_PLATE.getBukkitMaterial());
+        interactProhibited.add(EMaterial.OAK_PRESSURE_PLATE.getBukkitMaterial());
+        interactProhibited.add(EMaterial.SPRUCE_PRESSURE_PLATE.getBukkitMaterial());
+        interactProhibited.add(EMaterial.HEAVY_WEIGHTED_PRESSURE_PLATE.getBukkitMaterial());
+        interactProhibited.add(EMaterial.STONE_PRESSURE_PLATE.getBukkitMaterial());
+        interactProhibited.add(EMaterial.JUNGLE_PRESSURE_PLATE.getBukkitMaterial());
+        interactProhibited.add(EMaterial.CRIMSON_PRESSURE_PLATE.getBukkitMaterial());
 
         // Buttons
-        interactProhibited.add(Material.ACACIA_BUTTON);
-        interactProhibited.add(Material.DARK_OAK_BUTTON);
-        interactProhibited.add(Material.STONE_BUTTON);
-        interactProhibited.add(Material.POLISHED_BLACKSTONE_BUTTON);
-        interactProhibited.add(Material.JUNGLE_BUTTON);
-        interactProhibited.add(Material.BIRCH_BUTTON);
-        interactProhibited.add(Material.CRIMSON_BUTTON);
-        interactProhibited.add(Material.MANGROVE_BUTTON);
-        interactProhibited.add(Material.OAK_BUTTON);
-        interactProhibited.add(Material.SPRUCE_BUTTON);
-        interactProhibited.add(Material.WARPED_BUTTON);
+        interactProhibited.add(EMaterial.ACACIA_BUTTON.getBukkitMaterial());
+        interactProhibited.add(EMaterial.DARK_OAK_BUTTON.getBukkitMaterial());
+        interactProhibited.add(EMaterial.STONE_BUTTON.getBukkitMaterial());
+        interactProhibited.add(EMaterial.POLISHED_BLACKSTONE_BUTTON.getBukkitMaterial());
+        interactProhibited.add(EMaterial.JUNGLE_BUTTON.getBukkitMaterial());
+        interactProhibited.add(EMaterial.BIRCH_BUTTON.getBukkitMaterial());
+        interactProhibited.add(EMaterial.CRIMSON_BUTTON.getBukkitMaterial());
+        interactProhibited.add(EMaterial.MANGROVE_BUTTON.getBukkitMaterial());
+        interactProhibited.add(EMaterial.OAK_BUTTON.getBukkitMaterial());
+        interactProhibited.add(EMaterial.SPRUCE_BUTTON.getBukkitMaterial());
+        interactProhibited.add(EMaterial.WARPED_BUTTON.getBukkitMaterial());
 
         // Signs
         interactProhibited.add(EMaterial.SIGN_BLOCK.getBukkitMaterial());
