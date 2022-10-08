@@ -5,6 +5,7 @@ import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
 import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.model.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -15,24 +16,20 @@ import java.util.List;
 public class ShopGUI {
 
     private final List<ShopItem> shopItems = new ArrayList<>();
-    private final SiegeGame plugin;
+    private final WorldGame worldGame;
     private String guiName = "Shop";
     private ChestGui chestGui;
     private StaticPane pane;
     private int rows = 3;
 
-    public ShopGUI(SiegeGame plugin) {
-        this.plugin = plugin;
+    public ShopGUI(WorldGame worldGame) {
+        this.worldGame = worldGame;
         createGUI();
     }
 
     public void addItem(ShopItem button) {
         shopItems.add(button);
         this.pane.addItem(new GuiItem(button.getDisplayItem(), inventoryClickEvent -> {
-            GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(inventoryClickEvent.getWhoClicked().getUniqueId());
-            if (button.handlePurchase(gamePlayer)) {
-                plugin.getLogger().info("Player " + gamePlayer.getBukkitPlayer().getName() + " has successfully bought an item for " + button.getPrice());
-            }
             inventoryClickEvent.setCancelled(true);
         }), button.getSlot() % 9, button.getSlot() / 9);
     }

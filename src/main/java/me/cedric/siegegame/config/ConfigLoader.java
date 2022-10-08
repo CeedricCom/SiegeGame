@@ -4,12 +4,15 @@ import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.border.Border;
 import me.cedric.siegegame.border.BoundingBox;
 import me.cedric.siegegame.display.shop.ShopItem;
-import me.cedric.siegegame.superitems.SuperItem;
-import me.cedric.siegegame.teams.Team;
-import me.cedric.siegegame.teams.TeamImpl;
-import me.cedric.siegegame.world.LocalGameMap;
-import me.cedric.siegegame.world.WorldGame;
-import me.cedric.siegegame.world.WorldGameImpl;
+import me.cedric.siegegame.model.teams.Team;
+import me.cedric.siegegame.territory.Polygon;
+import me.cedric.siegegame.territory.Territory;
+import me.cedric.siegegame.territory.Vector2D;
+import me.cedric.siegegame.model.SiegeGameMatch;
+import me.cedric.siegegame.model.WorldGame;
+import me.cedric.siegegame.model.map.GameMap;
+import me.cedric.siegegame.model.map.LocalGameMap;
+import me.cedric.siegegame.model.teams.TeamFactory;
 import me.deltaorion.bukkit.item.EMaterial;
 import me.deltaorion.bukkit.item.ItemBuilder;
 import me.deltaorion.common.config.ConfigSection;
@@ -40,8 +43,6 @@ import java.util.Set;
 public class ConfigLoader {
 
     private final SiegeGame plugin;
-
-    private static final String YML_PATH_DIVIDER = ".";
 
     private FileConfig mapsYml;
     private static final String MAPS_SECTION_KEY = "maps";
@@ -76,6 +77,11 @@ public class ConfigLoader {
     private static final String MAPS_SECTION_TEAMS_SAFE_SPAWN_YAW = "yaw";
     private static final String MAPS_SECTION_TEAMS_SAFE_SPAWN_PITCH = "pitch";
     private static final String MAPS_SECTION_SUPER_ITEM_LIST_KEY = "super-items";
+    private static final String MAPS_SECTION_TERRITORY_KEY = "territory";
+    private static final String MAPS_SECTION_TERRITORY_X1_KEY = "x1";
+    private static final String MAPS_SECTION_TERRITORY_Z1_KEY = "z1";
+    private static final String MAPS_SECTION_TERRITORY_X2_KEY = "x2";
+    private static final String MAPS_SECTION_TERRITORY_Z2_KEY = "z2";
 
     private FileConfig shopYml;
     private static final String SHOP_SECTION_KEY = "shop";
@@ -123,80 +129,83 @@ public class ConfigLoader {
         }
 
         loadMaps();
-        loadShop();
         loadSettings();
         plugin.getLogger().info("Config loaded.");
     }
 
     private void loadMaps() {
+        ConfigSection section = mapsYml.getConfigurationSection(MAPS_SECTION_KEY);
+
         for (String mapKey : mapsYml.getConfigurationSection(MAPS_SECTION_KEY).getKeys(false)) {
-            String worldName = mapsYml.getString(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_NAME_KEY);
+
+            ConfigSection mapSection = section.getConfigurationSection(mapKey);
+
+            String worldName = mapSection.getString(MAPS_SECTION_WORLD_NAME_KEY);
 
             if (worldName == null) {
                 plugin.getApiPlugin().getPluginLogger().severe("Could not retrieve world name for map key " + mapKey + " - Skipping!");
                 continue;
             }
 
-            loadWorld(worldName, mapKey);
+            loadWorld(worldName, mapSection);
         }
 
         plugin.getLogger().info("Maps loaded.");
     }
 
-    public void loadWorld(String worldName, String mapKey) {
-        int x = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_KEY + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_X);
-        int y = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_KEY + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_Y);
-        int z = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_KEY + YML_PATH_DIVIDER + MAPS_SECTION_DEFAULT_SPAWN_Z);
+    public void loadWorld(String worldName, ConfigSection section) {
+        ConfigSection defaultSpawnSection = section.getConfigurationSection(MAPS_SECTION_DEFAULT_SPAWN_KEY);
+        int x = defaultSpawnSection.getInt(MAPS_SECTION_DEFAULT_SPAWN_X);
+        int y = defaultSpawnSection.getInt(MAPS_SECTION_DEFAULT_SPAWN_Y);
+        int z = defaultSpawnSection.getInt(MAPS_SECTION_DEFAULT_SPAWN_Z);
+        Location defaultSpawn = new Location(null, x, y, z);
 
-        int x1 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_X1_KEY);
-        int y1 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_Y1_KEY);
-        int z1 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_Z1_KEY);
+        ConfigSection worldBorderSection = section.getConfigurationSection(MAPS_SECTION_MAP_MAPBORDER_KEY);
+        int x1 = worldBorderSection.getInt(MAPS_SECTION_MAP_MAPBORDER_X1_KEY);
+        int y1 = worldBorderSection.getInt(MAPS_SECTION_MAP_MAPBORDER_Y1_KEY);
+        int z1 = worldBorderSection.getInt(MAPS_SECTION_MAP_MAPBORDER_Z1_KEY);
 
-        int x2 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_X2_KEY);
-        int y2 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_Y2_KEY);
-        int z2 = mapsYml.getInt(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_KEY + YML_PATH_DIVIDER + MAPS_SECTION_MAP_MAPBORDER_Z2_KEY);
+        int x2 = worldBorderSection.getInt(MAPS_SECTION_MAP_MAPBORDER_X2_KEY);
+        int y2 = worldBorderSection.getInt(MAPS_SECTION_MAP_MAPBORDER_Y2_KEY);
+        int z2 = worldBorderSection.getInt(MAPS_SECTION_MAP_MAPBORDER_Z2_KEY);
 
-        List<String> superItems = mapsYml.getStringList(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_SUPER_ITEM_LIST_KEY);
+        List<String> superItems = section.getStringList(MAPS_SECTION_SUPER_ITEM_LIST_KEY);
 
-        String displayName = mapsYml.getString(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_DISPLAY_NAME_KEY);
+        String displayName = section.getString(MAPS_SECTION_WORLD_DISPLAY_NAME_KEY);
 
         Vector corner1Vector = new Vector(x1, y1, z1);
         Vector corner2Vector = new Vector(x2, y2, z2);
 
-        LocalGameMap localGameMap = new LocalGameMap(new File(Bukkit.getWorldContainer().getParentFile(), worldName), displayName);
-        localGameMap.load();
-
+        LocalGameMap localGameMap = new LocalGameMap(new File(Bukkit.getWorldContainer().getParentFile(), worldName));
         Border border = new Border(new BoundingBox(localGameMap.getWorld(), corner1Vector, corner2Vector));
-        WorldGameImpl worldGame = new WorldGameImpl(mapKey, localGameMap, border, new Location(localGameMap.getWorld(), x, y, z));
-        ConfigSection teamsSection = mapsYml.getConfigurationSection(MAPS_SECTION_KEY + YML_PATH_DIVIDER + mapKey + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_TEAMS_KEY);
+        GameMap gameMap = new GameMap(localGameMap, displayName, new HashSet<>(), border, defaultSpawn);
+        WorldGame worldGame = new WorldGame(plugin);
 
-        Set<Team> teams = loadTeams(worldGame, teamsSection);
-        worldGame.addTeams(teams);
+        ConfigSection teamsSection = section.getConfigurationSection(MAPS_SECTION_WORLD_TEAMS_KEY);
+        loadTeams(worldGame, gameMap, teamsSection);
 
         for (String superItemKey : superItems) {
-            SuperItem superItem = plugin.getSuperItemManager().getSuperItem(superItemKey);
-
-            if (superItem == null)
-                continue;
-
-            worldGame.addSuperItem(superItem);
+            worldGame.getSuperItemManager().addSuperItem(superItemKey);
         }
 
-        plugin.getGameManager().addWorld(worldGame);
+        loadShop(worldGame, shopYml.getConfigurationSection(SHOP_SECTION_KEY));
+
+        plugin.getGameManager().addGame(new SiegeGameMatch(plugin, worldGame, gameMap, section.getName()));
     }
 
-    private void loadShop() {
-        for (String key : shopYml.getConfigurationSection(SHOP_SECTION_KEY).getKeys(false)) {
-            String material = shopYml.getString(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_MATERIAL_KEY);
-            int slot = shopYml.getInt(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_SLOT_KEY);
-            int price = shopYml.getInt(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_PRICE_KEY);
-            int amount = shopYml.getInt(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_AMOUNT_KEY);
-            String displayName = shopYml.getString(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_DISPLAY_NAME_KEY);
-            List<String> listOfLore = shopYml.getStringList(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_LORE_KEY);
-            List<String> itemFlags = shopYml.getStringList(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_HIDE_ITEM_FLAGS_KEY);
-            List<String> enchantments = shopYml.getStringList(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_ENCHANTMENTS_KEY);
-            List<String> commands = shopYml.getStringList(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_COMMAND_LIST_KEY);
-            boolean includesItem = Boolean.parseBoolean(shopYml.getString(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_INCLUDES_ITEM));
+    private void loadShop(WorldGame worldGame, ConfigSection section) {
+        for (String key : section.getKeys(false)) {
+            ConfigSection configSection = section.getConfigurationSection(key);
+            String material = configSection.getString(SHOP_SECTION_MATERIAL_KEY);
+            int slot = configSection.getInt(SHOP_SECTION_SLOT_KEY);
+            int price = configSection.getInt(SHOP_SECTION_PRICE_KEY);
+            int amount = configSection.getInt(SHOP_SECTION_AMOUNT_KEY);
+            String displayName = configSection.getString(SHOP_SECTION_DISPLAY_NAME_KEY);
+            List<String> listOfLore = configSection.getStringList(SHOP_SECTION_LORE_KEY);
+            List<String> itemFlags = configSection.getStringList(SHOP_SECTION_HIDE_ITEM_FLAGS_KEY);
+            List<String> enchantments = configSection.getStringList(SHOP_SECTION_ENCHANTMENTS_KEY);
+            List<String> commands = configSection.getStringList(SHOP_SECTION_COMMAND_LIST_KEY);
+            boolean includesItem = Boolean.parseBoolean(configSection.getString(SHOP_SECTION_INCLUDES_ITEM));
 
             List<String> lore = new ArrayList<>();
             for (String s : listOfLore) {
@@ -217,12 +226,12 @@ public class ConfigLoader {
                 itemBuilder.transformMeta(itemMeta -> {
                     PotionMeta potionMeta = (PotionMeta) itemMeta;
                     // messy asf but whatever
-                    for (String s : shopYml.getStringList(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_POTION_EFFECTS_KEY)) {
+                    for (String s : configSection.getStringList(SHOP_SECTION_POTION_EFFECTS_KEY)) {
                         String[] args = s.split(",");
                         potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.getByKey(NamespacedKey.minecraft(args[0])), Integer.parseInt(args[1]) * 20, Integer.parseInt(args[2]), Boolean.parseBoolean(args[3]), Boolean.parseBoolean(args[4]), Boolean.parseBoolean(args[5])), true);
                     }
 
-                    potionMeta.setColor(bukkitColor(shopYml.getString(SHOP_SECTION_KEY + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + SHOP_SECTION_POTION_COLOR_KEY)));
+                    potionMeta.setColor(bukkitColor(configSection.getString(SHOP_SECTION_POTION_COLOR_KEY)));
                 });
             }
 
@@ -250,47 +259,53 @@ public class ConfigLoader {
                 }
             }, item, price, slot);
 
-            plugin.getShopGUI().addItem(button);
+            worldGame.getShopGUI().addItem(button);
         }
 
         String shopName = shopYml.getString(SHOP_SECTION_SHOP_NAME_KEY);
-        plugin.getShopGUI().setGUIName(ChatColor.translateAlternateColorCodes('&', shopName));
+        worldGame.getShopGUI().setGUIName(ChatColor.translateAlternateColorCodes('&', shopName));
 
         plugin.getLogger().info("Shop loaded.");
     }
 
-    private Set<Team> loadTeams(WorldGame worldGame, ConfigSection section) {
-        Set<Team> teams = new HashSet<>();
-        String currentPath = section.getCurrentPath();
+    private void loadTeams(WorldGame worldGame, GameMap gameMap, ConfigSection section) {
         for (String key : section.getKeys(false)) {
-            String name = mapsYml.getString(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_TEAMS_NAME);
-            String hexColor = mapsYml.getString(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_WORLD_TEAMS_COLOR);
 
-            int x1 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_X1);
-            int y1 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_Y1);
-            int z1 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_Z1);
+            ConfigSection currentTeamSection = section.getConfigurationSection(key);
+            String name = currentTeamSection.getString(MAPS_SECTION_WORLD_TEAMS_NAME);
+            String hexColor = currentTeamSection.getString(MAPS_SECTION_WORLD_TEAMS_COLOR);
 
-            int x2 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_X2);
-            int y2 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_Y2);
-            int z2 = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SPAWN_Z2);
+            ConfigSection spawnAreaSection = currentTeamSection.getConfigurationSection(MAPS_SECTION_TEAMS_SPAWN);
+            int x1 = spawnAreaSection.getInt(MAPS_SECTION_TEAMS_SPAWN_X1);
+            int y1 = spawnAreaSection.getInt(MAPS_SECTION_TEAMS_SPAWN_Y1);
+            int z1 = spawnAreaSection.getInt(MAPS_SECTION_TEAMS_SPAWN_Z1);
+            int x2 = spawnAreaSection.getInt(MAPS_SECTION_TEAMS_SPAWN_X2);
+            int y2 = spawnAreaSection.getInt(MAPS_SECTION_TEAMS_SPAWN_Y2);
+            int z2 = spawnAreaSection.getInt(MAPS_SECTION_TEAMS_SPAWN_Z2);
+            Border safeArea = new Border(new BoundingBox(null, x1, y1, z1, x2, y2, z2));
+            safeArea.setCanLeave(true);
+            safeArea.setInverse(true);
 
-            int safeSpawnX = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN_X1);
-            int safeSpawnY = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN_Y1);
-            int safeSpawnZ = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN_Z1);
-            float yaw = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN_YAW);
-            float pitch = mapsYml.getInt(currentPath + YML_PATH_DIVIDER + key + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN + YML_PATH_DIVIDER + MAPS_SECTION_TEAMS_SAFE_SPAWN_PITCH);
+            ConfigSection safeSpawnSection = currentTeamSection.getConfigurationSection(MAPS_SECTION_TEAMS_SAFE_SPAWN);
+            int safeSpawnX = safeSpawnSection.getInt(MAPS_SECTION_TEAMS_SAFE_SPAWN_X1);
+            int safeSpawnY = safeSpawnSection.getInt(MAPS_SECTION_TEAMS_SAFE_SPAWN_Y1);
+            int safeSpawnZ = safeSpawnSection.getInt(MAPS_SECTION_TEAMS_SAFE_SPAWN_Z1);
+            float yaw = safeSpawnSection.getInt(MAPS_SECTION_TEAMS_SAFE_SPAWN_YAW);
+            float pitch = safeSpawnSection.getInt(MAPS_SECTION_TEAMS_SAFE_SPAWN_PITCH);
+            Location safeSpawn = new Location(null, safeSpawnX, safeSpawnY, safeSpawnZ, yaw, pitch);
 
-            Location safeSpawn = new Location(worldGame.getBukkitWorld(), safeSpawnX, safeSpawnY, safeSpawnZ, yaw, pitch);
+            ConfigSection territorySection = currentTeamSection.getConfigurationSection(MAPS_SECTION_TERRITORY_KEY);
+            int x1Territory = territorySection.getInt(MAPS_SECTION_TERRITORY_X1_KEY);
+            int z1Territory = territorySection.getInt(MAPS_SECTION_TERRITORY_Z1_KEY);
+            int x2Territory = territorySection.getInt(MAPS_SECTION_TERRITORY_X2_KEY);
+            int z2Territory = territorySection.getInt(MAPS_SECTION_TERRITORY_Z2_KEY);
+            Polygon polygon = new Polygon(gameMap, new Vector2D(x1Territory, z1Territory), new Vector2D(x2Territory, z2Territory));
 
-            Border border = new Border(new BoundingBox(worldGame.getBukkitWorld(), x1, y1, z1, x2, y2, z2));
-            border.setCanLeave(true);
-            border.setInverse(true);
-
-            TeamImpl team = new TeamImpl(plugin, worldGame, border, safeSpawn, color(hexColor), name, key);
-            teams.add(team);
+            TeamFactory factory = new TeamFactory(safeArea, safeSpawn, name, key, color(hexColor));
+            factory.setTerritory(new Territory(plugin, polygon, factory));
+            gameMap.addTeam(factory);
+            worldGame.addTeam(new Team(worldGame, factory));
         }
-
-        return teams;
     }
 
     private void loadSettings() {
@@ -315,11 +330,11 @@ public class ConfigLoader {
         Settings.BLACKLISTED_PROJECTILES.setValue(blacklistProjectiles);
     }
 
-    public void reloadShop() {
+    public void reloadShop(WorldGame worldGame) {
         try {
-            plugin.getShopGUI().clear();
+            worldGame.getShopGUI().clear();
             shopYml = FileConfig.loadConfiguration(new YamlAdapter(), new File(plugin.getDataFolder(), "shop.yml"));
-            loadShop();
+            loadShop(worldGame, shopYml.getConfigurationSection(SHOP_SECTION_KEY));
         } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }

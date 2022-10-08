@@ -8,17 +8,18 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.enums.Permissions;
+import me.cedric.siegegame.model.SiegeGameMatch;
+import me.cedric.siegegame.model.WorldGame;
+import me.cedric.siegegame.model.map.GameMap;
 import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
 
 public class BlockChangePacketAdapter extends PacketAdapter {
 
     private final SiegeGame plugin;
 
-    public BlockChangePacketAdapter(Plugin plugin) {
+    public BlockChangePacketAdapter(SiegeGame plugin) {
         super(plugin, ListenerPriority.NORMAL, PacketType.Play.Server.BLOCK_CHANGE);
         this.plugin = (SiegeGame) plugin;
     }
@@ -29,17 +30,19 @@ public class BlockChangePacketAdapter extends PacketAdapter {
         BlockPosition location = packet.getBlockPositionModifier().read(0);
 
         Player player = event.getPlayer();
-        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
 
-        WorldGame worldGame = plugin.getGameManager().getWorldGame(player.getWorld());
+        SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
 
-        if (worldGame == null)
+        if (match == null)
             return;
+
+        GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
+        GameMap gameMap = match.getGameMap();
 
         if (player.hasPermission(Permissions.BORDER_BYPASS.getPermission()))
             return;
 
-        if (worldGame.getBorder().canLeave())
+        if (gameMap.getMapBorder().canLeave())
             return;
 
         boolean isWall = gamePlayer.getBorderHandler().getFakeBlockManager().getBlocks().stream().anyMatch(iFakeBlock ->

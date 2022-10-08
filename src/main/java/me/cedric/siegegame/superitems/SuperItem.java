@@ -1,6 +1,7 @@
 package me.cedric.siegegame.superitems;
 
 import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.model.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -31,10 +32,12 @@ public abstract class SuperItem implements Listener {
     private final String key;
     private GamePlayer owner = null;
     private boolean isDropped = false;
+    protected final WorldGame worldGame;
 
-    protected SuperItem(SiegeGame plugin, String key) {
+    protected SuperItem(SiegeGame plugin, String key, WorldGame worldGame) {
         this.plugin = plugin;
         this.key = key;
+        this.worldGame = worldGame;
     }
 
     protected abstract void display(GamePlayer owner);
@@ -56,7 +59,6 @@ public abstract class SuperItem implements Listener {
             removeDisplay(owner);
         }
         this.owner = null;
-        plugin.getGameManager().updateAllScoreboards();
     }
 
     public String getKey() {
@@ -79,7 +81,7 @@ public abstract class SuperItem implements Listener {
             dropItem(newOwner.getBukkitPlayer().getLocation());
         }
         display(newOwner);
-        plugin.getGameManager().updateAllScoreboards();
+        worldGame.updateAllScoreboards();
     }
 
     public GamePlayer getOwner() {
@@ -102,14 +104,14 @@ public abstract class SuperItem implements Listener {
             return;
 
         Player player = (Player) event.getEntity();
-        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
+        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
 
         if (gamePlayer == null) {
             event.setCancelled(true);
             return;
         }
 
-        if (this.owner == null && gamePlayer.hasTeam() && !plugin.getGameManager().ownsSuperItem(gamePlayer)) {
+        if (this.owner == null && gamePlayer.hasTeam() && !worldGame.getSuperItemManager().hasSuperItem(gamePlayer)) {
             giveTo(gamePlayer);
             event.setCancelled(true);
             event.getItem().remove();
@@ -124,7 +126,7 @@ public abstract class SuperItem implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerDeath(PlayerDeathEvent event) {
         Player player = event.getPlayer();
-        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
+        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
 
         if (gamePlayer == null || !gamePlayer.equals(owner))
             return;
@@ -140,9 +142,9 @@ public abstract class SuperItem implements Listener {
             return;
         }
 
-        GamePlayer gameKiller = plugin.getPlayerManager().getPlayer(killer.getUniqueId());
+        GamePlayer gameKiller = worldGame.getPlayer(killer.getUniqueId());
 
-        if (gameKiller.hasTeam() && plugin.getGameManager().hasSuperItem(gameKiller.getTeam())) {
+        if (gameKiller.hasTeam() && worldGame.getSuperItemManager().hasSuperItem(gameKiller.getTeam())) {
             dropItem(player.getLocation());
             return;
         }
@@ -153,9 +155,12 @@ public abstract class SuperItem implements Listener {
     @EventHandler(priority = EventPriority.MONITOR) // very important this stays in monitor, the manager has to add it first and has to have team first
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
+        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
 
-        if (gamePlayer.hasTeam() && !plugin.getGameManager().hasSuperItem(gamePlayer.getTeam()) && this.owner == null && !isDropped())
+        if (gamePlayer == null)
+            return;
+
+        if (gamePlayer.hasTeam() && !worldGame.getSuperItemManager().hasSuperItem(gamePlayer.getTeam()) && this.owner == null && !isDropped())
             giveTo(gamePlayer);
 
     }
@@ -169,7 +174,7 @@ public abstract class SuperItem implements Listener {
 
         remove();
         dropItem(player.getLocation());
-        plugin.getGameManager().updateAllScoreboards();
+        worldGame.updateAllScoreboards();
     }
 
     @EventHandler

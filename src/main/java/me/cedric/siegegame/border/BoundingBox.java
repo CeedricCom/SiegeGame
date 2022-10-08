@@ -1,6 +1,7 @@
 package me.cedric.siegegame.border;
 
 import com.google.common.base.MoreObjects;
+import me.cedric.siegegame.territory.Vector2D;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -17,7 +18,7 @@ public class BoundingBox {
 
     private final Vector min;
     private final Vector max;
-    private final World world;
+    private World world;
 
     public BoundingBox(World world ,Vector p1, Vector p2) {
         this.min = new Vector(Math.min(p1.getX(),p2.getX()),Math.min(p1.getY(), p2.getY()),Math.min(p1.getZ(),p2.getZ()));
@@ -98,6 +99,10 @@ public class BoundingBox {
         return world;
     }
 
+    public void setWorld(World world) {
+        this.world = world;
+    }
+
     public boolean isColliding(@Nullable BoundingBox b) {
         if(b==null)
             return false;
@@ -108,6 +113,11 @@ public class BoundingBox {
         return (min.getX() <= b.max.getX() && max.getX() >= b.min.getX()) &&
                 (min.getY() <= b.max.getY() && max.getY() >= b.min.getY()) &&
                 (min.getZ() <= b.max.getZ() && max.getZ() >= b.min.getZ());
+    }
+
+    public boolean isColliding(Vector2D b) {
+        return (b.getX() >= min.getX() && b.getX() <= max.getX()) &&
+               (b.getZ() >= min.getZ() && b.getZ() <= max.getZ());
     }
 
     public boolean isColliding(Location l) {

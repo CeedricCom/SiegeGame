@@ -2,8 +2,8 @@ package me.cedric.siegegame.player;
 
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.config.Settings;
-import me.cedric.siegegame.display.Displayer;
-import me.cedric.siegegame.teams.Team;
+import me.cedric.siegegame.model.SiegeGameMatch;
+import me.cedric.siegegame.model.teams.Team;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.format.NamedTextColor;
@@ -19,8 +19,6 @@ import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 public class PlayerListener implements Listener {
 
@@ -33,28 +31,31 @@ public class PlayerListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        plugin.getPlayerManager().addPlayer(player.getUniqueId());
-        player.getInventory().clear();
-        player.setLevel(0);
+        SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
+        if (match != null) {
+            match.getWorldGame().addPlayer(player.getUniqueId());
+            GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
 
-        if (plugin.getGameManager().isOngoingGame()) {
-            GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
-            plugin.getGameManager().assignTeam(gamePlayer);
+            match.getWorldGame().assignTeam(gamePlayer);
+
             if (gamePlayer.hasTeam()) {
                 player.teleport(gamePlayer.getTeam().getSafeSpawn());
-                Displayer.updateScoreboard(plugin, gamePlayer, gamePlayer.getTeam().getWorldGame());
+                gamePlayer.getDisplayer().updateScoreboard();
             }
+
+            gamePlayer.grantNightVision();
         }
 
-        player.addPotionEffect(
-                new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false, false)
-        );
+        player.getInventory().clear();
+        player.setLevel(0);
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        plugin.getPlayerManager().removePlayer(player.getUniqueId());
+        SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
+        if (match != null)
+            match.getWorldGame().removePlayer(player.getUniqueId());
     }
 
     @EventHandler
@@ -70,7 +71,15 @@ public class PlayerListener implements Listener {
         if (killer == null)
             return;
 
-        GamePlayer killerGamePlayer = plugin.getPlayerManager().getPlayer(killer.getUniqueId());
+        SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
+
+        if (match == null)
+            return;
+
+        GamePlayer killerGamePlayer = match.getWorldGame().getPlayer(killer.getUniqueId());
+
+        if (killerGamePlayer == null)
+            return;
 
         if (!killerGamePlayer.hasTeam())
             return;
@@ -94,7 +103,7 @@ public class PlayerListener implements Listener {
             plugin.getGameManager().startNextMap();
         }
 
-        plugin.getGameManager().updateAllScoreboards();
+        plugin.getGameManager().getCurrentMatch().getWorldGame().updateAllScoreboards();
 
         for (Player player : Bukkit.getOnlinePlayers()) {
             player.playSound(player.getLocation(), "entity.experience_orb.pickup", 1.0F, 0F);
@@ -116,16 +125,28 @@ public class PlayerListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onRespawn(PlayerRespawnEvent event) {
-        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
-        event.getPlayer().addPotionEffect(
-                new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false, false)
-        );
-        Displayer.updateScoreboard(plugin, gamePlayer, gamePlayer.getTeam().getWorldGame());
+        SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
+
+        if (match == null)
+            return;
+
+        GamePlayer gamePlayer = match.getWorldGame().getPlayer(event.getPlayer().getUniqueId());
+
+        if (gamePlayer == null)
+            return;
+
+        gamePlayer.getDisplayer().updateScoreboard();
+        gamePlayer.grantNightVision();
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onCommandProcess(PlayerCommandPreprocessEvent event) {
-        GamePlayer player = plugin.getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
+        SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
+
+        if (match == null)
+            return;
+
+        GamePlayer player = match.getWorldGame().getPlayer(event.getPlayer().getUniqueId());
 
         if (player == null || !player.hasTeam())
             return;

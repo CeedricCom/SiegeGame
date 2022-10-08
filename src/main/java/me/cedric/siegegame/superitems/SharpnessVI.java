@@ -1,6 +1,7 @@
 package me.cedric.siegegame.superitems;
 
 import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.model.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
 import me.deltaorion.bukkit.item.ItemBuilder;
 import org.bukkit.ChatColor;
@@ -12,8 +13,8 @@ import org.bukkit.scoreboard.DisplaySlot;
 
 public class SharpnessVI extends SuperItem {
 
-    protected SharpnessVI(SiegeGame plugin, String key) {
-        super(plugin, key);
+    protected SharpnessVI(SiegeGame plugin, String key, WorldGame worldGame) {
+        super(plugin, key, worldGame);
     }
 
     @Override

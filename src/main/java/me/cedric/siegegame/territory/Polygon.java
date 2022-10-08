@@ -1,21 +1,19 @@
-package me.cedric.siegegame.territory.polygon;
+package me.cedric.siegegame.territory;
 
-import me.cedric.siegegame.SiegeGame;
-import me.cedric.siegegame.territory.Vector2D;
-import me.cedric.siegegame.world.GameMap;
+import me.cedric.siegegame.model.map.GameMap;
 import org.bukkit.World;
 
 import java.util.HashSet;
 import java.util.Set;
 
-public class Polygon extends PolygonFileHandler {
+public class Polygon {
 
     private final Set<Vector2D> vectors = new HashSet<>();
-    private final GameMap gameMap;
+    private GameMap gameMap;
 
-    public Polygon(SiegeGame plugin, GameMap gameMap, String fileName) {
-        super(plugin, fileName);
+    public Polygon(GameMap gameMap, Vector2D p1, Vector2D p2) {
         this.gameMap = gameMap;
+        addSquare(p1, p2);
     }
 
     public void addSquare(Vector2D p1, Vector2D p2) {
@@ -35,14 +33,5 @@ public class Polygon extends PolygonFileHandler {
 
     public boolean isColliding(Vector2D v, World world) {
         return vectors.stream().anyMatch(vector -> vector.getX() == v.getX() && vector.getZ() == v.getZ() && world.equals(gameMap.getWorld()));
-    }
-
-    @Override
-    protected void add(Vector2D vector) {
-        vectors.add(vector);
-    }
-
-    public void save() {
-        this.unload(new HashSet<>(vectors));
     }
 }

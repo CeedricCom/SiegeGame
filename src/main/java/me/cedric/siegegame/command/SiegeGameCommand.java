@@ -1,10 +1,8 @@
 package me.cedric.siegegame.command;
 
 import me.cedric.siegegame.SiegeGame;
-import me.cedric.siegegame.command.args.AddPointArg;
 import me.cedric.siegegame.command.args.ReloadArg;
 import me.cedric.siegegame.command.args.StartGameArg;
-import me.cedric.siegegame.command.args.TeamsArg;
 import me.deltaorion.common.command.CommandException;
 import me.deltaorion.common.command.FunctionalCommand;
 import me.deltaorion.common.command.sent.SentCommand;
@@ -22,15 +20,12 @@ public class SiegeGameCommand extends FunctionalCommand {
 
     private void registerArguments() {
         registerArgument("start", new StartGameArg(plugin));
-        registerArgument("teams", new TeamsArg(plugin));
         registerArgument("reload", new ReloadArg(plugin));
-        registerArgument("addpoint", new AddPointArg(plugin));
     }
 
     @Override
     public void commandLogic(SentCommand sentCommand) throws CommandException {
         sentCommand.getSender().sendMessage("/siegegame start");
-        sentCommand.getSender().sendMessage("/siegegame teams");
         sentCommand.getSender().sendMessage("/siegegame resources");
         sentCommand.getSender().sendMessage("/siegegame reload <file>");
         sentCommand.getSender().sendMessage("/siegegame addpoint <configKey> <x1,z1> <x2,z2>");

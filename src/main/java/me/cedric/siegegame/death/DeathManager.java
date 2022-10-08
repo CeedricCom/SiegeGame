@@ -2,8 +2,9 @@ package me.cedric.siegegame.death;
 
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.config.Settings;
+import me.cedric.siegegame.model.SiegeGameMatch;
+import me.cedric.siegegame.model.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.world.WorldGame;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
@@ -24,18 +25,20 @@ public class DeathManager {
 
     private final SiegeGame plugin;
     private final HashMap<GamePlayer, RespawnTask> deadPlayers = new HashMap<>();
+    private final WorldGame worldGame;
 
-    public DeathManager(SiegeGame plugin) {
+    public DeathManager(SiegeGame plugin, WorldGame worldGame) {
         this.plugin = plugin;
+        this.worldGame = worldGame;
     }
 
     public void initialize() {
-        plugin.getServer().getPluginManager().registerEvents(new RespawnListener(plugin, this), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new RespawnListener(plugin, worldGame, this), plugin);
         plugin.getServer().getPluginManager().registerEvents(new Limiters(plugin, this), plugin);
     }
 
     public void makeSpectator(Player player) {
-        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
+        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
 
         if (gamePlayer.isDead())
             return;
@@ -45,9 +48,9 @@ public class DeathManager {
         if (gamePlayer.hasTeam())
             respawnLocation = gamePlayer.getTeam().getSafeSpawn();
         else {
-            WorldGame worldGame = plugin.getGameManager().getWorldGame(player.getWorld());
-            if (worldGame != null)
-                respawnLocation = worldGame.getDefaultSpawnPoint();
+            SiegeGameMatch gameMatch = plugin.getGameManager().getCurrentMatch();
+            if (gameMatch != null)
+                respawnLocation = gameMatch.getGameMap().getDefaultSpawn();
         }
 
         makeSpectator(player, respawnLocation);
@@ -68,7 +71,7 @@ public class DeathManager {
             p.hidePlayer(plugin, player);
         }
 
-        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
+        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
 
         if (deadPlayers.containsKey(gamePlayer)) {
             deadPlayers.get(gamePlayer).cancel();
@@ -119,9 +122,7 @@ public class DeathManager {
             p.showPlayer(plugin, player);
         }
 
-        player.addPotionEffect(
-                new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false, false)
-        );
+        gamePlayer.grantNightVision();
 
         deadPlayers.remove(gamePlayer);
         gamePlayer.setDead(false);
@@ -132,7 +133,7 @@ public class DeathManager {
     }
 
     public boolean isPlayerDead(UUID uuid) {
-        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(uuid);
+        GamePlayer gamePlayer = worldGame.getPlayer(uuid);
         return deadPlayers.containsKey(gamePlayer);
     }
 

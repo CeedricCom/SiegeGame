@@ -1,7 +1,7 @@
 package me.cedric.siegegame.border;
 
+import me.cedric.siegegame.model.map.GameMap;
 import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -14,7 +14,7 @@ public class FakeBorderWall extends BorderDisplay {
     private final int width;
     private final int height;
     private final Material material;
-    private final List<Wall> walls;
+    protected final List<Wall> walls;
     private boolean wallVisible;
 
     public FakeBorderWall(GamePlayer player, Border border, int width, int height, Material material) {
@@ -26,7 +26,7 @@ public class FakeBorderWall extends BorderDisplay {
         wallVisible = false;
     }
 
-    public void update(WorldGame worldGame, Border border) {
+    public void update(GameMap gameMap, Border border) {
         Location location = player.getBukkitPlayer().getLocation();
 
         boolean destroy = false;
@@ -45,7 +45,7 @@ public class FakeBorderWall extends BorderDisplay {
 
         if (destroy) {
             //System.out.println("Destroying");
-            destroy(worldGame, border);
+            destroy(gameMap, border);
             return;
         }
 
@@ -56,7 +56,7 @@ public class FakeBorderWall extends BorderDisplay {
         }
 
         //System.out.println("Creating");
-        create(worldGame, border);
+        create(gameMap, border);
     }
 
     private boolean shouldDisplay(Border border, Location location) {
@@ -80,7 +80,7 @@ public class FakeBorderWall extends BorderDisplay {
     }
 
     @Override
-    public void destroy(WorldGame worldGame, Border border) {
+    public void destroy(GameMap gameMap, Border border) {
         FakeBlockManager fakeBlockManager = player.getBorderHandler().getFakeBlockManager();
         fakeBlockManager.removeAll();
         World world = player.getBukkitPlayer().getWorld();
@@ -148,7 +148,7 @@ public class FakeBorderWall extends BorderDisplay {
     }
 
     @Override
-    public void create(WorldGame worldGame, Border border) {
+    public void create(GameMap gameMap, Border border) {
         WallProjection wallProjection = projectXZ(border.getBoundingBox(), player.getBukkitPlayer().getLocation());
 
         walls.clear();
@@ -157,7 +157,7 @@ public class FakeBorderWall extends BorderDisplay {
     }
 
 
-    private void buildWalls() {
+    protected void buildWalls() {
         FakeBlockManager fakeBlockManager = player.getBorderHandler().getFakeBlockManager();
         fakeBlockManager.removeAll();
         World world = player.getBukkitPlayer().getWorld();
@@ -393,7 +393,7 @@ public class FakeBorderWall extends BorderDisplay {
         return border;
     }
 
-    private static final class WallProjection {
+    protected final class WallProjection {
         private final int XZ;
         private final int perpendicular;
         private final int Y;
@@ -429,7 +429,7 @@ public class FakeBorderWall extends BorderDisplay {
         }
     }
 
-    private static final class Wall {
+    static final class Wall {
         private final int minXZ;
         private final int maxXZ;
         private final int minY;

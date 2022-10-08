@@ -2,7 +2,11 @@ package me.cedric.siegegame.player;
 
 import me.cedric.siegegame.SiegeGame;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public final class PlayerManager {
 

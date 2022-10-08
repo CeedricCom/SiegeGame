@@ -1,7 +1,8 @@
 package me.cedric.siegegame.border;
 
+import me.cedric.siegegame.model.SiegeGameMatch;
+import me.cedric.siegegame.model.map.GameMap;
 import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.world.WorldGame;
 
 public abstract class BorderDisplay {
 
@@ -22,10 +23,10 @@ public abstract class BorderDisplay {
         return player;
     }
 
-    public abstract void update(WorldGame worldGame, Border border);
+    public abstract void update(GameMap gameMap, Border border);
 
-    public abstract void create(WorldGame worldGame, Border border);
+    public abstract void create(GameMap gameMap, Border border);
 
-    public abstract void destroy(WorldGame worldGame, Border border);
+    public abstract void destroy(GameMap gameMap, Border border);
 
 }

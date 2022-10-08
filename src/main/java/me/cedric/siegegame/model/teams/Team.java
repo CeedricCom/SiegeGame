@@ -1,113 +1,86 @@
-package me.cedric.siegegame.teams;
+package me.cedric.siegegame.model.teams;
 
 import com.google.common.collect.ImmutableSet;
-import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.border.Border;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.territory.Territory;
-import me.cedric.siegegame.world.WorldGame;
+import me.cedric.siegegame.model.WorldGame;
 import org.bukkit.Location;
 
 import java.awt.Color;
 import java.util.HashSet;
 import java.util.Set;
 
-public class TeamImpl implements Team {
+public class Team {
 
-    private Color color;
-    private String name;
     private final WorldGame worldGame;
-    private final String configKey;
     private final Set<GamePlayer> players = new HashSet<>();
-    private final Border safeArea;
-    private final Location safeSpawn;
-    private final Territory territory;
+    private final TeamFactory factory;
     private int points = 0;
 
-    public TeamImpl(SiegeGame plugin, WorldGame worldGame, Border safeArea, Location safeSpawn, Color color, String name, String configKey) {
-        this.color = color;
-        this.name = name;
-        this.configKey = configKey;
+    public Team(WorldGame worldGame, TeamFactory factory) {
+        this.factory = factory;
         this.worldGame = worldGame;
-        this.safeArea = safeArea;
-        this.safeSpawn = safeSpawn;
-        this.territory = new Territory(plugin, worldGame, this);
     }
 
-    @Override
     public ImmutableSet<GamePlayer> getPlayers() {
         return ImmutableSet.copyOf(players);
     }
 
-    @Override
     public WorldGame getWorldGame() {
         return worldGame;
     }
 
-    @Override
     public String getName() {
-        return name;
+        return factory.getName();
     }
 
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    @Override
     public String getConfigKey() {
-        return configKey;
+        return factory.getConfigKey();
     }
 
-    @Override
     public Territory getTerritory() {
-        return territory;
+        return factory.getTerritory();
     }
 
-    @Override
     public Location getSafeSpawn() {
-        return safeSpawn.clone();
+        return factory.getSafeSpawn();
     }
 
-    @Override
     public Color getColor() {
-        return color;
+        return factory.getColor();
     }
 
-    @Override
-    public void setColor(Color color) {
-        this.color = color;
-    }
-
-    @Override
     public void addPlayer(GamePlayer player) {
         players.add(player);
         player.setTeam(this);
     }
 
-    @Override
     public void removePlayer(GamePlayer player) {
         players.remove(player);
         player.setTeam(null);
     }
 
-    @Override
     public void clear() {
         players.clear();
     }
 
-    @Override
     public Border getSafeArea() {
-        return safeArea;
+        return factory.getSafeArea();
     }
 
-    @Override
     public int getPoints() {
         return points;
     }
 
-    @Override
     public void addPoints(int i) {
         points += i;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof TeamFactory)
+            return factory.equals(obj);
+        return super.equals(obj);
     }
 }

@@ -1,7 +1,7 @@
 package me.cedric.siegegame.display.shop;
 
+import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.teams.Team;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

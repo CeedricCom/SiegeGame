@@ -3,8 +3,8 @@ package me.cedric.siegegame.border;
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.config.Settings;
 import me.cedric.siegegame.enums.Permissions;
+import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -26,7 +26,12 @@ public class BorderListener implements Listener {
 
     @EventHandler
     public void onMove(PlayerMoveEvent event) {
-        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(event.getPlayer().getUniqueId());
+        SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
+
+        if (match == null)
+            return;
+
+        GamePlayer gamePlayer = match.getWorldGame().getPlayer(event.getPlayer().getUniqueId());
         //way too much logic
         //just call gamePlayer.getBorderHandler().update(event);
         if (gamePlayer == null)
@@ -35,19 +40,19 @@ public class BorderListener implements Listener {
         if (!shouldCheck(gamePlayer))
             return;
 
-        WorldGame worldGame = plugin.getGameManager().getWorldGame(gamePlayer.getBukkitPlayer().getWorld());
+        SiegeGameMatch gameMatch = plugin.getGameManager().getCurrentMatch();
 
-        if (worldGame == null)
+        if (gameMatch == null)
             return;
 
-        if (!worldGame.getBukkitWorld().equals(gamePlayer.getBukkitPlayer().getWorld()))
+        if (!gameMatch.getWorld().equals(gamePlayer.getBukkitPlayer().getWorld()))
             return;
 
         BorderHandler handler = gamePlayer.getBorderHandler();
         Location location = gamePlayer.getBukkitPlayer().getLocation();
 
         if (event.hasChangedBlock()) {
-            handler.getBorders().forEach(border -> handler.getBorderDisplay(border).update(worldGame, border));
+            handler.getBorders().forEach(border -> handler.getBorderDisplay(border).update(gameMatch.getGameMap(), border));
         }
 
         if (handler.getCollidingBorder(location).stream().anyMatch(border -> !analyseMove(gamePlayer, border)))
@@ -60,9 +65,9 @@ public class BorderListener implements Listener {
     public void onProjectileLaunch(ProjectileLaunchEvent event) {
 
         Projectile projectile = event.getEntity();
-        WorldGame worldGame = plugin.getGameManager().getWorldGame(projectile.getWorld());
+        SiegeGameMatch gameMatch = plugin.getGameManager().getCurrentMatch();
 
-        if (worldGame == null)
+        if (gameMatch == null)
             return;
 
         if (!(projectile.getShooter() instanceof Player))
@@ -74,9 +79,9 @@ public class BorderListener implements Listener {
             return;
 
         Player player = (Player) projectile.getShooter();
-        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
+        GamePlayer gamePlayer = gameMatch.getWorldGame().getPlayer(player.getUniqueId());
 
-        ProjectileFollowTask followTask = new ProjectileFollowTask(plugin, gamePlayer, worldGame, projectile);
+        ProjectileFollowTask followTask = new ProjectileFollowTask(plugin, gamePlayer, gameMatch, projectile);
         followTask.runTaskTimer(plugin, 0, 1);
     }
 

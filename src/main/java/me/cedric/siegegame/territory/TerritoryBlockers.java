@@ -2,6 +2,9 @@ package me.cedric.siegegame.territory;
 
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.enums.Permissions;
+import me.cedric.siegegame.model.SiegeGameMatch;
+import me.cedric.siegegame.model.WorldGame;
+import me.cedric.siegegame.model.map.GameMap;
 import me.cedric.siegegame.player.GamePlayer;
 import me.deltaorion.bukkit.item.EMaterial;
 import org.bukkit.Location;
@@ -25,13 +28,13 @@ import java.util.List;
 
 public class TerritoryBlockers implements Listener {
 
-    public final SiegeGame plugin;
     private final Territory territory;
+    private final WorldGame worldGame;
 
     private final static List<Material> interactProhibited = new ArrayList<>();
 
-    public TerritoryBlockers(SiegeGame plugin, Territory territory) {
-        this.plugin = plugin;
+    public TerritoryBlockers(WorldGame worldGame, Territory territory) {
+        this.worldGame = worldGame;
         this.territory = territory;
     }
 
@@ -81,11 +84,12 @@ public class TerritoryBlockers implements Listener {
     }
 
     private void evaluateCancel(Player player, Location location, Cancellable event) {
-        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
-        evaluateCancel(gamePlayer, location, event);
-    }
 
-    private void evaluateCancel(GamePlayer gamePlayer, Location location, Cancellable event) {
+        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
+
+        if (gamePlayer == null)
+            return;
+
         if (gamePlayer.getBukkitPlayer().hasPermission(Permissions.CLAIMS_BYPASS.getPermission()))
             return;
 

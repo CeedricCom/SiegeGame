@@ -1,6 +1,7 @@
 package me.cedric.siegegame.command;
 
 import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.model.SiegeGameMatch;
 import me.deltaorion.common.command.CommandException;
 import me.deltaorion.common.command.FunctionalCommand;
 import me.deltaorion.common.command.sent.SentCommand;
@@ -32,6 +33,8 @@ public class ResourcesCommand extends FunctionalCommand {
             return;
         }
 
-        plugin.getShopGUI().getGUI().show(player);
+        SiegeGameMatch gameMatch = plugin.getGameManager().getCurrentMatch();
+
+        gameMatch.getWorldGame().getShopGUI().getGUI().show(player);
     }
 }

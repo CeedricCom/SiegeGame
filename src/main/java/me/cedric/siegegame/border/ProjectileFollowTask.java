@@ -1,9 +1,9 @@
 package me.cedric.siegegame.border;
 
 import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.model.SiegeGameMatch;
+import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.teams.Team;
-import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.EnderPearl;
@@ -15,13 +15,13 @@ public class ProjectileFollowTask extends BukkitRunnable {
     
     private final GamePlayer player;
     private final SiegeGame plugin;
-    private final WorldGame worldGame;
+    private final SiegeGameMatch gameMatch;
     private final Projectile projectile;
 
-    public ProjectileFollowTask(SiegeGame plugin, GamePlayer player, WorldGame worldGame, Projectile projectile) {
+    public ProjectileFollowTask(SiegeGame plugin, GamePlayer player, SiegeGameMatch gameMatch, Projectile projectile) {
         this.player = player;
         this.plugin = plugin;
-        this.worldGame = worldGame;
+        this.gameMatch = gameMatch;
         this.projectile = projectile;
     }
 
@@ -33,11 +33,11 @@ public class ProjectileFollowTask extends BukkitRunnable {
         BorderHandler borderHandler = player.getBorderHandler();
         Location lastSafe = borderHandler.getProjectileLastSafe(projectile.getUniqueId()).clone();
 
-        if (!checkBorder(worldGame.getBorder(), lastSafe.toVector())) {
+        if (!checkBorder(gameMatch.getGameMap().getMapBorder(), lastSafe.toVector())) {
             deleteProjectileAndCancel(projectile, lastSafe, borderHandler);
         }
 
-        for (Team team : worldGame.getTeams()) {
+        for (Team team : gameMatch.getWorldGame().getTeams()) {
 
             Border safeArea = team.getSafeArea();
 
@@ -49,9 +49,8 @@ public class ProjectileFollowTask extends BukkitRunnable {
         }
 
         // changed block
-        if (!projectile.getLocation().equals(lastSafe)) {
+        if (!projectile.getLocation().equals(lastSafe))
             borderHandler.setProjectileLastSafe(projectile.getUniqueId(), projectile.getLocation());
-        }
 
         if (projectile.isDead()) {
             borderHandler.stopTrackingProjectile(projectile.getUniqueId());

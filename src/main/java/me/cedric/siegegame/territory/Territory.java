@@ -1,32 +1,21 @@
 package me.cedric.siegegame.territory;
 
 import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.model.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.teams.Team;
-import me.cedric.siegegame.territory.polygon.Polygon;
-import me.cedric.siegegame.world.WorldGame;
+import me.cedric.siegegame.model.teams.TeamFactory;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 public final class Territory {
 
-    private final SiegeGame plugin;
     private final Polygon polygon;
-    private final Team team;
-    private final WorldGame worldGame;
-    private final TerritoryBlockers territoryBlockers;
+    private final TeamFactory owner;
 
-    public Territory(SiegeGame plugin, WorldGame worldGame, Team owningTeam) {
-        this.team = owningTeam;
-        this.plugin = plugin;
-        this.worldGame = worldGame;
-        this.polygon = new Polygon(plugin, worldGame.getGameMap(), team.getConfigKey() + "_" + owningTeam.getConfigKey());
-
-        this.territoryBlockers = new TerritoryBlockers(plugin, this);
-        plugin.getServer().getPluginManager().registerEvents(territoryBlockers, plugin);
-
-        load();
+    public Territory(SiegeGame plugin, Polygon polygon, TeamFactory owner) {
+        this.polygon = polygon;
+        this.owner = owner;
     }
 
     public boolean isInside(World world, int x, int z) {
@@ -49,15 +38,7 @@ public final class Territory {
         this.polygon.addSquare(p1, p2);
     }
 
-    public Team getTeam() {
-        return team;
-    }
-
-    public void save() {
-        polygon.save();
-    }
-
-    public void load() {
-        polygon.load();
+    public TeamFactory getTeam() {
+        return owner;
     }
 }

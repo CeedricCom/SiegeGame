@@ -3,7 +3,6 @@ package me.cedric.siegegame.border;
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.LastSafe;
-import me.cedric.siegegame.world.WorldGame;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -37,7 +36,7 @@ public class BorderHandler {
     }
 
     public void addBorder(Border border) {
-        borders.put(border, new FakeBorderWall(player, border, 10, 5, Material.GLASS));
+        borders.put(border, new FakeBorderWall(player, border, 10, 5, Material.RED_STAINED_GLASS));
     }
 
     public Set<Border> getBorders() {

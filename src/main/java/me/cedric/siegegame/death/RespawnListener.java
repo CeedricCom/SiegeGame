@@ -1,6 +1,7 @@
 package me.cedric.siegegame.death;
 
 import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.model.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -14,9 +15,11 @@ public class RespawnListener implements Listener {
 
     private final SiegeGame plugin;
     private final DeathManager deathManager;
+    private final WorldGame worldGame;
 
-    public RespawnListener(SiegeGame plugin, DeathManager deathManager) {
+    public RespawnListener(SiegeGame plugin, WorldGame worldGame, DeathManager deathManager) {
         this.plugin = plugin;
+        this.worldGame = worldGame;
         this.deathManager = deathManager;
     }
 
@@ -30,7 +33,7 @@ public class RespawnListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
-        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
+        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
 
         if (!deathManager.isPlayerDead(gamePlayer))
             return;
@@ -42,7 +45,7 @@ public class RespawnListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
-        GamePlayer gamePlayer = plugin.getPlayerManager().getPlayer(player.getUniqueId());
+        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
 
         if (!deathManager.isPlayerDead(gamePlayer))
             return;

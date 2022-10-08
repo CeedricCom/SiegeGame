@@ -15,7 +15,7 @@ public class StartGameArg extends FunctionalCommand {
 
     @Override
     public void commandLogic(SentCommand sentCommand) {
-        if (plugin.getGameManager().getNextMap() == null) {
+        if (plugin.getGameManager().getNextMatch() == null) {
             sentCommand.getSender().sendMessage("No map at the head of queue. Cannot start game");
             return;
         }

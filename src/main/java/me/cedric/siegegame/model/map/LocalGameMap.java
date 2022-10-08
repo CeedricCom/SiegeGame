@@ -1,4 +1,4 @@
-package me.cedric.siegegame.world;
+package me.cedric.siegegame.model.map;
 
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
@@ -10,31 +10,25 @@ import org.bukkit.WorldCreator;
 import java.io.File;
 import java.io.IOException;
 
-public class LocalGameMap implements GameMap {
+public class LocalGameMap {
 
     private final File source;
     private File activeWorldFolder;
-    private World bukkitWorld;
-    private final String displayName;
+    private World bukkitWorld = null;
+    private int number = 1;
 
-    public LocalGameMap(File source, String displayName) {
+    public LocalGameMap(File source) {
         this.source = source;
-        this.displayName = displayName;
     }
 
-    @Override
-    public String getDisplayName() {
-        return displayName;
-    }
-
-    @Override
     public boolean load() {
         if (isLoaded())
             return true;
 
         this.activeWorldFolder = new File(
                 Bukkit.getWorldContainer().getParentFile(), // Root server folder
-                source.getName() + "_active_" + System.currentTimeMillis());
+                source.getName() + "_active_" + number);
+        number += 1;
         try {
             FileUtils.copyDirectory(source, activeWorldFolder, pathname -> !(pathname.getName().endsWith("session.lock") || pathname.getName().endsWith("uid.dat")));
         } catch (IOException e) {
@@ -56,7 +50,6 @@ public class LocalGameMap implements GameMap {
         return isLoaded();
     }
 
-    @Override
     public void unload() {
         if (bukkitWorld != null)
             Bukkit.unloadWorld(bukkitWorld, false);
@@ -67,23 +60,20 @@ public class LocalGameMap implements GameMap {
         activeWorldFolder = null;
     }
 
-    @Override
     public boolean restoreFromSource() {
         unload();
         return load();
     }
 
-    @Override
     public boolean isLoaded() {
         return bukkitWorld != null;
     }
 
-    @Override
     public World getWorld() {
         return bukkitWorld;
     }
 
-    private static void delete(File file) {
+    private void delete(File file) {
         if (file.isDirectory()) {
             File[] files = file.listFiles();
             if (files == null)

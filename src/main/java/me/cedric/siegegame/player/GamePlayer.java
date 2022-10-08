@@ -2,10 +2,12 @@ package me.cedric.siegegame.player;
 
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.border.BorderHandler;
-import me.cedric.siegegame.teams.Team;
-import me.cedric.siegegame.world.WorldGame;
+import me.cedric.siegegame.display.Displayer;
+import me.cedric.siegegame.model.teams.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.UUID;
 
@@ -14,6 +16,7 @@ public class GamePlayer {
     private final SiegeGame plugin;
     private final UUID uuid;
     private final BorderHandler borderHandler;
+    private final Displayer displayer;
     private boolean dead = false;
     private Team team;
 
@@ -22,12 +25,7 @@ public class GamePlayer {
         this.team = null;
         this.plugin = plugin;
         this.borderHandler = new BorderHandler(plugin, this);
-    }
-
-    private WorldGame getWorldGame() {
-        if (team == null)
-            return plugin.getGameManager().getWorldGame(getBukkitPlayer().getWorld());
-        return team.getWorldGame();
+        this.displayer = new Displayer(plugin, this);
     }
 
     public Player getBukkitPlayer() {
@@ -62,5 +60,13 @@ public class GamePlayer {
 
     public void setDead(boolean dead) {
         this.dead = dead;
+    }
+
+    public Displayer getDisplayer() {
+        return displayer;
+    }
+
+    public void grantNightVision() {
+        getBukkitPlayer().addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false, false));
     }
 }
