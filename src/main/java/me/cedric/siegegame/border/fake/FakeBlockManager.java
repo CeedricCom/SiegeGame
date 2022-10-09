@@ -1,4 +1,4 @@
-package me.cedric.siegegame.border;
+package me.cedric.siegegame.border.fake;
 
 import me.cedric.siegegame.border.fakeblock.FakeBlock;
 import me.cedric.siegegame.border.fakeblock.IFakeBlock;

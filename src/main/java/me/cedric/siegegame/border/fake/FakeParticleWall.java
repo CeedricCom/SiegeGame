@@ -1,5 +1,8 @@
-package me.cedric.siegegame.border;
+package me.cedric.siegegame.border.fake;
 
+import me.cedric.siegegame.border.Border;
+import me.cedric.siegegame.border.fake.FakeBlockManager;
+import me.cedric.siegegame.border.fake.FakeBorderWall;
 import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.Location;
 import org.bukkit.Material;
