@@ -1,30 +1,27 @@
 package me.cedric.siegegame.model;
 
 import com.google.common.collect.ImmutableSet;
-import me.cedric.siegegame.SiegeGame;
-import me.cedric.siegegame.config.Settings;
-import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.superitems.SuperItem;
-import me.cedric.siegegame.model.teams.Team;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
+import me.cedric.siegegame.SiegeGamePlugin;
+import org.bukkit.World;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.WorldLoadEvent;
 
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
-public final class GameManager {
+public final class GameManager implements Listener {
 
     private final Set<SiegeGameMatch> siegeGameMatches = new HashSet<>();
     private final Queue<SiegeGameMatch> gameMatchQueue = new LinkedList<>();
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
     private SiegeGameMatch currentMatch;
     private SiegeGameMatch lastMatch = null;
+    private boolean waitForLoad = false;
 
-    public GameManager(SiegeGame plugin) {
+    public GameManager(SiegeGamePlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -33,8 +30,8 @@ public final class GameManager {
         gameMatchQueue.add(siegeGameMatch);
     }
 
-    public void removeGame(String configKey) {
-        siegeGameMatches.removeIf(siegeGameMatch -> siegeGameMatch.getConfigKey().equalsIgnoreCase(configKey));
+    public void removeGame(String identifier) {
+        siegeGameMatches.removeIf(siegeGameMatch -> siegeGameMatch.getIdentifier().equalsIgnoreCase(identifier));
     }
 
     public SiegeGameMatch getNextMatch() {
@@ -54,11 +51,8 @@ public final class GameManager {
     }
 
     public void startNextMap() {
-        boolean wait = false;
-        if (getCurrentMatch() != null) {
+        if (getCurrentMatch() != null)
             endGame(currentMatch);
-            wait = true;
-        }
 
         SiegeGameMatch gameMatch = gameMatchQueue.poll();
 
@@ -67,68 +61,37 @@ public final class GameManager {
             return;
         }
 
-        this.currentMatch = gameMatch;
+        currentMatch = gameMatch;
 
         if (!currentMatch.getGameMap().isWorldLoaded()) {
             currentMatch.getGameMap().load();
-            wait = true;
+            waitForLoad = true;
+            return;
         }
 
-        for (Player player : Bukkit.getOnlinePlayers())
-            currentMatch.getWorldGame().addPlayer(player.getUniqueId());
-
-        Bukkit.getScheduler().runTaskLater(plugin, () -> {
-            currentMatch.getWorldGame().assignRandomTeams();
-
-            for (GamePlayer gamePlayer : currentMatch.getWorldGame().getPlayers()) {
-                gamePlayer.getBukkitPlayer().teleport(gamePlayer.getTeam().getSafeSpawn());
-                gamePlayer.getBukkitPlayer().setLevel(0);
-                gamePlayer.getBukkitPlayer().getInventory().clear();
-                gamePlayer.getBukkitPlayer().getEnderChest().clear();
-                gamePlayer.getDisplayer().updateScoreboard();
-            }
-
-            currentMatch.getWorldGame().getSuperItemManager().assignSuperItems(true);
-
-            for (String s : (List<String>) Settings.START_GAME_COMMANDS.getValue()) {
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
-            }
-
-            if (this.lastMatch != null)
-                this.lastMatch.getGameMap().resetMap();
-        }, wait ? 30 * 20 : 20);
+        currentMatch.getWorldGame().startGame();
     }
 
     private void endGame(SiegeGameMatch siegeGameMatch) {
-        Set<GamePlayer> players = getCurrentMatch().getWorldGame().getPlayers();
-
-        for (GamePlayer gamePlayer : players) {
-            if (gamePlayer.hasTeam() && gamePlayer.getTeam().getPoints() >= (int) Settings.POINTS_TO_END.getValue()) {
-                gamePlayer.getBukkitPlayer().sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "VICTORY", ChatColor.YELLOW + "gg ez yall are dog z tier rands");
-            } else {
-                gamePlayer.getBukkitPlayer().sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "DEFEAT", ChatColor.RED + "L gg random");
-            }
-
-            Team team = gamePlayer.getTeam();
-            team.removePlayer(gamePlayer);
-
-            gamePlayer.getBukkitPlayer().setLevel(0);
-            gamePlayer.getBorderHandler().clear();
-            gamePlayer.getBukkitPlayer().getInventory().clear();
-            gamePlayer.getBukkitPlayer().getEnderChest().clear();
-            gamePlayer.getDisplayer().wipeScoreboard();
-            gamePlayer.getBukkitPlayer().sendMessage(ChatColor.DARK_AQUA + "[ceedric.com]" + ChatColor.GOLD + "on gaia gods i would fk u up on eu boxing 1v1 z tier fkin rand dogs i swear my zuesimortal clicker can put u in 30 hit combo like dog random , I AM GAIA DEMON please dont disrespect me fkin dog rand i am known gaia player i swear on morudias gods ur a fkin rand ON HYTES ur my fkin dog Z tier dog randoms");
-        }
-
-        for (SuperItem superItem : siegeGameMatch.getWorldGame().getSuperItemManager().getSuperItems()) {
-            superItem.remove();
-        }
-
+        siegeGameMatch.endGame();
         lastMatch = siegeGameMatch;
         gameMatchQueue.add(siegeGameMatch);
         currentMatch = null;
+    }
 
-        for (String s : (List<String>) Settings.END_GAME_COMMANDS.getValue())
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
+    @EventHandler
+    public void onWorldLoad(WorldLoadEvent event) {
+        World world = event.getWorld();
+
+        if (!waitForLoad)
+            return;
+
+        if (getCurrentMatch().getGameMap().getWorld().equals(world))
+            getCurrentMatch().getWorldGame().startGame();
+
+        if (lastMatch != null)
+            lastMatch.getGameMap().resetMap();
+
+        waitForLoad = false;
     }
 }

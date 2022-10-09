@@ -1,6 +1,7 @@
 package me.cedric.siegegame.border;
 
-import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.border.lastsafe.EntityTracker;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.GamePlayer;
@@ -14,24 +15,26 @@ import org.bukkit.util.Vector;
 public class ProjectileFollowTask extends BukkitRunnable {
     
     private final GamePlayer player;
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
     private final SiegeGameMatch gameMatch;
+    private final EntityTracker entityTracker;
     private final Projectile projectile;
 
-    public ProjectileFollowTask(SiegeGame plugin, GamePlayer player, SiegeGameMatch gameMatch, Projectile projectile) {
+    public ProjectileFollowTask(SiegeGamePlugin plugin, GamePlayer player, SiegeGameMatch gameMatch, Projectile projectile) {
         this.player = player;
         this.plugin = plugin;
         this.gameMatch = gameMatch;
         this.projectile = projectile;
+        this.entityTracker = player.getBorderHandler().getEntityTracker();
     }
 
     @Override
     public void run() {
-        if (!player.getBorderHandler().isTrackingProjectile(projectile.getUniqueId()))
-            player.getBorderHandler().trackProjectile(projectile);
+        if (!entityTracker.isTracking(projectile.getUniqueId()))
+            entityTracker.trackPosition(projectile);
 
         BorderHandler borderHandler = player.getBorderHandler();
-        Location lastSafe = borderHandler.getProjectileLastSafe(projectile.getUniqueId()).clone();
+        Location lastSafe = entityTracker.getLastPosition(projectile.getUniqueId()).clone();
 
         if (!checkBorder(gameMatch.getGameMap().getMapBorder(), lastSafe.toVector())) {
             deleteProjectileAndCancel(projectile, lastSafe, borderHandler);
@@ -50,10 +53,10 @@ public class ProjectileFollowTask extends BukkitRunnable {
 
         // changed block
         if (!projectile.getLocation().equals(lastSafe))
-            borderHandler.setProjectileLastSafe(projectile.getUniqueId(), projectile.getLocation());
+            entityTracker.setLastPosition(projectile.getUniqueId(), projectile.getLocation());
 
         if (projectile.isDead()) {
-            borderHandler.stopTrackingProjectile(projectile.getUniqueId());
+            entityTracker.stopTracking(projectile.getUniqueId());
             cancel();
         }
     }
@@ -73,7 +76,7 @@ public class ProjectileFollowTask extends BukkitRunnable {
             player.getBukkitPlayer().teleport(lastSafe);
         }
 
-        borderHandler.stopTrackingProjectile(projectile.getUniqueId());
+        entityTracker.stopTracking(projectile.getUniqueId());
         projectile.remove();
         this.cancel();
         player.getBukkitPlayer().sendMessage(ChatColor.RED + "You cannot use projectiles near a border or safe area");

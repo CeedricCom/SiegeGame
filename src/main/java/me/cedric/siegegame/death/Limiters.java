@@ -1,7 +1,7 @@
 package me.cedric.siegegame.death;
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
-import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.SiegeGamePlugin;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -27,9 +27,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 public class Limiters implements Listener {
 
     private final DeathManager deathManager;
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
 
-    public Limiters(SiegeGame plugin, DeathManager deathManager) {
+    public Limiters(SiegeGamePlugin plugin, DeathManager deathManager) {
         this.plugin = plugin;
         this.deathManager = deathManager;
     }

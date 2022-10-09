@@ -1,6 +1,6 @@
 package me.cedric.siegegame.death;
 
-import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.player.GamePlayer;
 import net.kyori.adventure.text.Component;
 import org.bukkit.ChatColor;
@@ -10,7 +10,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 public class RespawnTask extends BukkitRunnable {
 
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
     private final DeathManager deathManager;
     private final GamePlayer gamePlayer;
     private boolean pause = false;
@@ -19,7 +19,7 @@ public class RespawnTask extends BukkitRunnable {
     private final Location originalRespawn;
 
 
-    public RespawnTask(SiegeGame plugin, DeathManager deathManager, GamePlayer gamePlayer, int respawnTimer, Location originalRespawn) {
+    public RespawnTask(SiegeGamePlugin plugin, DeathManager deathManager, GamePlayer gamePlayer, int respawnTimer, Location originalRespawn) {
         this.plugin = plugin;
         this.deathManager = deathManager;
         this.gamePlayer = gamePlayer;

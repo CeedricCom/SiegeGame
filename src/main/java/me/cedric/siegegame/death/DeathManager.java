@@ -1,7 +1,6 @@
 package me.cedric.siegegame.death;
 
-import me.cedric.siegegame.SiegeGame;
-import me.cedric.siegegame.config.Settings;
+import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
@@ -12,7 +11,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,11 +21,11 @@ import java.util.UUID;
 
 public class DeathManager {
 
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
     private final HashMap<GamePlayer, RespawnTask> deadPlayers = new HashMap<>();
     private final WorldGame worldGame;
 
-    public DeathManager(SiegeGame plugin, WorldGame worldGame) {
+    public DeathManager(SiegeGamePlugin plugin, WorldGame worldGame) {
         this.plugin = plugin;
         this.worldGame = worldGame;
     }
@@ -60,6 +58,11 @@ public class DeathManager {
         if (player == null)
             return;
 
+        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
+
+        if (gamePlayer == null)
+            return;
+
         player.setExp(0);
         player.setAllowFlight(true);
         player.setFlying(true);
@@ -71,27 +74,22 @@ public class DeathManager {
             p.hidePlayer(plugin, player);
         }
 
-        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
-
         if (deadPlayers.containsKey(gamePlayer)) {
             deadPlayers.get(gamePlayer).cancel();
             deadPlayers.remove(gamePlayer);
         }
 
-        RespawnTask respawnTask = new RespawnTask(plugin, this, gamePlayer, (int) Settings.RESPAWN_TIMER.getValue(), respawnLocation);
+        RespawnTask respawnTask = new RespawnTask(plugin, this, gamePlayer, plugin.getGameConfig().getRespawnTimer(), respawnLocation);
         deadPlayers.put(gamePlayer, respawnTask);
 
         respawnTask.start();
 
         String title = ChatColor.translateAlternateColorCodes('&', "&4&lYOU DIED!");
-        String subtitle = ChatColor.translateAlternateColorCodes('&', "&cYou will respawn in " + Settings.RESPAWN_TIMER.getValue() + " seconds");
+        String subtitle = ChatColor.translateAlternateColorCodes('&', "&cYou will respawn in " + plugin.getGameConfig().getRespawnTimer() + " seconds");
         player.showTitle(Title.title(Component.text(title), Component.text(subtitle)));
 
         gamePlayer.setDead(true);
-
-        for (String s : (List<String>) Settings.DEATH_COMMANDS.getValue()) {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
-        }
+        gamePlayer.grantNightVision();
     }
 
     public void revivePlayer(GamePlayer gamePlayer) {
@@ -126,10 +124,6 @@ public class DeathManager {
 
         deadPlayers.remove(gamePlayer);
         gamePlayer.setDead(false);
-
-        for (String s : (List<String>) Settings.RESPAWN_COMMANDS.getValue()) {
-            Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s);
-        }
     }
 
     public boolean isPlayerDead(UUID uuid) {

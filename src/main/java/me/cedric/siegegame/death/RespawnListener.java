@@ -1,6 +1,6 @@
 package me.cedric.siegegame.death;
 
-import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.entity.Player;
@@ -13,11 +13,11 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 
 public class RespawnListener implements Listener {
 
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
     private final DeathManager deathManager;
     private final WorldGame worldGame;
 
-    public RespawnListener(SiegeGame plugin, WorldGame worldGame, DeathManager deathManager) {
+    public RespawnListener(SiegeGamePlugin plugin, WorldGame worldGame, DeathManager deathManager) {
         this.plugin = plugin;
         this.worldGame = worldGame;
         this.deathManager = deathManager;

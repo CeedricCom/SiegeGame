@@ -1,6 +1,6 @@
 package me.cedric.siegegame.player;
 
-import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.SiegeGamePlugin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,9 +11,9 @@ import java.util.UUID;
 public final class PlayerManager {
 
     private final Map<UUID, GamePlayer> players = new HashMap<>();
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
 
-    public PlayerManager(SiegeGame plugin) {
+    public PlayerManager(SiegeGamePlugin plugin) {
         this.plugin = plugin;
     }
 

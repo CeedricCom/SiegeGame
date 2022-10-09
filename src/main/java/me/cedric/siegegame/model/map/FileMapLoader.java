@@ -10,14 +10,14 @@ import org.bukkit.WorldCreator;
 import java.io.File;
 import java.io.IOException;
 
-public class LocalGameMap {
+public class FileMapLoader {
 
     private final File source;
     private File activeWorldFolder;
     private World bukkitWorld = null;
     private int number = 1;
 
-    public LocalGameMap(File source) {
+    public FileMapLoader(File source) {
         this.source = source;
     }
 

@@ -2,12 +2,9 @@ package me.cedric.siegegame.display.shop;
 
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
-import com.github.stefvanschie.inventoryframework.pane.Pane;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
-import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.model.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;

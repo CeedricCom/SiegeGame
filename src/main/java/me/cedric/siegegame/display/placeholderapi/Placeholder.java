@@ -1,13 +1,11 @@
 package me.cedric.siegegame.display.placeholderapi;
 
-import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.WorldGame;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.superitems.SuperItem;
 import net.md_5.bungee.api.ChatColor;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 @SuppressWarnings("deprecation")
@@ -40,10 +38,10 @@ public enum Placeholder {
     });
 
     private final String param;
-    private final PlaceholderAction<SiegeGame, GamePlayer, String, String, Object[]> action;
+    private final PlaceholderAction<SiegeGamePlugin, GamePlayer, String, String, Object[]> action;
     private final boolean relational;
 
-    Placeholder(String param, boolean relational, PlaceholderAction<SiegeGame, GamePlayer, String, String, Object[]> action) {
+    Placeholder(String param, boolean relational, PlaceholderAction<SiegeGamePlugin, GamePlayer, String, String, Object[]> action) {
         this.param = param;
         this.action = action;
         this.relational = relational;
@@ -57,11 +55,11 @@ public enum Placeholder {
         return param;
     }
 
-    public PlaceholderAction<SiegeGame, GamePlayer, String, String, Object[]> getAction() {
+    public PlaceholderAction<SiegeGamePlugin, GamePlayer, String, String, Object[]> getAction() {
         return action;
     }
 
-    private static Team getTeam(SiegeGame plugin, GamePlayer gamePlayer, String configKey) {
+    private static Team getTeam(SiegeGamePlugin plugin, GamePlayer gamePlayer, String configKey) {
         if (configKey == null || configKey.isEmpty())
             return gamePlayer.hasTeam() ? gamePlayer.getTeam() : null;
 
@@ -73,10 +71,10 @@ public enum Placeholder {
         return gameMatch.getWorldGame().getTeam(configKey);
     }
 
-    public static String getTeamYouOrEmpty(SiegeGame plugin, GamePlayer gamePlayer, String s) {
+    public static String getTeamYouOrEmpty(SiegeGamePlugin plugin, GamePlayer gamePlayer, String s) {
         Team team = getTeam(plugin, gamePlayer, s);
         if (team != null && gamePlayer.hasTeam() &&
-                team.getConfigKey().equalsIgnoreCase(gamePlayer.getTeam().getConfigKey()))
+                team.getIdentifier().equalsIgnoreCase(gamePlayer.getTeam().getIdentifier()))
             return "YOU";
         return "";
     }

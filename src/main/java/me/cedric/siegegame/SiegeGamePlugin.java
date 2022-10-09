@@ -6,17 +6,16 @@ import me.cedric.siegegame.border.BorderListener;
 import me.cedric.siegegame.command.ResourcesCommand;
 import me.cedric.siegegame.command.SiegeGameCommand;
 import me.cedric.siegegame.config.ConfigLoader;
+import me.cedric.siegegame.config.GameConfig;
 import me.cedric.siegegame.display.placeholderapi.SiegeGameExpansion;
-import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.PlayerListener;
-import me.cedric.siegegame.superitems.SuperItem;
 import me.cedric.siegegame.model.GameManager;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.deltaorion.bukkit.plugin.plugin.BukkitPlugin;
 import me.deltaorion.common.plugin.ApiPlugin;
 import org.bukkit.Bukkit;
 
-public final class SiegeGame extends BukkitPlugin {
+public final class SiegeGamePlugin extends BukkitPlugin {
 
     private ApiPlugin apiPlugin;
     private ConfigLoader configLoader;
@@ -45,21 +44,8 @@ public final class SiegeGame extends BukkitPlugin {
 
     @Override
     public void onPluginDisable() {
-
-        if (gameManager.getCurrentMatch() == null)
-            return;
-
-        for (SiegeGameMatch match : gameManager.getLoadedMatches()) {
-
-            for (GamePlayer gamePlayer : match.getWorldGame().getDeathManager().getDeadPlayers())
-                match.getWorldGame().getDeathManager().revivePlayer(gamePlayer);
-
-            for (SuperItem superItem : match.getWorldGame().getSuperItemManager().getSuperItems())
-                superItem.remove();
-
-            if (match.getGameMap().isWorldLoaded())
-                match.getGameMap().unload();
-        }
+        for (SiegeGameMatch match : gameManager.getLoadedMatches())
+            match.shutdown();
     }
 
     public ApiPlugin getApiPlugin() {
@@ -70,7 +56,7 @@ public final class SiegeGame extends BukkitPlugin {
         return gameManager;
     }
 
-    public ConfigLoader getConfigLoader() {
+    public GameConfig getGameConfig() {
         return configLoader;
     }
 }

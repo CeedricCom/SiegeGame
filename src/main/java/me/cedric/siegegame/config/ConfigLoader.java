@@ -1,6 +1,6 @@
 package me.cedric.siegegame.config;
 
-import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.border.Border;
 import me.cedric.siegegame.border.BoundingBox;
 import me.cedric.siegegame.display.shop.ShopItem;
@@ -11,7 +11,7 @@ import me.cedric.siegegame.territory.Vector2D;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.WorldGame;
 import me.cedric.siegegame.model.map.GameMap;
-import me.cedric.siegegame.model.map.LocalGameMap;
+import me.cedric.siegegame.model.map.FileMapLoader;
 import me.cedric.siegegame.model.teams.TeamFactory;
 import me.deltaorion.bukkit.item.EMaterial;
 import me.deltaorion.bukkit.item.ItemBuilder;
@@ -25,6 +25,7 @@ import java.awt.Color;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -38,11 +39,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public class ConfigLoader {
+public class ConfigLoader implements GameConfig {
 
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
 
     private FileConfig mapsYml;
     private static final String MAPS_SECTION_KEY = "maps";
@@ -110,7 +110,7 @@ public class ConfigLoader {
     private static final String END_COMMANDS_KEY = "end-game-commands";
     private static final String BLACKLISTED_PROJECTILES_KEY = "blacklisted-projectiles";
 
-    public ConfigLoader(SiegeGame plugin) {
+    public ConfigLoader(SiegeGamePlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -129,7 +129,6 @@ public class ConfigLoader {
         }
 
         loadMaps();
-        loadSettings();
         plugin.getLogger().info("Config loaded.");
     }
 
@@ -176,24 +175,31 @@ public class ConfigLoader {
         Vector corner1Vector = new Vector(x1, y1, z1);
         Vector corner2Vector = new Vector(x2, y2, z2);
 
-        LocalGameMap localGameMap = new LocalGameMap(new File(Bukkit.getWorldContainer().getParentFile(), worldName));
-        Border border = new Border(new BoundingBox(localGameMap.getWorld(), corner1Vector, corner2Vector));
-        GameMap gameMap = new GameMap(localGameMap, displayName, new HashSet<>(), border, defaultSpawn);
+        FileMapLoader fileMapLoader = new FileMapLoader(new File(Bukkit.getWorldContainer().getParentFile(), worldName));
+        Border border = new Border(new BoundingBox(fileMapLoader.getWorld(), corner1Vector, corner2Vector));
+        GameMap gameMap = new GameMap(fileMapLoader, displayName, new HashSet<>(), border, defaultSpawn);
         WorldGame worldGame = new WorldGame(plugin);
 
         ConfigSection teamsSection = section.getConfigurationSection(MAPS_SECTION_WORLD_TEAMS_KEY);
-        loadTeams(worldGame, gameMap, teamsSection);
 
         for (String superItemKey : superItems) {
             worldGame.getSuperItemManager().addSuperItem(superItemKey);
         }
 
-        loadShop(worldGame, shopYml.getConfigurationSection(SHOP_SECTION_KEY));
+        List<ShopItem> shopItems = loadShop(shopYml.getConfigurationSection(SHOP_SECTION_KEY));
+        String shopName = shopYml.getString(SHOP_SECTION_SHOP_NAME_KEY);
+        worldGame.getShopGUI().setGUIName(ChatColor.translateAlternateColorCodes('&', shopName));
+        shopItems.stream().forEach(shopItem -> worldGame.getShopGUI().addItem(shopItem));
+
+        List<TeamFactory> factories = loadTeams(worldGame, gameMap, teamsSection);
+        factories.forEach(gameMap::addTeam);
+        factories.forEach(teamFactory -> worldGame.addTeam(new Team(worldGame, teamFactory)));
 
         plugin.getGameManager().addGame(new SiegeGameMatch(plugin, worldGame, gameMap, section.getName()));
     }
 
-    private void loadShop(WorldGame worldGame, ConfigSection section) {
+    private List<ShopItem> loadShop(ConfigSection section) {
+        List<ShopItem> shopItems = new ArrayList<>();
         for (String key : section.getKeys(false)) {
             ConfigSection configSection = section.getConfigurationSection(key);
             String material = configSection.getString(SHOP_SECTION_MATERIAL_KEY);
@@ -258,16 +264,14 @@ public class ConfigLoader {
                 }
             }, item, price, slot);
 
-            worldGame.getShopGUI().addItem(button);
+            shopItems.add(button);
         }
 
-        String shopName = shopYml.getString(SHOP_SECTION_SHOP_NAME_KEY);
-        worldGame.getShopGUI().setGUIName(ChatColor.translateAlternateColorCodes('&', shopName));
-
-        plugin.getLogger().info("Shop loaded.");
+        return shopItems;
     }
 
-    private void loadTeams(WorldGame worldGame, GameMap gameMap, ConfigSection section) {
+    private List<TeamFactory> loadTeams(WorldGame worldGame, GameMap gameMap, ConfigSection section) {
+        List<TeamFactory> factories = new ArrayList<>();
         for (String key : section.getKeys(false)) {
 
             ConfigSection currentTeamSection = section.getConfigurationSection(key);
@@ -302,41 +306,10 @@ public class ConfigLoader {
 
             TeamFactory factory = new TeamFactory(safeArea, safeSpawn, name, key, color(hexColor));
             factory.setTerritory(new Territory(plugin, polygon, factory));
-            gameMap.addTeam(factory);
-            worldGame.addTeam(new Team(worldGame, factory));
+            factories.add(factory);
         }
-    }
 
-    private void loadSettings() {
-        int pointsPerKill = configYml.getInt(CONFIG_POINTS_PER_KILL_KEY);
-        int levelsPerKill = configYml.getInt(CONFIG_LEVELS_PER_KILL_KEY);
-        int pointsToEnd = configYml.getInt(CONFIG_POINTS_TO_END_KEY);
-        int respawnTimer = configYml.getInt(RESPAWN_TIMER_KEY);
-        List<String> respawnCommands = configYml.getStringList(RESPAWN_COMMANDS_KEY);
-        List<String> startCommands = configYml.getStringList(START_COMMANDS_KEY);
-        List<String> endCommands = configYml.getStringList(END_COMMANDS_KEY);
-        List<String> deathCommands = configYml.getStringList(DEATH_COMMANDS_KEY);
-        List<String> blacklistProjectiles = configYml.getStringList(BLACKLISTED_PROJECTILES_KEY);
-
-        Settings.POINTS_PER_KILL.setValue(pointsPerKill);
-        Settings.LEVELS_PER_KILL.setValue(levelsPerKill);
-        Settings.POINTS_TO_END.setValue(pointsToEnd);
-        Settings.RESPAWN_TIMER.setValue(respawnTimer);
-        Settings.RESPAWN_COMMANDS.setValue(respawnCommands);
-        Settings.START_GAME_COMMANDS.setValue(startCommands);
-        Settings.END_GAME_COMMANDS.setValue(endCommands);
-        Settings.DEATH_COMMANDS.setValue(deathCommands);
-        Settings.BLACKLISTED_PROJECTILES.setValue(blacklistProjectiles);
-    }
-
-    public void reloadShop(WorldGame worldGame) {
-        try {
-            worldGame.getShopGUI().clear();
-            shopYml = FileConfig.loadConfiguration(new YamlAdapter(), new File(plugin.getDataFolder(), "shop.yml"));
-            loadShop(worldGame, shopYml.getConfigurationSection(SHOP_SECTION_KEY));
-        } catch (IOException | InvalidConfigurationException e) {
-            e.printStackTrace();
-        }
+        return factories;
     }
 
     private Color color(String hexColor) {
@@ -372,6 +345,46 @@ public class ConfigLoader {
         mapsYml.mergeDefaults();
         shopYml.mergeDefaults();
         configYml.mergeDefaults();
+    }
+
+    @Override
+    public int getPointsPerKill() {
+        return configYml.getInt(CONFIG_POINTS_PER_KILL_KEY);
+    }
+
+    @Override
+    public int getLevelsPerKill() {
+        return configYml.getInt(CONFIG_LEVELS_PER_KILL_KEY);
+    }
+
+    @Override
+    public int getPointsToEnd() {
+        return configYml.getInt(CONFIG_POINTS_TO_END_KEY);
+    }
+
+    @Override
+    public int getRespawnTimer() {
+        return configYml.getInt(RESPAWN_TIMER_KEY);
+    }
+
+    @Override
+    public List<EntityType> getBlacklistedProjectiles() {
+        List<EntityType> types = new ArrayList<>();
+        for (String s : configYml.getStringList(BLACKLISTED_PROJECTILES_KEY)) {
+            EntityType entityType = EntityType.valueOf(s.toUpperCase());
+            types.add(entityType);
+        }
+
+        return types;
+    }
+
+    @Override
+    public void reloadConfig() {
+        try {
+            configYml = FileConfig.loadConfiguration(new YamlAdapter(), new File(plugin.getDataFolder(), "config.yml"));
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
     }
 }
 

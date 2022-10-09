@@ -1,11 +1,12 @@
 package me.cedric.siegegame.border;
 
-import me.cedric.siegegame.SiegeGame;
-import me.cedric.siegegame.config.Settings;
+import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.border.lastsafe.EntityTracker;
 import me.cedric.siegegame.enums.Permissions;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
 import org.bukkit.event.EventHandler;
@@ -18,9 +19,9 @@ import java.util.List;
 
 public class BorderListener implements Listener {
 
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
 
-    public BorderListener(SiegeGame plugin) {
+    public BorderListener(SiegeGamePlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -58,7 +59,7 @@ public class BorderListener implements Listener {
         if (handler.getCollidingBorder(location).stream().anyMatch(border -> !analyseMove(gamePlayer, border)))
             rollback(gamePlayer);
 
-        gamePlayer.getBorderHandler().setLastSafe(event.getTo().clone());
+        gamePlayer.getBorderHandler().getEntityTracker().setLastPosition(event.getPlayer().getUniqueId(), event.getTo().clone());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -73,9 +74,9 @@ public class BorderListener implements Listener {
         if (!(projectile.getShooter() instanceof Player))
             return;
 
-        List<String> projectiles = (List<String>) Settings.BLACKLISTED_PROJECTILES.getValue();
+        List<EntityType> projectiles = plugin.getGameConfig().getBlacklistedProjectiles();
 
-        if (!projectiles.contains(projectile.getType().name()))
+        if (!projectiles.contains(projectile.getType()))
             return;
 
         Player player = (Player) projectile.getShooter();
@@ -100,16 +101,18 @@ public class BorderListener implements Listener {
     }
 
     private void rollback(GamePlayer player) {
-        if (player.getBorderHandler().getLastSafe() == null) {
+        EntityTracker entityTracker = player.getBorderHandler().getEntityTracker();
+        if (entityTracker.getLastPosition(player.getUUID()) == null) {
             if (player.hasTeam())
                 player.getBukkitPlayer().teleport(player.getTeam().getSafeSpawn());
             return;
         }
-        player.getBukkitPlayer().teleport(player.getBorderHandler().getLastSafe());
+        player.getBukkitPlayer().teleport(entityTracker.getLastPosition(player.getUUID()));
     }
 
     private boolean shouldCheck(GamePlayer gamePlayer) {
-        Location lastSafe = gamePlayer.getBorderHandler().getLastSafe();
+        EntityTracker entityTracker = gamePlayer.getBorderHandler().getEntityTracker();
+        Location lastSafe = entityTracker.getLastPosition(gamePlayer.getUUID());
 
         if (lastSafe == null)
             return true;

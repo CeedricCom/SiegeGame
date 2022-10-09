@@ -6,10 +6,9 @@ import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.BlockPosition;
-import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.enums.Permissions;
 import me.cedric.siegegame.model.SiegeGameMatch;
-import me.cedric.siegegame.model.WorldGame;
 import me.cedric.siegegame.model.map.GameMap;
 import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.Location;
@@ -17,11 +16,11 @@ import org.bukkit.entity.Player;
 
 public class BlockChangePacketAdapter extends PacketAdapter {
 
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
 
-    public BlockChangePacketAdapter(SiegeGame plugin) {
+    public BlockChangePacketAdapter(SiegeGamePlugin plugin) {
         super(plugin, ListenerPriority.NORMAL, PacketType.Play.Server.BLOCK_CHANGE);
-        this.plugin = (SiegeGame) plugin;
+        this.plugin = (SiegeGamePlugin) plugin;
     }
 
     @Override

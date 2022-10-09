@@ -1,7 +1,6 @@
 package me.cedric.siegegame.display;
 
-import me.cedric.siegegame.SiegeGame;
-import me.cedric.siegegame.config.Settings;
+import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.display.placeholderapi.Placeholder;
 import me.cedric.siegegame.enums.Messages;
 import me.cedric.siegegame.model.SiegeGameMatch;
@@ -10,7 +9,6 @@ import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.superitems.SuperItem;
 import me.cedric.siegegame.territory.Territory;
-import me.cedric.siegegame.territory.TerritoryListener;
 import me.deltaorion.bukkit.display.actionbar.ActionBar;
 import me.deltaorion.bukkit.display.bossbar.BarColor;
 import me.deltaorion.bukkit.display.bossbar.EBossBar;
@@ -19,7 +17,6 @@ import me.deltaorion.bukkit.display.scoreboard.EScoreboard;
 import me.deltaorion.common.locale.message.Message;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -32,11 +29,11 @@ import java.util.stream.Collectors;
 
 public class Displayer {
 
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
     private final GamePlayer gamePlayer;
     private final BukkitApiPlayer apiPlayer;
 
-    public Displayer(SiegeGame plugin, GamePlayer gamePlayer) {
+    public Displayer(SiegeGamePlugin plugin, GamePlayer gamePlayer) {
         this.plugin = plugin;
         this.gamePlayer = gamePlayer;
         this.apiPlayer = plugin.getBukkitPlayerManager().getPlayer(gamePlayer.getUUID());
@@ -108,13 +105,13 @@ public class Displayer {
                 .append(Component.text(" has killed ", TextColor.color(252, 252, 53)))
                 .append(Component.text(Placeholder.getRelationalColor(gamePlayer.getTeam(), dead.getTeam()) + dead.getBukkitPlayer().getName() + " "))
                 .append(Component.text(killerTeam.getName() + ": ", TextColor.color(255, 194, 97)))
-                .append(Component.text("+" + Settings.POINTS_PER_KILL.getValue() + " points ", TextColor.color(255, 73, 23)))));
+                .append(Component.text("+" + plugin.getGameConfig().getPointsPerKill() + " points ", TextColor.color(255, 73, 23)))));
 
         gamePlayer.getBukkitPlayer().sendMessage(textComponent);
 
         TextComponent xpLevels = Component.text("")
                 .color(TextColor.color(0, 143, 26))
-                .append(Component.text("+" + Settings.LEVELS_PER_KILL.getValue() + " XP Levels"));
+                .append(Component.text("+" + plugin.getGameConfig().getLevelsPerKill() + " XP Levels"));
 
         if (killerTeam.equals(gamePlayer.getTeam()))
             gamePlayer.getBukkitPlayer().sendMessage(xpLevels);
@@ -138,6 +135,14 @@ public class Displayer {
 
     public void displayActionCancelled() {
         //gamePlayer.getBukkitPlayer().sendMessage(Messages.CLAIMS_ACTION_CANCELLED.toString());
+    }
+
+    public void displayVictory() {
+        gamePlayer.getBukkitPlayer().sendTitle(ChatColor.GOLD + "" + ChatColor.BOLD + "VICTORY", ChatColor.YELLOW + "gg ez yall are dog z tier rands");
+    }
+
+    public void displayLoss() {
+
     }
 }
 

@@ -1,7 +1,6 @@
 package me.cedric.siegegame.territory;
 
-import me.cedric.siegegame.SiegeGame;
-import me.cedric.siegegame.model.WorldGame;
+import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.model.teams.TeamFactory;
 import org.bukkit.Location;
@@ -13,7 +12,7 @@ public final class Territory {
     private final Polygon polygon;
     private final TeamFactory owner;
 
-    public Territory(SiegeGame plugin, Polygon polygon, TeamFactory owner) {
+    public Territory(SiegeGamePlugin plugin, Polygon polygon, TeamFactory owner) {
         this.polygon = polygon;
         this.owner = owner;
     }

@@ -10,14 +10,14 @@ import java.util.Set;
 
 public class GameMap {
 
-    private final LocalGameMap localGameMap;
+    private final FileMapLoader fileMapLoader;
     private final Set<TeamFactory> teamFactories;
     private final String displayName;
     private Border mapBorder;
     private final Location defaultSpawn;
 
-    public GameMap(LocalGameMap localGameMap, String displayName, Set<TeamFactory> teamFactory, Border border, Location defaultSpawn) {
-        this.localGameMap = localGameMap;
+    public GameMap(FileMapLoader fileMapLoader, String displayName, Set<TeamFactory> teamFactory, Border border, Location defaultSpawn) {
+        this.fileMapLoader = fileMapLoader;
         this.teamFactories = teamFactory;
         this.displayName = displayName;
         this.mapBorder = border;
@@ -37,38 +37,38 @@ public class GameMap {
     }
 
     public void unload() {
-        localGameMap.unload();
+        fileMapLoader.unload();
     }
 
     public World getWorld() {
-        if (!localGameMap.isLoaded())
-            localGameMap.load();
-        return localGameMap.getWorld();
+        if (!fileMapLoader.isLoaded())
+            fileMapLoader.load();
+        return fileMapLoader.getWorld();
     }
 
     public boolean isWorldLoaded() {
-        return localGameMap.isLoaded();
+        return fileMapLoader.isLoaded();
     }
 
     public void resetMap() {
-        localGameMap.restoreFromSource();
+        fileMapLoader.restoreFromSource();
     }
 
     public boolean load() {
-        if (!localGameMap.load())
+        if (!fileMapLoader.load())
             return false;
 
-        defaultSpawn.setWorld(localGameMap.getWorld());
-        localGameMap.getWorld().setSpawnLocation(defaultSpawn);
+        defaultSpawn.setWorld(fileMapLoader.getWorld());
+        fileMapLoader.getWorld().setSpawnLocation(defaultSpawn);
         BoundingBox box = mapBorder.getBoundingBox();
-        mapBorder = new Border(new BoundingBox(localGameMap.getWorld(),
+        mapBorder = new Border(new BoundingBox(fileMapLoader.getWorld(),
                 (int) box.getMinX(), (int) box.getMinY(), (int) box.getMinZ(),
                 (int) box.getMaxX(), (int) box.getMaxY(), (int) box.getMaxZ()));
 
         for (TeamFactory team : teamFactories) {
             Location location = team.getSafeSpawn();
-            location.setWorld(localGameMap.getWorld());
-            team.getSafeArea().getBoundingBox().setWorld(localGameMap.getWorld());
+            location.setWorld(fileMapLoader.getWorld());
+            team.getSafeArea().getBoundingBox().setWorld(fileMapLoader.getWorld());
             team.setSafeSpawn(location);
         }
 

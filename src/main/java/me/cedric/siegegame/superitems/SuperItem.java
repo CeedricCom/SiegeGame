@@ -1,6 +1,6 @@
 package me.cedric.siegegame.superitems;
 
-import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.Location;
@@ -28,13 +28,13 @@ public abstract class SuperItem implements Listener {
 
     private final static String compoundKey = "superitem";
 
-    protected final SiegeGame plugin;
+    protected final SiegeGamePlugin plugin;
     private final String key;
     private GamePlayer owner = null;
     private boolean isDropped = false;
     protected final WorldGame worldGame;
 
-    protected SuperItem(SiegeGame plugin, String key, WorldGame worldGame) {
+    protected SuperItem(SiegeGamePlugin plugin, String key, WorldGame worldGame) {
         this.plugin = plugin;
         this.key = key;
         this.worldGame = worldGame;
@@ -46,7 +46,7 @@ public abstract class SuperItem implements Listener {
 
     protected abstract ItemStack itemStack();
 
-    protected abstract void initialize(SiegeGame plugin);
+    protected abstract void initialize(SiegeGamePlugin plugin);
 
     public abstract String getDisplayName();
 

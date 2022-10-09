@@ -1,19 +1,22 @@
 package me.cedric.siegegame.model;
 
 import com.google.common.collect.ImmutableSet;
-import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.death.DeathManager;
 import me.cedric.siegegame.display.shop.ShopGUI;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.PlayerManager;
-import me.cedric.siegegame.superitems.SuperItem;
 import me.cedric.siegegame.model.teams.Team;
+import me.cedric.siegegame.superitems.SuperItem;
 import me.cedric.siegegame.superitems.SuperItemManager;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -21,14 +24,14 @@ import java.util.UUID;
 
 public class WorldGame {
 
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
     private final Set<Team> teams = new HashSet<>();
     private final SuperItemManager superItemManager;
     private final DeathManager deathManager;
     private PlayerManager playerManager;
     private final ShopGUI shopGUI;
 
-    public WorldGame(SiegeGame plugin) {
+    public WorldGame(SiegeGamePlugin plugin) {
         this.plugin = plugin;
         this.superItemManager = new SuperItemManager(plugin, this);
         this.deathManager = new DeathManager(plugin, this);
@@ -59,15 +62,16 @@ public class WorldGame {
     }
 
     public void removeTeam(String configKey) {
-        teams.removeIf(team -> team.getConfigKey().equalsIgnoreCase(configKey));
+        teams.removeIf(team -> team.getIdentifier().equalsIgnoreCase(configKey));
     }
 
     public void assignRandomTeams() {
         Random r = new Random();
 
         List<GamePlayer> list = new ArrayList<>(playerManager.getPlayers());
+        Iterator<GamePlayer> iterator = list.iterator();
 
-        while (list.size() != 0) {
+        while (iterator.hasNext()) {
             for (Team team : teams) {
                 if (list.size() == 0)
                     break;
@@ -75,7 +79,7 @@ public class WorldGame {
                 int chosenPlayer = list.size() == 1 ? 0 : r.nextInt(0, list.size() - 1);
                 GamePlayer player = list.get(chosenPlayer);
                 assignTeam(player, team);
-                list.remove(chosenPlayer);
+                iterator.next();
             }
         }
     }
@@ -90,11 +94,9 @@ public class WorldGame {
     private void assignTeam(GamePlayer player, Team team) {
         team.addPlayer(player);
 
-        for (Team t : teams) {
+        for (Team t : teams)
             player.getBorderHandler().addBorder(t.getSafeArea());
-        }
-
-        player.getBorderHandler().addBorder(team.getSafeArea());
+        player.getBorderHandler().addBorder(plugin.getGameManager().getCurrentMatch().getGameMap().getMapBorder());
 
         player.getBukkitPlayer().sendMessage(ChatColor.DARK_AQUA + "You have been assigned to the following team: " + team.getName());
     }
@@ -122,6 +124,45 @@ public class WorldGame {
     }
 
     public Team getTeam(String configKey) {
-        return teams.stream().filter(team -> team.getConfigKey().equalsIgnoreCase(configKey)).findAny().orElse(null);
+        return teams.stream().filter(team -> team.getIdentifier().equalsIgnoreCase(configKey)).findAny().orElse(null);
+    }
+
+    public void startGame() {
+        for (Player player : Bukkit.getOnlinePlayers())
+            addPlayer(player.getUniqueId());
+
+        assignRandomTeams();
+
+        for (GamePlayer gamePlayer : getPlayers())
+            gamePlayer.reset();
+
+        getSuperItemManager().assignSuperItems(true);
+
+        updateAllScoreboards();
+    }
+
+    public void endGame() {
+        for (GamePlayer gamePlayer : getPlayers()) {
+            gamePlayer.reset();
+
+            if (!gamePlayer.hasTeam())
+                continue;
+
+            if (gamePlayer.getTeam().getPoints() >= plugin.getGameConfig().getPointsToEnd())
+                gamePlayer.getDisplayer().displayVictory();
+            else
+                gamePlayer.getDisplayer().displayLoss();
+
+            gamePlayer.getBukkitPlayer().sendMessage(ChatColor.DARK_AQUA + "[ceedric.com]" + ChatColor.GOLD +
+                    " on gaia gods i would fk u up on eu boxing 1v1 z tier fkin rand dogs i swear my zuesimortal" +
+                    " clicker can put u in 30 hit combo like dog random , I AM GAIA DEMON please dont disrespect me" +
+                    " fkin dog rand i am known gaia player i swear on morudias gods ur a fkin rand ON HYTES ur my fkin dog Z tier dog randoms");
+        }
+
+        for (Team team : teams)
+            team.reset();
+
+        for (SuperItem superItem : superItemManager.getSuperItems())
+            superItem.remove();
     }
 }

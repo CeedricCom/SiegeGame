@@ -1,6 +1,6 @@
 package me.cedric.siegegame.player;
 
-import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.border.BorderHandler;
 import me.cedric.siegegame.display.Displayer;
 import me.cedric.siegegame.model.teams.Team;
@@ -13,14 +13,14 @@ import java.util.UUID;
 
 public class GamePlayer {
 
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
     private final UUID uuid;
     private final BorderHandler borderHandler;
     private final Displayer displayer;
     private boolean dead = false;
     private Team team;
 
-    public GamePlayer(UUID uuid, SiegeGame plugin) {
+    public GamePlayer(UUID uuid, SiegeGamePlugin plugin) {
         this.uuid = uuid;
         this.team = null;
         this.plugin = plugin;
@@ -66,5 +66,16 @@ public class GamePlayer {
 
     public void grantNightVision() {
         getBukkitPlayer().addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, Integer.MAX_VALUE, 0, false, false, false));
+    }
+
+    public void reset() {
+        getBukkitPlayer().setLevel(0);
+        getBukkitPlayer().getInventory().clear();
+        getBukkitPlayer().getEnderChest().clear();
+        grantNightVision();
+        getDisplayer().wipeScoreboard();
+
+        if (hasTeam())
+            getBukkitPlayer().teleport(getTeam().getSafeSpawn());
     }
 }

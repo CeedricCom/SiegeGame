@@ -1,23 +1,25 @@
 package me.cedric.siegegame.model;
 
-import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.map.GameMap;
 import me.cedric.siegegame.model.teams.Team;
+import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.superitems.SuperItem;
 import me.cedric.siegegame.territory.TerritoryListener;
 import org.bukkit.World;
 
 public class SiegeGameMatch {
 
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
     private final WorldGame worldGame;
     private final GameMap gameMap;
-    private final String configKey;
+    private final String identifier;
 
-    public SiegeGameMatch(SiegeGame plugin, WorldGame worldGame, GameMap gameMap, String configKey) {
+    public SiegeGameMatch(SiegeGamePlugin plugin, WorldGame worldGame, GameMap gameMap, String identifier) {
         this.plugin = plugin;
         this.worldGame = worldGame;
         this.gameMap = gameMap;
-        this.configKey = configKey;
+        this.identifier = identifier;
 
         for (Team team : worldGame.getTeams()) {
             TerritoryListener blockers = new TerritoryListener(worldGame, team.getTerritory());
@@ -33,11 +35,26 @@ public class SiegeGameMatch {
         return gameMap.getWorld();
     }
 
-    public String getConfigKey() {
-        return configKey;
+    public String getIdentifier() {
+        return identifier;
     }
 
     public GameMap getGameMap() {
         return gameMap;
+    }
+
+    public void shutdown() {
+        for (GamePlayer gamePlayer : worldGame.getDeathManager().getDeadPlayers())
+            worldGame.getDeathManager().revivePlayer(gamePlayer);
+
+        for (SuperItem superItem : worldGame.getSuperItemManager().getSuperItems())
+            superItem.remove();
+
+        if (gameMap.isWorldLoaded())
+            gameMap.unload();
+    }
+
+    public void endGame() {
+        worldGame.endGame();
     }
 }

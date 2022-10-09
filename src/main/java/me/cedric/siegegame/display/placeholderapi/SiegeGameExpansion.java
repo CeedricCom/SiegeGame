@@ -1,6 +1,6 @@
 package me.cedric.siegegame.display.placeholderapi;
 
-import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.player.GamePlayer;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -11,9 +11,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class SiegeGameExpansion extends PlaceholderExpansion implements Relational {
 
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
 
-    public SiegeGameExpansion(SiegeGame plugin) {
+    public SiegeGameExpansion(SiegeGamePlugin plugin) {
         this.plugin = plugin;
     }
 

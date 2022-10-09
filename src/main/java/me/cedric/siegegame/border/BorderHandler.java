@@ -1,30 +1,28 @@
 package me.cedric.siegegame.border;
 
-import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.border.fake.FakeBlockManager;
+import me.cedric.siegegame.border.fake.FakeBorderWall;
+import me.cedric.siegegame.border.lastsafe.EntityTracker;
 import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.player.LastSafe;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.entity.Projectile;
 
 import java.util.*;
 
 public class BorderHandler {
 
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
     private final GamePlayer player;
     private final FakeBlockManager fakeBlockManager;
-    private final LastSafe<Player> playerLastSafe;
-    private final List<LastSafe<Projectile>> playerProjectiles;
+    private final EntityTracker entityTracker;
     private final Map<Border, BorderDisplay> borders = new HashMap<>();
 
-    public BorderHandler(SiegeGame plugin, GamePlayer player) {
+    public BorderHandler(SiegeGamePlugin plugin, GamePlayer player) {
         this.plugin = plugin;
         this.player = player;
+        this.entityTracker = new EntityTracker();
         this.fakeBlockManager = new FakeBlockManager(plugin, player.getBukkitPlayer());
-        this.playerProjectiles = new ArrayList<>();
-        this.playerLastSafe = new LastSafe<>(player.getBukkitPlayer().getLocation(), player.getBukkitPlayer());
     }
 
     public FakeBlockManager getFakeBlockManager() {
@@ -71,53 +69,15 @@ public class BorderHandler {
         return b;
     }
 
-    private boolean isAtSpawn() {
-        return false;
-    }
-
     public GamePlayer getPlayer() {
         return player;
     }
 
-    public Location getLastSafe() {
-        return playerLastSafe.getLocation();
-    }
-
-    public void setLastSafe(Location lastSafe) {
-        playerLastSafe.setLocation(lastSafe);
-    }
-
-    public void trackProjectile(Projectile projectile) {
-        playerProjectiles.add(new LastSafe<>(projectile.getLocation(), projectile));
-    }
-
-    public void setProjectileLastSafe(UUID uuid, Location location) {
-        LastSafe<Projectile> p = getProjectile(uuid);
-        if (p == null)
-            return;
-        p.setLocation(location);
-    }
-
-    public boolean isTrackingProjectile(UUID uuid) {
-        return getProjectile(uuid) != null;
-    }
-
-    public Location getProjectileLastSafe(UUID uuid) {
-        return getProjectile(uuid).getLocation();
-    }
-
-    public void stopTrackingProjectile(UUID uuid) {
-        playerProjectiles.removeIf(projectileLastSafe -> projectileLastSafe.getEntity().getUniqueId().equals(uuid));
-    }
-
-    private LastSafe<Projectile> getProjectile(UUID uuid) {
-        return playerProjectiles.stream().filter(projectileLastSafe -> projectileLastSafe.getEntity().getUniqueId().equals(uuid)).findFirst().orElse(null);
-    }
-
     public void clear() {
         borders.clear();
-        playerProjectiles.clear();
     }
 
-
+    public EntityTracker getEntityTracker() {
+        return entityTracker;
+    }
 }

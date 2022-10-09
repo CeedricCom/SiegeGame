@@ -1,14 +1,8 @@
 package me.cedric.siegegame.player;
 
-import me.cedric.siegegame.SiegeGame;
-import me.cedric.siegegame.config.Settings;
-import me.cedric.siegegame.display.placeholderapi.Placeholder;
+import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.teams.Team;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
-import net.kyori.adventure.text.format.NamedTextColor;
-import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,9 +18,9 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 
 public class PlayerListener implements Listener {
 
-    public SiegeGame plugin;
+    public SiegeGamePlugin plugin;
 
-    public PlayerListener(SiegeGame plugin) {
+    public PlayerListener(SiegeGamePlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -97,12 +91,12 @@ public class PlayerListener implements Listener {
 
             int levels = bukkitPlayer.getLevel();
 
-            bukkitPlayer.setLevel(levels + (int) Settings.LEVELS_PER_KILL.getValue());
+            bukkitPlayer.setLevel(levels + plugin.getGameConfig().getLevelsPerKill());
         }
 
-        team.addPoints((int) Settings.POINTS_PER_KILL.getValue());
+        team.addPoints(plugin.getGameConfig().getPointsPerKill());
 
-        if (team.getPoints() >= (int) Settings.POINTS_TO_END.getValue()) {
+        if (team.getPoints() >= plugin.getGameConfig().getPointsToEnd()) {
             plugin.getGameManager().startNextMap();
         }
 

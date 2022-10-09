@@ -1,6 +1,6 @@
 package me.cedric.siegegame.superitems;
 
-import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.WorldGame;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.GamePlayer;
@@ -13,11 +13,11 @@ import java.util.Set;
 
 public class SuperItemManager {
 
-    private final SiegeGame plugin;
+    private final SiegeGamePlugin plugin;
     private final WorldGame worldGame;
     private final List<SuperItem> superItems = new ArrayList<>();
 
-    public SuperItemManager(SiegeGame plugin, WorldGame worldGame) {
+    public SuperItemManager(SiegeGamePlugin plugin, WorldGame worldGame) {
         this.plugin = plugin;
         this.worldGame = worldGame;
     }

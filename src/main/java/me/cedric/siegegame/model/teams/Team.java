@@ -17,10 +17,20 @@ public class Team {
     private final Set<GamePlayer> players = new HashSet<>();
     private final TeamFactory factory;
     private int points = 0;
+    private Territory territory;
+    private Location safeSpawn;
+    private Border safeArea;
+    private String identifier;
+    private String name;
+    private Color color;
 
     public Team(WorldGame worldGame, TeamFactory factory) {
         this.factory = factory;
         this.worldGame = worldGame;
+        this.safeArea = factory.getSafeArea();
+        this.identifier = factory.getConfigKey();
+        this.name = factory.getName();
+        this.color = factory.getColor();
     }
 
     public ImmutableSet<GamePlayer> getPlayers() {
@@ -29,26 +39,6 @@ public class Team {
 
     public WorldGame getWorldGame() {
         return worldGame;
-    }
-
-    public String getName() {
-        return factory.getName();
-    }
-
-    public String getConfigKey() {
-        return factory.getConfigKey();
-    }
-
-    public Territory getTerritory() {
-        return factory.getTerritory();
-    }
-
-    public Location getSafeSpawn() {
-        return factory.getSafeSpawn();
-    }
-
-    public Color getColor() {
-        return factory.getColor();
     }
 
     public void addPlayer(GamePlayer player) {
@@ -61,12 +51,44 @@ public class Team {
         player.setTeam(null);
     }
 
-    public void clear() {
+    public void reset() {
         players.clear();
+        safeArea = factory.getSafeArea();
+        identifier = factory.getConfigKey();
+        name = factory.getName();
+        color = factory.getColor();
+    }
+
+    public Territory getTerritory() {
+        return territory;
+    }
+
+    public void setTerritory(Territory territory) {
+        this.territory = territory;
     }
 
     public Border getSafeArea() {
-        return factory.getSafeArea();
+        return safeArea;
+    }
+
+    public Location getSafeSpawn() {
+        return safeSpawn.clone();
+    }
+
+    public void setSafeSpawn(Location safeSpawn) {
+        this.safeSpawn = safeSpawn;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public Color getColor() {
+        return color;
     }
 
     public int getPoints() {
@@ -75,12 +97,5 @@ public class Team {
 
     public void addPoints(int i) {
         points += i;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof TeamFactory)
-            return factory.equals(obj);
-        return super.equals(obj);
     }
 }
