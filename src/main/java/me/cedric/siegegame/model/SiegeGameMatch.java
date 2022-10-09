@@ -3,7 +3,7 @@ package me.cedric.siegegame.model;
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.model.map.GameMap;
 import me.cedric.siegegame.model.teams.Team;
-import me.cedric.siegegame.territory.TerritoryBlockers;
+import me.cedric.siegegame.territory.TerritoryListener;
 import org.bukkit.World;
 
 public class SiegeGameMatch {
@@ -20,7 +20,7 @@ public class SiegeGameMatch {
         this.configKey = configKey;
 
         for (Team team : worldGame.getTeams()) {
-            TerritoryBlockers blockers = new TerritoryBlockers(worldGame, team.getTerritory());
+            TerritoryListener blockers = new TerritoryListener(worldGame, team.getTerritory());
             plugin.getServer().getPluginManager().registerEvents(blockers, plugin);
         }
     }

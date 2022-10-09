@@ -241,7 +241,6 @@ public class ConfigLoader {
                 int level = Integer.parseInt(s[1]);
                 itemBuilder.addEnchantment(ench, level);
             }
-            itemBuilder.transformNBT(nbtItem -> nbtItem.addCompound("siege-game").setInteger("price", price));
 
             ItemStack item = itemBuilder.build();
             ShopItem button = new ShopItem(gamePlayer -> {

@@ -25,16 +25,19 @@ public class SuperItemManager {
     public void addSuperItem(String key) {
         switch (key.toLowerCase()) {
             case "sharp-6": {
-                superItems.add(new SharpnessVI(plugin, "sharp-6", worldGame));
+                registerSuperItem(new SharpnessVI(plugin, "sharp-6", worldGame));
                 break;
             }
             case "kb-stick": {
-                KnockbackStick stick = new KnockbackStick(plugin, "kb-stick", worldGame);
-                superItems.add(stick);
-                stick.initialize(plugin);
+                registerSuperItem(new KnockbackStick(plugin, "kb-stick", worldGame));
                 break;
             }
         }
+    }
+
+    private void registerSuperItem(SuperItem superItem) {
+        superItems.add(superItem);
+        superItem.initialize(plugin);
     }
 
     public void clear() {

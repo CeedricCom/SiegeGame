@@ -1,15 +1,30 @@
 package me.cedric.siegegame.display;
 
 import me.cedric.siegegame.SiegeGame;
+import me.cedric.siegegame.config.Settings;
 import me.cedric.siegegame.display.placeholderapi.Placeholder;
+import me.cedric.siegegame.enums.Messages;
 import me.cedric.siegegame.model.SiegeGameMatch;
+import me.cedric.siegegame.model.WorldGame;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.superitems.SuperItem;
+import me.cedric.siegegame.territory.Territory;
+import me.cedric.siegegame.territory.TerritoryListener;
+import me.deltaorion.bukkit.display.actionbar.ActionBar;
+import me.deltaorion.bukkit.display.bossbar.BarColor;
+import me.deltaorion.bukkit.display.bossbar.EBossBar;
 import me.deltaorion.bukkit.display.bukkit.BukkitApiPlayer;
 import me.deltaorion.bukkit.display.scoreboard.EScoreboard;
+import me.deltaorion.common.locale.message.Message;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.format.NamedTextColor;
+import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -79,6 +94,50 @@ public class Displayer {
             return;
 
         apiPlayer.removeScoreboard();
+    }
+
+    public void displayKill(GamePlayer dead, GamePlayer killerGamePlayer) {
+
+        Team killerTeam = killerGamePlayer.getTeam();
+        Player killer = killerGamePlayer.getBukkitPlayer();
+
+        TextComponent textComponent = Component.text("")
+                .color(TextColor.color(88, 140, 252))
+                .append(Component.text(Messages.PREFIX.toString() + " ")
+                .append(Component.text(Placeholder.getRelationalColor(gamePlayer.getTeam(), killerTeam) + killer.getName())
+                .append(Component.text(" has killed ", TextColor.color(252, 252, 53)))
+                .append(Component.text(Placeholder.getRelationalColor(gamePlayer.getTeam(), dead.getTeam()) + dead.getBukkitPlayer().getName() + " "))
+                .append(Component.text(killerTeam.getName() + ": ", TextColor.color(255, 194, 97)))
+                .append(Component.text("+" + Settings.POINTS_PER_KILL.getValue() + " points ", TextColor.color(255, 73, 23)))));
+
+        gamePlayer.getBukkitPlayer().sendMessage(textComponent);
+
+        TextComponent xpLevels = Component.text("")
+                .color(TextColor.color(0, 143, 26))
+                .append(Component.text("+" + Settings.LEVELS_PER_KILL.getValue() + " XP Levels"));
+
+        if (killerTeam.equals(gamePlayer.getTeam()))
+            gamePlayer.getBukkitPlayer().sendMessage(xpLevels);
+    }
+
+    public void displayInsideEnemyClaims(WorldGame worldGame, Territory territory) {
+        Message message = Messages.CLAIMS_ENTERED;
+        Team team = worldGame.getTeam(territory.getTeam().getConfigKey());
+        String s = String.format(message.toString(), Placeholder.getRelationalColor(gamePlayer.getTeam(), team) + team.getName());
+        ActionBar actionBar = new ActionBar(s, Duration.ofSeconds(3));
+        apiPlayer.getActionBarManager().send(actionBar);
+
+        EBossBar bossBar = apiPlayer.setBossBar("siegegame-enemy-claims");
+        bossBar.setMessage(ChatColor.YELLOW + "You are currently in " + s + ChatColor.YELLOW + " claims");
+        bossBar.setColor(BarColor.YELLOW);
+    }
+
+    public void removeDisplayInsideEnemyClaims() {
+        apiPlayer.removeBossBar();
+    }
+
+    public void displayActionCancelled() {
+        //gamePlayer.getBukkitPlayer().sendMessage(Messages.CLAIMS_ACTION_CANCELLED.toString());
     }
 }
 

@@ -30,6 +30,9 @@ public class ShopGUI {
     public void addItem(ShopItem button) {
         shopItems.add(button);
         this.pane.addItem(new GuiItem(button.getDisplayItem(), inventoryClickEvent -> {
+            GamePlayer gamePlayer = worldGame.getPlayer(inventoryClickEvent.getWhoClicked().getUniqueId());
+            if (gamePlayer != null)
+                button.handlePurchase(gamePlayer);
             inventoryClickEvent.setCancelled(true);
         }), button.getSlot() % 9, button.getSlot() / 9);
     }

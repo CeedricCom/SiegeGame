@@ -1,10 +1,7 @@
 package me.cedric.siegegame.territory;
 
-import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.enums.Permissions;
-import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.WorldGame;
-import me.cedric.siegegame.model.map.GameMap;
 import me.cedric.siegegame.player.GamePlayer;
 import me.deltaorion.bukkit.item.EMaterial;
 import org.bukkit.Location;
@@ -21,21 +18,41 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TerritoryBlockers implements Listener {
+public class TerritoryListener implements Listener {
 
     private final Territory territory;
     private final WorldGame worldGame;
 
     private final static List<Material> interactProhibited = new ArrayList<>();
 
-    public TerritoryBlockers(WorldGame worldGame, Territory territory) {
+    public TerritoryListener(WorldGame worldGame, Territory territory) {
         this.worldGame = worldGame;
         this.territory = territory;
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onMove(PlayerMoveEvent event) {
+        Player player = event.getPlayer();
+        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
+
+        Location to = event.getTo();
+
+        if (gamePlayer == null)
+            return;
+
+        if (territory.isInside(to) && !territory.isInside(event.getFrom())) {
+            gamePlayer.getDisplayer().displayInsideEnemyClaims(worldGame, territory);
+            return;
+        }
+
+        if (territory.isInside(event.getFrom()) && !territory.isInside(to))
+            gamePlayer.getDisplayer().removeDisplayInsideEnemyClaims();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -103,6 +120,7 @@ public class TerritoryBlockers implements Listener {
             return;
 
         event.setCancelled(true);
+        gamePlayer.getDisplayer().displayActionCancelled();
     }
 
     static {

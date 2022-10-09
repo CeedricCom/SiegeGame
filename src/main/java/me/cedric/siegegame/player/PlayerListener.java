@@ -2,6 +2,7 @@ package me.cedric.siegegame.player;
 
 import me.cedric.siegegame.SiegeGame;
 import me.cedric.siegegame.config.Settings;
+import me.cedric.siegegame.display.placeholderapi.Placeholder;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.teams.Team;
 import net.kyori.adventure.text.Component;
@@ -13,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
@@ -77,6 +79,7 @@ public class PlayerListener implements Listener {
             return;
 
         GamePlayer killerGamePlayer = match.getWorldGame().getPlayer(killer.getUniqueId());
+        killer.playSound(killer.getLocation(), "entity.experience_orb.pickup", 1.0F, 0F);
 
         if (killerGamePlayer == null)
             return;
@@ -105,21 +108,12 @@ public class PlayerListener implements Listener {
 
         plugin.getGameManager().getCurrentMatch().getWorldGame().updateAllScoreboards();
 
+        GamePlayer dead = match.getWorldGame().getPlayer(event.getPlayer().getUniqueId());
         for (Player player : Bukkit.getOnlinePlayers()) {
-            player.playSound(player.getLocation(), "entity.experience_orb.pickup", 1.0F, 0F);
-            TextComponent textComponent = Component.text("")
-                    .color(TextColor.color(88, 140, 252))
-                    .append(Component.text("[ceedric.com] ", TextColor.color(247, 80, 30)))
-                    .append(Component.text(killer.getName(), NamedTextColor.LIGHT_PURPLE))
-                    .append(Component.text(" has killed ", TextColor.color(252, 252, 53)))
-                    .append(Component.text(event.getPlayer().getName() + " ", NamedTextColor.LIGHT_PURPLE))
-                    .append(Component.text(team.getName() + ": ", TextColor.color(255, 194, 97)))
-                    .append(Component.text("+" + Settings.POINTS_PER_KILL.getValue() + " points ", TextColor.color(255, 73, 23)));
-            TextComponent xpLevels = Component.text("")
-                            .color(TextColor.color(0, 143, 26))
-                            .append(Component.text("+" + Settings.LEVELS_PER_KILL.getValue() + " XP Levels"));
-            player.sendMessage(textComponent);
-            player.sendMessage(xpLevels);
+            GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
+            if (gamePlayer == null)
+                continue;
+            gamePlayer.getDisplayer().displayKill(dead, killerGamePlayer);
         }
     }
 
@@ -156,6 +150,32 @@ public class PlayerListener implements Listener {
 
         player.getBukkitPlayer().teleport(player.getTeam().getSafeSpawn());
         event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onHit(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Player))
+            return;
+
+        if (!(event.getEntity() instanceof Player))
+            return;
+
+        Player damager = (Player) event.getDamager();
+        Player player = (Player) event.getEntity();
+
+        SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
+
+        if (match == null)
+            return;
+
+        GamePlayer damagerGamePlayer = match.getWorldGame().getPlayer(damager.getUniqueId());
+        GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
+
+        if (damagerGamePlayer == null || gamePlayer == null)
+            return;
+
+        if (damagerGamePlayer.hasTeam() && gamePlayer.hasTeam() && damagerGamePlayer.getTeam().equals(gamePlayer.getTeam()))
+            event.setCancelled(true);
     }
 
 }

@@ -37,6 +37,10 @@ public class BlockChangePacketAdapter extends PacketAdapter {
             return;
 
         GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
+
+        if (gamePlayer == null)
+            return;
+
         GameMap gameMap = match.getGameMap();
 
         if (player.hasPermission(Permissions.BORDER_BYPASS.getPermission()))
