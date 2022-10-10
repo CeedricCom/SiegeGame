@@ -100,7 +100,7 @@ public class PlayerListener implements Listener {
             plugin.getGameManager().startNextGame();
         }
 
-        plugin.getGameManager().getCurrentMatch().getWorldGame().updateAllScoreboards();
+        match.getWorldGame().updateAllScoreboards();
 
         GamePlayer dead = match.getWorldGame().getPlayer(event.getPlayer().getUniqueId());
         for (Player player : Bukkit.getOnlinePlayers()) {
