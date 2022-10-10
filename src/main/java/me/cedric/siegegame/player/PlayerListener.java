@@ -97,7 +97,7 @@ public class PlayerListener implements Listener {
         team.addPoints(plugin.getGameConfig().getPointsPerKill());
 
         if (team.getPoints() >= plugin.getGameConfig().getPointsToEnd()) {
-            plugin.getGameManager().startNextMap();
+            plugin.getGameManager().startNextGame();
         }
 
         plugin.getGameManager().getCurrentMatch().getWorldGame().updateAllScoreboards();

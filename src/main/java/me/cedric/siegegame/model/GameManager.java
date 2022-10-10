@@ -2,24 +2,20 @@ package me.cedric.siegegame.model;
 
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
-import org.bukkit.World;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.world.WorldLoadEvent;
 
+import java.util.ArrayDeque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
-public final class GameManager implements Listener {
+public final class GameManager {
 
     private final Set<SiegeGameMatch> siegeGameMatches = new HashSet<>();
     private final Queue<SiegeGameMatch> gameMatchQueue = new LinkedList<>();
     private final SiegeGamePlugin plugin;
     private SiegeGameMatch currentMatch;
     private SiegeGameMatch lastMatch = null;
-    private boolean waitForLoad = false;
 
     public GameManager(SiegeGamePlugin plugin) {
         this.plugin = plugin;
@@ -50,7 +46,7 @@ public final class GameManager implements Listener {
         return ImmutableSet.copyOf(siegeGameMatches);
     }
 
-    public void startNextMap() {
+    public void startNextGame() {
         if (getCurrentMatch() != null)
             endGame(currentMatch);
 
@@ -62,14 +58,7 @@ public final class GameManager implements Listener {
         }
 
         currentMatch = gameMatch;
-
-        if (!currentMatch.getGameMap().isWorldLoaded()) {
-            currentMatch.getGameMap().load();
-            waitForLoad = true;
-            return;
-        }
-
-        currentMatch.getWorldGame().startGame();
+        currentMatch.startGame();
     }
 
     private void endGame(SiegeGameMatch siegeGameMatch) {
@@ -77,21 +66,5 @@ public final class GameManager implements Listener {
         lastMatch = siegeGameMatch;
         gameMatchQueue.add(siegeGameMatch);
         currentMatch = null;
-    }
-
-    @EventHandler
-    public void onWorldLoad(WorldLoadEvent event) {
-        World world = event.getWorld();
-
-        if (!waitForLoad)
-            return;
-
-        if (getCurrentMatch().getGameMap().getWorld().equals(world))
-            getCurrentMatch().getWorldGame().startGame();
-
-        if (lastMatch != null)
-            lastMatch.getGameMap().resetMap();
-
-        waitForLoad = false;
     }
 }

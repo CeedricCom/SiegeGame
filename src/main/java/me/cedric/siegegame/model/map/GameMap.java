@@ -41,8 +41,6 @@ public class GameMap {
     }
 
     public World getWorld() {
-        if (!fileMapLoader.isLoaded())
-            fileMapLoader.load();
         return fileMapLoader.getWorld();
     }
 

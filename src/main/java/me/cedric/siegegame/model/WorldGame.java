@@ -61,8 +61,8 @@ public class WorldGame {
         teams.add(team);
     }
 
-    public void removeTeam(String configKey) {
-        teams.removeIf(team -> team.getIdentifier().equalsIgnoreCase(configKey));
+    public void removeTeam(String identifier) {
+        teams.removeIf(team -> team.getIdentifier().equalsIgnoreCase(identifier));
     }
 
     public void assignRandomTeams() {
@@ -96,6 +96,7 @@ public class WorldGame {
 
         for (Team t : teams)
             player.getBorderHandler().addBorder(t.getSafeArea());
+
         player.getBorderHandler().addBorder(plugin.getGameManager().getCurrentMatch().getGameMap().getMapBorder());
 
         player.getBukkitPlayer().sendMessage(ChatColor.DARK_AQUA + "You have been assigned to the following team: " + team.getName());
@@ -123,8 +124,8 @@ public class WorldGame {
         return shopGUI;
     }
 
-    public Team getTeam(String configKey) {
-        return teams.stream().filter(team -> team.getIdentifier().equalsIgnoreCase(configKey)).findAny().orElse(null);
+    public Team getTeam(String identifier) {
+        return teams.stream().filter(team -> team.getIdentifier().equalsIgnoreCase(identifier)).findAny().orElse(null);
     }
 
     public void startGame() {

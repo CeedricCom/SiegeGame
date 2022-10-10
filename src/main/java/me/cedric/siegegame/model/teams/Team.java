@@ -31,6 +31,8 @@ public class Team {
         this.identifier = factory.getConfigKey();
         this.name = factory.getName();
         this.color = factory.getColor();
+        this.safeSpawn = factory.getSafeSpawn();
+        this.territory = factory.getTerritory();
     }
 
     public ImmutableSet<GamePlayer> getPlayers() {
