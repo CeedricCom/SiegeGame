@@ -69,9 +69,9 @@ public class WorldGame {
         Random r = new Random();
 
         List<GamePlayer> list = new ArrayList<>(playerManager.getPlayers());
-        Iterator<GamePlayer> iterator = list.iterator();
 
-        while (iterator.hasNext()) {
+        while (list.size() != 0) {
+            System.out.println(list.size());
             for (Team team : teams) {
                 if (list.size() == 0)
                     break;
@@ -79,7 +79,7 @@ public class WorldGame {
                 int chosenPlayer = list.size() == 1 ? 0 : r.nextInt(0, list.size() - 1);
                 GamePlayer player = list.get(chosenPlayer);
                 assignTeam(player, team);
-                iterator.next();
+                list.remove(chosenPlayer);
             }
         }
     }
@@ -134,8 +134,10 @@ public class WorldGame {
 
         assignRandomTeams();
 
-        for (GamePlayer gamePlayer : getPlayers())
+        for (GamePlayer gamePlayer : getPlayers()) {
             gamePlayer.reset();
+            gamePlayer.getBukkitPlayer().teleport(gamePlayer.getTeam().getSafeSpawn());
+        }
 
         getSuperItemManager().assignSuperItems(true);
 

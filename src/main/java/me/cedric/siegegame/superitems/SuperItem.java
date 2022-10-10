@@ -12,12 +12,15 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.persistence.PersistentDataType;
@@ -200,6 +203,15 @@ public abstract class SuperItem implements Listener {
         ItemStack cursor = event.getCursor();
 
         if ((isItem(item) || isItem(cursor)) && event.getInventory().getType() != InventoryType.CRAFTING)
+            event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onOffhand(PlayerSwapHandItemsEvent event) {
+        ItemStack item = event.getMainHandItem();
+        ItemStack offhand = event.getOffHandItem();
+
+        if (isItem(item) || isItem(offhand))
             event.setCancelled(true);
     }
 

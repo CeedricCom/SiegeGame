@@ -2,17 +2,17 @@ package me.cedric.siegegame.model;
 
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
+import org.bukkit.Bukkit;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
 public final class GameManager {
 
     private final Set<SiegeGameMatch> siegeGameMatches = new HashSet<>();
-    private final Queue<SiegeGameMatch> gameMatchQueue = new LinkedList<>();
+    private final Queue<SiegeGameMatch> gameMatchQueue = new ArrayDeque<>();
     private final SiegeGamePlugin plugin;
     private SiegeGameMatch currentMatch;
     private SiegeGameMatch lastMatch = null;
@@ -47,18 +47,23 @@ public final class GameManager {
     }
 
     public void startNextGame() {
-        if (getCurrentMatch() != null)
+        boolean wait = false;
+        if (getCurrentMatch() != null) {
             endGame(currentMatch);
-
-        SiegeGameMatch gameMatch = gameMatchQueue.poll();
-
-        if (gameMatch == null) {
-            plugin.getLogger().severe("NO MAP AT THE HEAD OF QUEUE. COULD NOT START GAME");
-            return;
+            wait = true;
         }
 
-        currentMatch = gameMatch;
-        currentMatch.startGame();
+        Bukkit.getScheduler().runTaskLater(plugin, () -> {
+            SiegeGameMatch gameMatch = gameMatchQueue.poll();
+
+            if (gameMatch == null) {
+                plugin.getLogger().severe("NO MAP AT THE HEAD OF QUEUE. COULD NOT START GAME");
+                return;
+            }
+
+            currentMatch = gameMatch;
+            currentMatch.startGame();
+        }, wait ? 30 * 20 : 10);
     }
 
     private void endGame(SiegeGameMatch siegeGameMatch) {

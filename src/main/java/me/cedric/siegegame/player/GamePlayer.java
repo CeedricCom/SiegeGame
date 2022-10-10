@@ -74,8 +74,5 @@ public class GamePlayer {
         getBukkitPlayer().getEnderChest().clear();
         grantNightVision();
         getDisplayer().wipeScoreboard();
-
-        if (hasTeam())
-            getBukkitPlayer().teleport(getTeam().getSafeSpawn());
     }
 }
