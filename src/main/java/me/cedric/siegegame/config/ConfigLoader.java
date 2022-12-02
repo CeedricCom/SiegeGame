@@ -9,7 +9,7 @@ import me.cedric.siegegame.territory.Polygon;
 import me.cedric.siegegame.territory.Territory;
 import me.cedric.siegegame.territory.Vector2D;
 import me.cedric.siegegame.model.SiegeGameMatch;
-import me.cedric.siegegame.model.WorldGame;
+import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.model.map.GameMap;
 import me.cedric.siegegame.model.map.FileMapLoader;
 import me.cedric.siegegame.model.teams.TeamFactory;
@@ -95,6 +95,7 @@ public class ConfigLoader implements GameConfig {
     private static final String SHOP_SECTION_HIDE_ITEM_FLAGS_KEY = "item-flags";
     private static final String SHOP_SECTION_COMMAND_LIST_KEY = "commands";
     private static final String SHOP_SECTION_INCLUDES_ITEM = "includes-item";
+    private static final String SHOP_SECTION_INCLUDES_ITEM_EXACT = "includes-item-exact";
     private static final String SHOP_SECTION_POTION_EFFECTS_KEY = "potion-effects";
     private static final String SHOP_SECTION_POTION_COLOR_KEY = "potion-color";
     private static final String SHOP_SECTION_AMOUNT_KEY = "amount";
@@ -168,8 +169,6 @@ public class ConfigLoader implements GameConfig {
         int y2 = worldBorderSection.getInt(MAPS_SECTION_MAP_MAPBORDER_Y2_KEY);
         int z2 = worldBorderSection.getInt(MAPS_SECTION_MAP_MAPBORDER_Z2_KEY);
 
-        List<String> superItems = section.getStringList(MAPS_SECTION_SUPER_ITEM_LIST_KEY);
-
         String displayName = section.getString(MAPS_SECTION_WORLD_DISPLAY_NAME_KEY);
 
         Vector corner1Vector = new Vector(x1, y1, z1);
@@ -181,10 +180,6 @@ public class ConfigLoader implements GameConfig {
         WorldGame worldGame = new WorldGame(plugin);
 
         ConfigSection teamsSection = section.getConfigurationSection(MAPS_SECTION_WORLD_TEAMS_KEY);
-
-        for (String superItemKey : superItems) {
-            worldGame.getSuperItemManager().addSuperItem(superItemKey);
-        }
 
         List<ShopItem> shopItems = loadShop(shopYml.getConfigurationSection(SHOP_SECTION_KEY));
         String shopName = shopYml.getString(SHOP_SECTION_SHOP_NAME_KEY);
@@ -212,6 +207,7 @@ public class ConfigLoader implements GameConfig {
             List<String> enchantments = configSection.getStringList(SHOP_SECTION_ENCHANTMENTS_KEY);
             List<String> commands = configSection.getStringList(SHOP_SECTION_COMMAND_LIST_KEY);
             boolean includesItem = Boolean.parseBoolean(configSection.getString(SHOP_SECTION_INCLUDES_ITEM));
+            boolean includesItemExact = Boolean.parseBoolean(configSection.getString(SHOP_SECTION_INCLUDES_ITEM_EXACT));
 
             List<String> lore = new ArrayList<>();
             for (String s : listOfLore) {
@@ -256,7 +252,10 @@ public class ConfigLoader implements GameConfig {
                         player.sendMessage("You do not have any empty inventory slots");
                     }
 
-                    gamePlayer.getBukkitPlayer().getInventory().addItem(item.clone());
+                    if (includesItemExact)
+                        gamePlayer.getBukkitPlayer().getInventory().addItem(item.clone());
+                    else
+                        gamePlayer.getBukkitPlayer().getInventory().addItem(new ItemStack(item.getType(), amount));
                 }
 
                 for (String command : commands) {

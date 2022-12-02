@@ -1,10 +1,9 @@
 package me.cedric.siegegame.model;
 
 import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.model.map.GameMap;
 import me.cedric.siegegame.model.teams.Team;
-import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.superitems.SuperItem;
 import me.cedric.siegegame.territory.TerritoryListener;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -15,7 +14,6 @@ public class SiegeGameMatch {
     private final WorldGame worldGame;
     private final GameMap gameMap;
     private final String identifier;
-    private boolean waitForLoad = false;
 
     public SiegeGameMatch(SiegeGamePlugin plugin, WorldGame worldGame, GameMap gameMap, String identifier) {
         this.plugin = plugin;
@@ -45,17 +43,6 @@ public class SiegeGameMatch {
         return gameMap;
     }
 
-    public void shutdown() {
-        for (GamePlayer gamePlayer : worldGame.getDeathManager().getDeadPlayers())
-            worldGame.getDeathManager().revivePlayer(gamePlayer);
-
-        for (SuperItem superItem : worldGame.getSuperItemManager().getSuperItems())
-            superItem.remove();
-
-        if (gameMap.isWorldLoaded())
-            gameMap.unload();
-    }
-
     public void startGame() {
         if (!gameMap.isWorldLoaded())
             gameMap.load();
@@ -67,9 +54,12 @@ public class SiegeGameMatch {
         }
 
         worldGame.startGame();
+        plugin.getDeathManager().setWorldGame(worldGame);
     }
 
     public void endGame() {
+        plugin.getDeathManager().reviveAll();
         worldGame.endGame();
+        gameMap.unload();
     }
 }

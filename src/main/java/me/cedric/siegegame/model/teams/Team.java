@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.border.Border;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.territory.Territory;
-import me.cedric.siegegame.model.WorldGame;
+import me.cedric.siegegame.model.game.WorldGame;
 import org.bukkit.Location;
 
 import java.awt.Color;
@@ -59,6 +59,7 @@ public class Team {
         identifier = factory.getConfigKey();
         name = factory.getName();
         color = factory.getColor();
+        points = 0;
     }
 
     public Territory getTerritory() {

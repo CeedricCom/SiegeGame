@@ -1,12 +1,16 @@
 package me.cedric.siegegame.display.placeholderapi;
 
 import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.display.ColorUtil;
 import me.cedric.siegegame.model.SiegeGameMatch;
-import me.cedric.siegegame.model.WorldGame;
+import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.GamePlayer;
+import me.deltaorion.bukkit.item.ItemBuilder;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 @SuppressWarnings("deprecation")
 public enum Placeholder {
@@ -34,7 +38,7 @@ public enum Placeholder {
         if (!(extra[0] instanceof Player))
             return "";
         GamePlayer two = siegeGame.getGameManager().getCurrentMatch().getWorldGame().getPlayer(((Player) extra[0]).getUniqueId());
-        return getRelationalColor(gamePlayer.getTeam(), two.getTeam()).toString();
+        return ColorUtil.getRelationalColor(gamePlayer.getTeam(), two.getTeam()).toString();
     });
 
     private final String param;
@@ -77,24 +81,5 @@ public enum Placeholder {
                 team.getIdentifier().equalsIgnoreCase(gamePlayer.getTeam().getIdentifier()))
             return "YOU";
         return "";
-    }
-
-    public static ChatColor getRelationalColor(Team one, Team two) {
-        if (one == null || two == null)
-            return ChatColor.WHITE;
-
-        if (!one.getWorldGame().equals(two.getWorldGame()))
-            return ChatColor.WHITE;
-
-        if (one.equals(two))
-            return ChatColor.DARK_AQUA;
-
-        WorldGame worldGame = one.getWorldGame();
-
-        if (worldGame.getTeams().size() == 2) {
-            return ChatColor.RED;
-        }
-
-        return ChatColor.of(two.getColor());
     }
 }

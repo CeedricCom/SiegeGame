@@ -3,7 +3,7 @@ package me.cedric.siegegame.display.shop;
 import com.github.stefvanschie.inventoryframework.gui.GuiItem;
 import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.github.stefvanschie.inventoryframework.pane.StaticPane;
-import me.cedric.siegegame.model.WorldGame;
+import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.inventory.ItemStack;
 

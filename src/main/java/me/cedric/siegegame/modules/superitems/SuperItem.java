@@ -1,7 +1,7 @@
-package me.cedric.siegegame.superitems;
+package me.cedric.siegegame.modules.superitems;
 
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.model.WorldGame;
+import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
@@ -33,11 +33,13 @@ public abstract class SuperItem implements Listener {
     private GamePlayer owner = null;
     private boolean isDropped = false;
     protected final WorldGame worldGame;
+    protected final SuperItemManager manager;
 
-    protected SuperItem(SiegeGamePlugin plugin, String key, WorldGame worldGame) {
+    protected SuperItem(SiegeGamePlugin plugin, String key, WorldGame worldGame, SuperItemManager manager) {
         this.plugin = plugin;
         this.key = key;
         this.worldGame = worldGame;
+        this.manager = manager;
     }
 
     protected abstract void display(GamePlayer owner);
@@ -46,7 +48,7 @@ public abstract class SuperItem implements Listener {
 
     protected abstract ItemStack itemStack();
 
-    protected abstract void initialize(SiegeGamePlugin plugin);
+    protected abstract void initialise(SiegeGamePlugin plugin);
 
     public abstract String getDisplayName();
 
@@ -111,7 +113,7 @@ public abstract class SuperItem implements Listener {
             return;
         }
 
-        if (this.owner == null && gamePlayer.hasTeam() && !worldGame.getSuperItemManager().hasSuperItem(gamePlayer)) {
+        if (this.owner == null && gamePlayer.hasTeam() && !manager.hasSuperItem(gamePlayer)) {
             giveTo(gamePlayer);
             event.setCancelled(true);
             event.getItem().remove();
@@ -144,7 +146,7 @@ public abstract class SuperItem implements Listener {
 
         GamePlayer gameKiller = worldGame.getPlayer(killer.getUniqueId());
 
-        if (gameKiller.hasTeam() && worldGame.getSuperItemManager().hasSuperItem(gameKiller.getTeam())) {
+        if (gameKiller.hasTeam() && manager.hasSuperItem(gameKiller.getTeam())) {
             dropItem(player.getLocation());
             return;
         }
@@ -160,7 +162,7 @@ public abstract class SuperItem implements Listener {
         if (gamePlayer == null)
             return;
 
-        if (gamePlayer.hasTeam() && !worldGame.getSuperItemManager().hasSuperItem(gamePlayer.getTeam()) && this.owner == null && !isDropped())
+        if (gamePlayer.hasTeam() && !manager.hasSuperItem(gamePlayer.getTeam()) && this.owner == null && !isDropped())
             giveTo(gamePlayer);
 
     }

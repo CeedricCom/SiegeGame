@@ -1,6 +1,7 @@
 package me.cedric.siegegame.player;
 
 import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.border.BoundingBox;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.teams.Team;
 import org.bukkit.Bukkit;
@@ -15,6 +16,7 @@ import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.potion.PotionEffect;
 
 public class PlayerListener implements Listener {
 
@@ -24,7 +26,7 @@ public class PlayerListener implements Listener {
         this.plugin = plugin;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
@@ -46,12 +48,15 @@ public class PlayerListener implements Listener {
         player.setLevel(0);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
         if (match != null)
             match.getWorldGame().removePlayer(player.getUniqueId());
+
+        for (PotionEffect potionEffect : player.getActivePotionEffects())
+            player.removePotionEffect(potionEffect.getType());
     }
 
     @EventHandler
@@ -95,36 +100,19 @@ public class PlayerListener implements Listener {
         }
 
         team.addPoints(plugin.getGameConfig().getPointsPerKill());
-
-        if (team.getPoints() >= plugin.getGameConfig().getPointsToEnd()) {
-            plugin.getGameManager().startNextGame();
-        }
-
         match.getWorldGame().updateAllScoreboards();
 
         GamePlayer dead = match.getWorldGame().getPlayer(event.getPlayer().getUniqueId());
+
         for (Player player : Bukkit.getOnlinePlayers()) {
             GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
             if (gamePlayer == null)
                 continue;
             gamePlayer.getDisplayer().displayKill(dead, killerGamePlayer);
         }
-    }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onRespawn(PlayerRespawnEvent event) {
-        SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
-
-        if (match == null)
-            return;
-
-        GamePlayer gamePlayer = match.getWorldGame().getPlayer(event.getPlayer().getUniqueId());
-
-        if (gamePlayer == null)
-            return;
-
-        gamePlayer.getDisplayer().updateScoreboard();
-        gamePlayer.grantNightVision();
+        if (team.getPoints() >= plugin.getGameConfig().getPointsToEnd())
+            plugin.getGameManager().startNextGame();
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -159,8 +147,10 @@ public class PlayerListener implements Listener {
 
         SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
 
-        if (match == null)
+        if (match == null) {
+            event.setCancelled(true);
             return;
+        }
 
         GamePlayer damagerGamePlayer = match.getWorldGame().getPlayer(damager.getUniqueId());
         GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
@@ -169,6 +159,19 @@ public class PlayerListener implements Listener {
             return;
 
         if (damagerGamePlayer.hasTeam() && gamePlayer.hasTeam() && damagerGamePlayer.getTeam().equals(gamePlayer.getTeam()))
+            event.setCancelled(true);
+
+        if (!gamePlayer.hasTeam() || !damagerGamePlayer.hasTeam())
+            return;
+
+        Team damagerTeam = damagerGamePlayer.getTeam();
+        Team team = gamePlayer.getTeam();
+
+        BoundingBox damagerSafeArea = damagerTeam.getSafeArea().getBoundingBox();
+        BoundingBox teamSafeArea = team.getSafeArea().getBoundingBox();
+
+        if (damagerSafeArea.isColliding(damager.getLocation()) || damagerSafeArea.isColliding(player.getLocation())
+                || teamSafeArea.isColliding(damager.getLocation()) || teamSafeArea.isColliding(player.getLocation()))
             event.setCancelled(true);
     }
 

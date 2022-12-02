@@ -34,6 +34,9 @@ public class ResourcesCommand extends FunctionalCommand {
 
         SiegeGameMatch gameMatch = plugin.getGameManager().getCurrentMatch();
 
+        if (gameMatch == null)
+            return;
+
         gameMatch.getWorldGame().getShopGUI().getGUI().show(player);
     }
 }

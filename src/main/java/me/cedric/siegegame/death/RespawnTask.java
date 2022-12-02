@@ -36,7 +36,7 @@ public class RespawnTask extends BukkitRunnable {
         }
 
         if (i >= respawnTimer) {
-            deathManager.revivePlayer(gamePlayer);
+            deathManager.revivePlayer(player.getUniqueId());
             super.cancel();
             return;
         }

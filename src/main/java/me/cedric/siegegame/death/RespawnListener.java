@@ -1,8 +1,5 @@
 package me.cedric.siegegame.death;
 
-import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.model.WorldGame;
-import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -13,18 +10,17 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 
 public class RespawnListener implements Listener {
 
-    private final SiegeGamePlugin plugin;
     private final DeathManager deathManager;
-    private final WorldGame worldGame;
 
-    public RespawnListener(SiegeGamePlugin plugin, WorldGame worldGame, DeathManager deathManager) {
-        this.plugin = plugin;
-        this.worldGame = worldGame;
+    public RespawnListener(DeathManager deathManager) {
         this.deathManager = deathManager;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.LOWEST)
     public void onRespawn(PlayerRespawnEvent event) {
+        if (deathManager.getWorldGame() == null)
+            return;
+
         Player player = event.getPlayer();
         event.setRespawnLocation(player.getLocation());
         deathManager.makeSpectator(player);
@@ -32,25 +28,29 @@ public class RespawnListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onJoin(PlayerJoinEvent event) {
-        Player player = event.getPlayer();
-        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
+        if (deathManager.getWorldGame() == null)
+            return;
 
-        if (!deathManager.isPlayerDead(gamePlayer))
+        Player player = event.getPlayer();
+
+        if (!deathManager.isPlayerDead(player.getUniqueId()))
             return;
 
         deathManager.makeSpectator(player);
-        deathManager.setPausePlayer(gamePlayer, false); // continue
+        deathManager.setPausePlayer(player.getUniqueId(), false); // continue
     }
 
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
-        Player player = event.getPlayer();
-        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
-
-        if (!deathManager.isPlayerDead(gamePlayer))
+        if (deathManager.getWorldGame() == null)
             return;
 
-        deathManager.setPausePlayer(gamePlayer, true); // pause
+        Player player = event.getPlayer();
+
+        if (!deathManager.isPlayerDead(player.getUniqueId()))
+            return;
+
+        deathManager.setPausePlayer(player.getUniqueId(), true); // pause
     }
 
 }

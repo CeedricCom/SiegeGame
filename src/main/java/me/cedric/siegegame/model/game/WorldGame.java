@@ -1,14 +1,13 @@
-package me.cedric.siegegame.model;
+package me.cedric.siegegame.model.game;
 
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.death.DeathManager;
 import me.cedric.siegegame.display.shop.ShopGUI;
+import me.cedric.siegegame.modules.capturepoint.ControlAreaModule;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.PlayerManager;
 import me.cedric.siegegame.model.teams.Team;
-import me.cedric.siegegame.superitems.SuperItem;
-import me.cedric.siegegame.superitems.SuperItemManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -16,7 +15,6 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
@@ -26,23 +24,32 @@ public class WorldGame {
 
     private final SiegeGamePlugin plugin;
     private final Set<Team> teams = new HashSet<>();
-    private final SuperItemManager superItemManager;
-    private final DeathManager deathManager;
-    private PlayerManager playerManager;
+    private final PlayerManager playerManager;
     private final ShopGUI shopGUI;
+    private final List<Module> modules = new ArrayList<>();
 
     public WorldGame(SiegeGamePlugin plugin) {
         this.plugin = plugin;
-        this.superItemManager = new SuperItemManager(plugin, this);
-        this.deathManager = new DeathManager(plugin, this);
         this.shopGUI = new ShopGUI(this);
         this.playerManager = new PlayerManager(plugin);
+    }
 
-        deathManager.initialize();
+    private void registerModules() {
+        modules.add(new ControlAreaModule());
+    }
+
+    private void initialiseModules() {
+        registerModules();
+        for (Module module : modules)
+            module.initialise(plugin, this);
     }
 
     public void addPlayer(UUID uuid) {
         playerManager.addPlayer(uuid);
+    }
+
+    public List<Module> getModules() {
+        return new ArrayList<>(modules);
     }
 
     public void removePlayer(UUID uuid) {
@@ -71,12 +78,11 @@ public class WorldGame {
         List<GamePlayer> list = new ArrayList<>(playerManager.getPlayers());
 
         while (list.size() != 0) {
-            System.out.println(list.size());
             for (Team team : teams) {
                 if (list.size() == 0)
                     break;
 
-                int chosenPlayer = list.size() == 1 ? 0 : r.nextInt(0, list.size() - 1);
+                int chosenPlayer = list.size() == 1 ? 0 : r.nextInt(list.size() - 1);
                 GamePlayer player = list.get(chosenPlayer);
                 assignTeam(player, team);
                 list.remove(chosenPlayer);
@@ -102,10 +108,6 @@ public class WorldGame {
         player.getBukkitPlayer().sendMessage(ChatColor.DARK_AQUA + "You have been assigned to the following team: " + team.getName());
     }
 
-    public SuperItemManager getSuperItemManager() {
-        return superItemManager;
-    }
-
     public void updateAllScoreboards() {
         for (GamePlayer gamePlayer : playerManager.getPlayers()) {
             gamePlayer.getDisplayer().updateScoreboard();
@@ -116,8 +118,10 @@ public class WorldGame {
         return ImmutableSet.copyOf(playerManager.getPlayers());
     }
 
-    public DeathManager getDeathManager() {
-        return deathManager;
+    public ImmutableSet<GamePlayer> getActivePlayers() {
+        return playerManager.getPlayers().stream()
+                .filter(gamePlayer -> !gamePlayer.isDead() && gamePlayer.hasTeam())
+                .collect(ImmutableSet.toImmutableSet());
     }
 
     public ShopGUI getShopGUI() {
@@ -139,13 +143,17 @@ public class WorldGame {
             gamePlayer.getBukkitPlayer().teleport(gamePlayer.getTeam().getSafeSpawn());
         }
 
-        getSuperItemManager().assignSuperItems(true);
+        initialiseModules();
+
+        for (Module module : modules)
+            module.onStartGame(plugin, this);
 
         updateAllScoreboards();
     }
 
     public void endGame() {
         for (GamePlayer gamePlayer : getPlayers()) {
+
             gamePlayer.reset();
 
             if (!gamePlayer.hasTeam())
@@ -165,7 +173,11 @@ public class WorldGame {
         for (Team team : teams)
             team.reset();
 
-        for (SuperItem superItem : superItemManager.getSuperItems())
-            superItem.remove();
+        for (Module module : modules)
+            module.onEndGame(plugin, this);
+
+        playerManager.clear();
     }
+
+
 }

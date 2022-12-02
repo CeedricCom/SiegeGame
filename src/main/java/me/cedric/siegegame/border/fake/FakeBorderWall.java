@@ -171,7 +171,7 @@ public class FakeBorderWall extends BorderDisplay {
         fakeBlockManager.update();
     }
 
-    private void createWall(FakeBlockManager manager, World world , Wall wall) {
+    protected void createWall(FakeBlockManager manager, World world , Wall wall) {
         for (int xz = wall.minXZ; xz < wall.maxXZ; xz++) {
             for (int y = wall.minY; y < wall.maxY; y++) {
                 int x = wall.getX(xz);

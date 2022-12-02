@@ -44,8 +44,10 @@ public class FileMapLoader {
         bukkitWorld.setAutoSave(false);
         bukkitWorld.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
         bukkitWorld.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
+        bukkitWorld.setGameRule(GameRule.DO_MOB_SPAWNING, false);
         bukkitWorld.setDifficulty(Difficulty.NORMAL);
         bukkitWorld.setClearWeatherDuration(Integer.MAX_VALUE);
+
 
         return isLoaded();
     }

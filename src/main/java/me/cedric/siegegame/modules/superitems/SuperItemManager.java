@@ -1,7 +1,8 @@
-package me.cedric.siegegame.superitems;
+package me.cedric.siegegame.modules.superitems;
 
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.model.WorldGame;
+import me.cedric.siegegame.model.game.Module;
+import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.GamePlayer;
 
@@ -11,7 +12,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 
-public class SuperItemManager {
+public class SuperItemManager implements Module {
 
     private final SiegeGamePlugin plugin;
     private final WorldGame worldGame;
@@ -22,22 +23,12 @@ public class SuperItemManager {
         this.worldGame = worldGame;
     }
 
-    public void addSuperItem(String key) {
-        switch (key.toLowerCase()) {
-            case "sharp-6": {
-                registerSuperItem(new SharpnessVI(plugin, "sharp-6", worldGame));
-                break;
-            }
-            case "kb-stick": {
-                registerSuperItem(new KnockbackStick(plugin, "kb-stick", worldGame));
-                break;
-            }
-        }
-    }
+    private void registerSuperItems() {
+        superItems.add(new KnockbackStick(plugin, "kb-stick", worldGame, this));
+        superItems.add(new SharpnessVI(plugin, "sharp-6", worldGame, this));
 
-    private void registerSuperItem(SuperItem superItem) {
-        superItems.add(superItem);
-        superItem.initialize(plugin);
+        for (SuperItem superItem : superItems)
+            superItem.initialise(plugin);
     }
 
     public void clear() {
@@ -105,5 +96,27 @@ public class SuperItemManager {
                 superItem.getOwner() != null &&
                 superItem.getOwner().hasTeam() &&
                 superItem.getOwner().getTeam().equals(team));
+    }
+
+    @Override
+    public void initialise(SiegeGamePlugin plugin, WorldGame worldGame) {
+        registerSuperItems();
+    }
+
+    @Override
+    public void shutdown(SiegeGamePlugin plugin, WorldGame worldGame) {
+        for (SuperItem superItem : superItems)
+            superItem.remove();
+    }
+
+    @Override
+    public void onStartGame(SiegeGamePlugin plugin, WorldGame worldGame) {
+        assignSuperItems(true);
+    }
+
+    @Override
+    public void onEndGame(SiegeGamePlugin plugin, WorldGame worldGame) {
+        for (SuperItem superItem : superItems)
+            superItem.remove();
     }
 }

@@ -4,10 +4,9 @@ import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.display.placeholderapi.Placeholder;
 import me.cedric.siegegame.enums.Messages;
 import me.cedric.siegegame.model.SiegeGameMatch;
-import me.cedric.siegegame.model.WorldGame;
+import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.superitems.SuperItem;
 import me.cedric.siegegame.territory.Territory;
 import me.deltaorion.bukkit.display.actionbar.ActionBar;
 import me.deltaorion.bukkit.display.bossbar.BarColor;
@@ -54,19 +53,8 @@ public class Displayer {
         List<Team> teams = match.getWorldGame().getTeams().stream().sorted(Comparator.comparing(Team::getName)).collect(Collectors.toList());
 
         for (Team team : teams) {
-            lines.add(Placeholder.getRelationalColor(gamePlayer.getTeam(), team) + team.getName() + ": " +
+            lines.add(ColorUtil.getRelationalColor(gamePlayer.getTeam(), team) + team.getName() + ": " +
                     ChatColor.WHITE + team.getPoints() + " points");
-        }
-
-        lines.add("");
-        lines.add("    " + ChatColor.DARK_AQUA + "Super Items");
-
-        for (int i = 0; i < match.getWorldGame().getSuperItemManager().getSuperItems().size(); i++) {
-            List<SuperItem> superItems = new ArrayList<>(match.getWorldGame().getSuperItemManager().getSuperItems());
-            SuperItem superItem = superItems.get(i);
-            String owner = superItem.getOwner() == null ? "" : superItem.getOwner().getBukkitPlayer().getName();
-
-            lines.add(ChatColor.LIGHT_PURPLE + superItem.getDisplayName() + ": " + ChatColor.GRAY + owner);
         }
 
         lines.add("");
@@ -101,9 +89,9 @@ public class Displayer {
         TextComponent textComponent = Component.text("")
                 .color(TextColor.color(88, 140, 252))
                 .append(Component.text(Messages.PREFIX.toString() + " ")
-                .append(Component.text(Placeholder.getRelationalColor(gamePlayer.getTeam(), killerTeam) + killer.getName())
+                .append(Component.text(ColorUtil.getRelationalColor(gamePlayer.getTeam(), killerTeam) + killer.getName())
                 .append(Component.text(" has killed ", TextColor.color(252, 252, 53)))
-                .append(Component.text(Placeholder.getRelationalColor(gamePlayer.getTeam(), dead.getTeam()) + dead.getBukkitPlayer().getName() + " "))
+                .append(Component.text(ColorUtil.getRelationalColor(gamePlayer.getTeam(), dead.getTeam()) + dead.getBukkitPlayer().getName() + " "))
                 .append(Component.text(killerTeam.getName() + ": ", TextColor.color(255, 194, 97)))
                 .append(Component.text("+" + plugin.getGameConfig().getPointsPerKill() + " points ", TextColor.color(255, 73, 23)))));
 
@@ -120,7 +108,7 @@ public class Displayer {
     public void displayInsideEnemyClaims(WorldGame worldGame, Territory territory) {
         Message message = Messages.CLAIMS_ENTERED;
         Team team = worldGame.getTeam(territory.getTeam().getConfigKey());
-        String s = String.format(message.toString(), Placeholder.getRelationalColor(gamePlayer.getTeam(), team) + team.getName());
+        String s = String.format(message.toString(), ColorUtil.getRelationalColor(gamePlayer.getTeam(), team) + team.getName());
         ActionBar actionBar = new ActionBar(s, Duration.ofSeconds(3));
         apiPlayer.getActionBarManager().send(actionBar);
 

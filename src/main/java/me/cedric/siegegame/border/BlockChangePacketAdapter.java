@@ -20,7 +20,7 @@ public class BlockChangePacketAdapter extends PacketAdapter {
 
     public BlockChangePacketAdapter(SiegeGamePlugin plugin) {
         super(plugin, ListenerPriority.NORMAL, PacketType.Play.Server.BLOCK_CHANGE);
-        this.plugin = (SiegeGamePlugin) plugin;
+        this.plugin = plugin;
     }
 
     @Override

@@ -3,6 +3,7 @@ package me.cedric.siegegame.model;
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 
 import java.util.ArrayDeque;
 import java.util.HashSet;
@@ -51,6 +52,7 @@ public final class GameManager {
         if (getCurrentMatch() != null) {
             endGame(currentMatch);
             wait = true;
+            Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Next game starting in 30 seconds!");
         }
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -63,6 +65,8 @@ public final class GameManager {
 
             currentMatch = gameMatch;
             currentMatch.startGame();
+
+            Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Starting next game...");
         }, wait ? 30 * 20 : 10);
     }
 

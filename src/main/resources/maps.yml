@@ -2,7 +2,6 @@ maps:
   atiermap:
     worldname: 'atiermap'
     world-display-name: 'S TIER MAP'
-    super-items: []
     defaultspawn:
       x: 812
       y: 170

@@ -1,7 +1,7 @@
 package me.cedric.siegegame.territory;
 
 import me.cedric.siegegame.enums.Permissions;
-import me.cedric.siegegame.model.WorldGame;
+import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
 import me.deltaorion.bukkit.item.EMaterial;
 import org.bukkit.Location;
@@ -116,7 +116,7 @@ public class TerritoryListener implements Listener {
         if (gamePlayer.isDead() || !gamePlayer.hasTeam())
             event.setCancelled(true);
 
-        if (gamePlayer.getTeam().equals(territory.getTeam()))
+        if (gamePlayer.getTeam().getIdentifier().equalsIgnoreCase(territory.getTeam().getConfigKey()))
             return;
 
         event.setCancelled(true);
