@@ -12,7 +12,7 @@ public class ConfigTest {
     public void dogTest() {
         FileConfig config = null;
         try {
-            config = FileConfig.loadConfiguration(new YamlAdapter(), IOUtils.toInputStream("gladia: ['dog', 'server']"));
+            config = FileConfig.loadConfiguration(new YamlAdapter(), IOUtils.toInputStream("gladia: ['1234,1234', '5678,9101112']"));
         } catch (IOException | InvalidConfigurationException e) {
             throw new RuntimeException(e);
         }

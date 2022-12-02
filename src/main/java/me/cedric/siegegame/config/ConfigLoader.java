@@ -37,6 +37,7 @@ import org.bukkit.util.Vector;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -296,12 +297,28 @@ public class ConfigLoader implements GameConfig {
             float pitch = safeSpawnSection.getInt(MAPS_SECTION_TEAMS_SAFE_SPAWN_PITCH);
             Location safeSpawn = new Location(null, safeSpawnX, safeSpawnY, safeSpawnZ, yaw, pitch);
 
-            ConfigSection territorySection = currentTeamSection.getConfigurationSection(MAPS_SECTION_TERRITORY_KEY);
-            int x1Territory = territorySection.getInt(MAPS_SECTION_TERRITORY_X1_KEY);
-            int z1Territory = territorySection.getInt(MAPS_SECTION_TERRITORY_Z1_KEY);
-            int x2Territory = territorySection.getInt(MAPS_SECTION_TERRITORY_X2_KEY);
-            int z2Territory = territorySection.getInt(MAPS_SECTION_TERRITORY_Z2_KEY);
-            Polygon polygon = new Polygon(gameMap, new Vector2D(x1Territory, z1Territory), new Vector2D(x2Territory, z2Territory));
+            // TERRITORY IS A LIST OF STRINGS
+            // x1,z1,x2,z2 ON EACH ELEMENT
+            // territory:
+            //   - '69420, 420, 69, 420'
+            List<String> stringCoords = currentTeamSection.getStringList(MAPS_SECTION_TERRITORY_KEY);
+            Polygon polygon = null;
+            for (String rawCoords : stringCoords) {
+                String[] coords = rawCoords.split(",");
+                try {
+                    int coordX1 = Integer.parseInt(coords[0].trim());
+                    int coordZ1 = Integer.parseInt(coords[1].trim());
+                    int coordX2 = Integer.parseInt(coords[2].trim());
+                    int coordZ2 = Integer.parseInt(coords[3].trim());
+
+                    if (polygon == null)
+                        polygon = new Polygon(gameMap, new Vector2D(coordX1, coordZ1), new Vector2D(coordX2, coordZ2));
+                    else
+                        polygon.addSquare(new Vector2D(coordX1, coordZ1), new Vector2D(coordX2, coordZ2));
+                } catch (Exception x) {
+                    plugin.getLogger().severe("Could not parse territory coordinates for key -- Skipping! Team will likely have no claims " + key);
+                }
+            }
 
             TeamFactory factory = new TeamFactory(safeArea, safeSpawn, name, key, color(hexColor));
             factory.setTerritory(new Territory(plugin, polygon, factory));

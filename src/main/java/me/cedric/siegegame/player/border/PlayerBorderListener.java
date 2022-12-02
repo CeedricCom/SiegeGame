@@ -76,7 +76,6 @@ public class PlayerBorderListener implements Listener {
             return;
 
         List<EntityType> projectiles = plugin.getGameConfig().getBlacklistedProjectiles();
-        System.out.println("check list about to happen");
         if (!projectiles.contains(projectile.getType()))
             return;
 
@@ -86,7 +85,6 @@ public class PlayerBorderListener implements Listener {
         gamePlayer.getBorderHandler().getEntityTracker().trackEntity(projectile);
         ProjectileFollowTask followTask = new ProjectileFollowTask(plugin, gamePlayer, gameMatch, projectile);
         followTask.runTaskTimer(plugin, 0, 1);
-        System.out.println("started?");
     }
 
     private boolean analyseMove(GamePlayer player, Border gameBorder) {
