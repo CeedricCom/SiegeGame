@@ -1,9 +1,7 @@
-package me.cedric.siegegame.border.fake;
+package me.cedric.siegegame.fake;
 
-import me.cedric.siegegame.border.Border;
-import me.cedric.siegegame.border.BorderDisplay;
-import me.cedric.siegegame.border.BoundingBox;
-import me.cedric.siegegame.model.map.GameMap;
+import me.cedric.siegegame.player.border.Border;
+import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -12,26 +10,29 @@ import org.bukkit.World;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FakeBorderWall extends BorderDisplay {
+public class FakeBorderWall {
 
     private final int width;
     private final int height;
     private final Material material;
     protected final List<Wall> walls;
     private boolean wallVisible;
+    private final GamePlayer gamePlayer;
+    private final Border border;
+    private static final int MIN_DISTANCE = 30;
 
-    public FakeBorderWall(GamePlayer player, Border border, int width, int height, Material material) {
-        super(player, border);
+    public FakeBorderWall(GamePlayer gamePlayer, Border border, int width, int height, Material material) {
         this.width = width;
         this.height = height;
         this.material = material;
         this.walls = new ArrayList<>();
         wallVisible = false;
+        this.gamePlayer = gamePlayer;
+        this.border = border;
     }
 
-    public void update(GameMap gameMap, Border border) {
-        Location location = player.getBukkitPlayer().getLocation();
-
+    public void update() {
+        Location location = gamePlayer.getBukkitPlayer().getLocation();
         boolean destroy = false;
         boolean update = false;
 
@@ -48,7 +49,7 @@ public class FakeBorderWall extends BorderDisplay {
 
         if (destroy) {
             //System.out.println("Destroying");
-            destroy(gameMap, border);
+            destroy();
             return;
         }
 
@@ -59,7 +60,7 @@ public class FakeBorderWall extends BorderDisplay {
         }
 
         //System.out.println("Creating");
-        create(gameMap, border);
+        create();
     }
 
     private boolean shouldDisplay(Border border, Location location) {
@@ -82,11 +83,10 @@ public class FakeBorderWall extends BorderDisplay {
         return borderBox.isColliding(location) && !minBox.isColliding(location);
     }
 
-    @Override
-    public void destroy(GameMap gameMap, Border border) {
-        FakeBlockManager fakeBlockManager = player.getBorderHandler().getFakeBlockManager();
+    public void destroy() {
+        FakeBlockManager fakeBlockManager = gamePlayer.getFakeBlockManager();
         fakeBlockManager.removeAll();
-        World world = player.getBukkitPlayer().getWorld();
+        World world = gamePlayer.getBukkitPlayer().getWorld();
         for (Wall wall : walls) {
             destroyWall(fakeBlockManager,world,wall);
         }
@@ -107,7 +107,7 @@ public class FakeBorderWall extends BorderDisplay {
 
 
     private void updateWalls(BoundingBox borderBox) {
-        WallProjection wallProjection = projectXZ(borderBox,player.getBukkitPlayer().getLocation());
+        WallProjection wallProjection = projectXZ(borderBox, gamePlayer.getBukkitPlayer().getLocation());
         List<Wall> oldWalls = new ArrayList<>(walls);
         walls.clear();
         //System.out.println("------ CREATING WALLS --------");
@@ -117,8 +117,8 @@ public class FakeBorderWall extends BorderDisplay {
 
     private void buildUpdate(List<Wall> oldWalls, List<Wall> newWalls) {
         //new walls
-        World world = player.getBukkitPlayer().getWorld();
-        FakeBlockManager manager = player.getBorderHandler().getFakeBlockManager();
+        World world = gamePlayer.getBukkitPlayer().getWorld();
+        FakeBlockManager manager = gamePlayer.getFakeBlockManager();
         for(Wall newWall : newWalls) {
             //find the old wall
             Wall oldWall = getEquivalentWall(oldWalls,newWall);
@@ -150,9 +150,8 @@ public class FakeBorderWall extends BorderDisplay {
         return null;
     }
 
-    @Override
-    public void create(GameMap gameMap, Border border) {
-        WallProjection wallProjection = projectXZ(border.getBoundingBox(), player.getBukkitPlayer().getLocation());
+    public void create() {
+        WallProjection wallProjection = projectXZ(border.getBoundingBox(), gamePlayer.getBukkitPlayer().getLocation());
 
         walls.clear();
         createWall(border.getBoundingBox(), wallProjection.XZ, wallProjection.perpendicular, wallProjection.Y, wallProjection.xDimension, 0, width,wallProjection.facingPositive);
@@ -161,9 +160,9 @@ public class FakeBorderWall extends BorderDisplay {
 
 
     protected void buildWalls() {
-        FakeBlockManager fakeBlockManager = player.getBorderHandler().getFakeBlockManager();
+        FakeBlockManager fakeBlockManager = gamePlayer.getFakeBlockManager();
         fakeBlockManager.removeAll();
-        World world = player.getBukkitPlayer().getWorld();
+        World world = gamePlayer.getBukkitPlayer().getWorld();
         for (Wall wall : walls) {
             createWall(fakeBlockManager,world,wall);
         }

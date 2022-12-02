@@ -7,5 +7,3 @@ softdepend:
 depend:
   - NBTAPI
   - ProtocolLib
-  - HolographicDisplays
-  - WorldEdit

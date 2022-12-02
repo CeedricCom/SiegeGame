@@ -1,10 +1,10 @@
-package me.cedric.siegegame.border;
+package me.cedric.siegegame.player.border.blockers;
 
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.border.lastsafe.EntityTracker;
+import me.cedric.siegegame.player.border.Border;
 import me.cedric.siegegame.model.SiegeGameMatch;
-import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.player.border.PlayerBorderHandler;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.EnderPearl;
@@ -30,25 +30,15 @@ public class ProjectileFollowTask extends BukkitRunnable {
 
     @Override
     public void run() {
-        if (!entityTracker.isTracking(projectile.getUniqueId()))
-            entityTracker.trackPosition(projectile);
-
-        BorderHandler borderHandler = player.getBorderHandler();
+        PlayerBorderHandler playerBorderHandler = player.getBorderHandler();
         Location lastSafe = entityTracker.getLastPosition(projectile.getUniqueId()).clone();
-
-        if (!checkBorder(gameMatch.getGameMap().getMapBorder(), lastSafe.toVector())) {
-            deleteProjectileAndCancel(projectile, lastSafe, borderHandler);
-        }
-
-        for (Team team : gameMatch.getWorldGame().getTeams()) {
-
-            Border safeArea = team.getSafeArea();
-
-            if (!checkBorder(safeArea, lastSafe.toVector()))
+        System.out.println("Following.");
+        for (Border border : playerBorderHandler.getBorders()) {
+            if (border.canLeave())
                 continue;
 
-            deleteProjectileAndCancel(projectile, lastSafe, borderHandler);
-            return;
+            if (!checkBorder(border, lastSafe.toVector()))
+                deleteProjectileAndCancel(projectile, lastSafe, playerBorderHandler);
         }
 
         // changed block
@@ -69,7 +59,7 @@ public class ProjectileFollowTask extends BukkitRunnable {
         return safeArea.getBoundingBox().clone().expand(distance).isCollidingIgnoreInverse(lastSafe) && !safeArea.isInverse();
     }
 
-    private void deleteProjectileAndCancel(Projectile projectile, Location lastSafe, BorderHandler borderHandler) {
+    private void deleteProjectileAndCancel(Projectile projectile, Location lastSafe, PlayerBorderHandler playerBorderHandler) {
         if (projectile instanceof EnderPearl) {
             lastSafe.setYaw(player.getBukkitPlayer().getLocation().getYaw());
             lastSafe.setPitch(player.getBukkitPlayer().getLocation().getPitch());

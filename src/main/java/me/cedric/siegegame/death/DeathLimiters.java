@@ -24,12 +24,12 @@ import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 
-public class Limiters implements Listener {
+public class DeathLimiters implements Listener {
 
     private final DeathManager deathManager;
     private final SiegeGamePlugin plugin;
 
-    public Limiters(SiegeGamePlugin plugin, DeathManager deathManager) {
+    public DeathLimiters(SiegeGamePlugin plugin, DeathManager deathManager) {
         this.plugin = plugin;
         this.deathManager = deathManager;
     }

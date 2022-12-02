@@ -1,35 +1,32 @@
-package me.cedric.siegegame.border;
+package me.cedric.siegegame.player.border;
 
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.border.fake.FakeBlockManager;
-import me.cedric.siegegame.border.fake.FakeBorderWall;
-import me.cedric.siegegame.border.lastsafe.EntityTracker;
+import me.cedric.siegegame.player.border.blockers.EntityTracker;
+import me.cedric.siegegame.util.BoundingBox;
+import me.cedric.siegegame.fake.FakeBorderWall;
 import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.Location;
 import org.bukkit.Material;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-public class BorderHandler {
+public class PlayerBorderHandler {
 
     private final SiegeGamePlugin plugin;
     private final GamePlayer player;
-    private final FakeBlockManager fakeBlockManager;
     private final EntityTracker entityTracker;
-    private final Map<Border, BorderDisplay> borders = new HashMap<>();
+    private final Map<Border, FakeBorderWall> borders = new HashMap<>();
 
-    public BorderHandler(SiegeGamePlugin plugin, GamePlayer player) {
+    public PlayerBorderHandler(SiegeGamePlugin plugin, GamePlayer player) {
         this.plugin = plugin;
         this.player = player;
         this.entityTracker = new EntityTracker();
-        this.fakeBlockManager = new FakeBlockManager(plugin, player.getBukkitPlayer());
     }
 
-    public FakeBlockManager getFakeBlockManager() {
-        return fakeBlockManager;
-    }
-
-    public BorderDisplay getBorderDisplay(Border border) {
+    public FakeBorderWall getBorderDisplay(Border border) {
         return borders.get(border);
     }
 
@@ -46,7 +43,7 @@ public class BorderHandler {
     }
 
     public boolean isCollidingAnyBorder(Location location) {
-        for (Map.Entry<Border, BorderDisplay> entry : borders.entrySet()) {
+        for (Map.Entry<Border, FakeBorderWall> entry : borders.entrySet()) {
             Border border = entry.getKey();
             if (border.getBoundingBox().isColliding(location.clone().toVector()))
                 return true;
@@ -56,7 +53,7 @@ public class BorderHandler {
 
     public Set<Border> getCollidingBorder(Location location) {
         Set<Border> b = new HashSet<>();
-        for (Map.Entry<Border, BorderDisplay> entry : borders.entrySet()) {
+        for (Map.Entry<Border, FakeBorderWall> entry : borders.entrySet()) {
             Border border = entry.getKey();
 
             BoundingBox borderBox = border.getBoundingBox();

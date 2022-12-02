@@ -1,6 +1,7 @@
 package me.cedric.siegegame.command;
 
 import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.command.args.ReloadArg;
 import me.cedric.siegegame.command.args.SpawnControlArea;
 import me.cedric.siegegame.command.args.StartGameArg;
 import me.deltaorion.common.command.CommandException;
@@ -20,6 +21,7 @@ public class SiegeGameCommand extends FunctionalCommand {
 
     private void registerArguments() {
         registerArgument("start", new StartGameArg(plugin));
+        registerArgument("reload", new ReloadArg(plugin));
         registerArgument("spawncontrolarea", new SpawnControlArea(plugin));
     }
 

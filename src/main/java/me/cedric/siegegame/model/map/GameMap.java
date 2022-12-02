@@ -1,7 +1,7 @@
 package me.cedric.siegegame.model.map;
 
-import me.cedric.siegegame.border.Border;
-import me.cedric.siegegame.border.BoundingBox;
+import me.cedric.siegegame.player.border.Border;
+import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.model.teams.TeamFactory;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -62,7 +62,7 @@ public class GameMap {
         mapBorder = new Border(new BoundingBox(fileMapLoader.getWorld(),
                 (int) box.getMinX(), (int) box.getMinY(), (int) box.getMinZ(),
                 (int) box.getMaxX(), (int) box.getMaxY(), (int) box.getMaxZ()));
-
+        mapBorder.setAllowBlockChanges(false);
         for (TeamFactory team : teamFactories) {
             Location location = team.getSafeSpawn();
             location.setWorld(fileMapLoader.getWorld());

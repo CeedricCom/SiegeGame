@@ -1,7 +1,7 @@
 package me.cedric.siegegame.player;
 
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.border.BoundingBox;
+import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.teams.Team;
 import org.bukkit.Bukkit;
@@ -15,7 +15,6 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.potion.PotionEffect;
 
 public class PlayerListener implements Listener {

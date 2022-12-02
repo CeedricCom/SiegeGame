@@ -1,7 +1,8 @@
 package me.cedric.siegegame.player;
 
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.border.BorderHandler;
+import me.cedric.siegegame.player.border.PlayerBorderHandler;
+import me.cedric.siegegame.fake.FakeBlockManager;
 import me.cedric.siegegame.display.Displayer;
 import me.cedric.siegegame.model.teams.Team;
 import org.bukkit.Bukkit;
@@ -15,7 +16,8 @@ public class GamePlayer {
 
     private final SiegeGamePlugin plugin;
     private final UUID uuid;
-    private final BorderHandler borderHandler;
+    private final PlayerBorderHandler playerBorderHandler;
+    private final FakeBlockManager fakeBlockManager;
     private final Displayer displayer;
     private boolean dead = false;
     private Team team;
@@ -24,8 +26,9 @@ public class GamePlayer {
         this.uuid = uuid;
         this.team = null;
         this.plugin = plugin;
-        this.borderHandler = new BorderHandler(plugin, this);
+        this.playerBorderHandler = new PlayerBorderHandler(plugin, this);
         this.displayer = new Displayer(plugin, this);
+        this.fakeBlockManager = new FakeBlockManager(plugin, getBukkitPlayer());
     }
 
     public Player getBukkitPlayer() {
@@ -48,8 +51,8 @@ public class GamePlayer {
         return uuid;
     }
 
-    public BorderHandler getBorderHandler() {
-        return borderHandler;
+    public PlayerBorderHandler getBorderHandler() {
+        return playerBorderHandler;
     }
 
     public boolean isDead() {
@@ -62,6 +65,10 @@ public class GamePlayer {
 
     public Displayer getDisplayer() {
         return displayer;
+    }
+
+    public FakeBlockManager getFakeBlockManager() {
+        return fakeBlockManager;
     }
 
     public void grantNightVision() {

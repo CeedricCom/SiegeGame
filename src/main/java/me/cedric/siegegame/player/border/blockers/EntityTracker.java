@@ -1,4 +1,4 @@
-package me.cedric.siegegame.border.lastsafe;
+package me.cedric.siegegame.player.border.blockers;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
@@ -11,7 +11,7 @@ public class EntityTracker {
 
     private final Map<UUID, Location> lastSafes = new HashMap<>();
 
-    public void trackPosition(Entity entity) {
+    public void trackEntity(Entity entity) {
         lastSafes.put(entity.getUniqueId(), entity.getLocation());
     }
 

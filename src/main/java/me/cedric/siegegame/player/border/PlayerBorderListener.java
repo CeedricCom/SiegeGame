@@ -1,7 +1,9 @@
-package me.cedric.siegegame.border;
+package me.cedric.siegegame.player.border;
 
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.border.lastsafe.EntityTracker;
+import me.cedric.siegegame.player.border.blockers.EntityTracker;
+import me.cedric.siegegame.player.border.blockers.ProjectileFollowTask;
+import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.enums.Permissions;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.player.GamePlayer;
@@ -17,11 +19,11 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.List;
 
-public class BorderListener implements Listener {
+public class PlayerBorderListener implements Listener {
 
     private final SiegeGamePlugin plugin;
 
-    public BorderListener(SiegeGamePlugin plugin) {
+    public PlayerBorderListener(SiegeGamePlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -33,8 +35,7 @@ public class BorderListener implements Listener {
             return;
 
         GamePlayer gamePlayer = match.getWorldGame().getPlayer(event.getPlayer().getUniqueId());
-        //way too much logic
-        //just call gamePlayer.getBorderHandler().update(event);
+
         if (gamePlayer == null)
             return;
 
@@ -49,11 +50,11 @@ public class BorderListener implements Listener {
         if (!gameMatch.getWorld().equals(gamePlayer.getBukkitPlayer().getWorld()))
             return;
 
-        BorderHandler handler = gamePlayer.getBorderHandler();
+        PlayerBorderHandler handler = gamePlayer.getBorderHandler();
         Location location = gamePlayer.getBukkitPlayer().getLocation();
 
         if (event.hasChangedBlock()) {
-            handler.getBorders().forEach(border -> handler.getBorderDisplay(border).update(gameMatch.getGameMap(), border));
+            handler.getBorders().forEach(border -> handler.getBorderDisplay(border).update());
         }
 
         if (handler.getCollidingBorder(location).stream().anyMatch(border -> !analyseMove(gamePlayer, border)))
@@ -75,15 +76,17 @@ public class BorderListener implements Listener {
             return;
 
         List<EntityType> projectiles = plugin.getGameConfig().getBlacklistedProjectiles();
-
+        System.out.println("check list about to happen");
         if (!projectiles.contains(projectile.getType()))
             return;
 
         Player player = (Player) projectile.getShooter();
         GamePlayer gamePlayer = gameMatch.getWorldGame().getPlayer(player.getUniqueId());
 
+        gamePlayer.getBorderHandler().getEntityTracker().trackEntity(projectile);
         ProjectileFollowTask followTask = new ProjectileFollowTask(plugin, gamePlayer, gameMatch, projectile);
         followTask.runTaskTimer(plugin, 0, 1);
+        System.out.println("started?");
     }
 
     private boolean analyseMove(GamePlayer player, Border gameBorder) {

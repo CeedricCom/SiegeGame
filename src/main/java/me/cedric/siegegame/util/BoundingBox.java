@@ -1,4 +1,4 @@
-package me.cedric.siegegame.border;
+package me.cedric.siegegame.util;
 
 import com.google.common.base.MoreObjects;
 import me.cedric.siegegame.territory.Vector2D;

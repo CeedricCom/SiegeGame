@@ -1,8 +1,8 @@
 package me.cedric.siegegame.config;
 
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.border.Border;
-import me.cedric.siegegame.border.BoundingBox;
+import me.cedric.siegegame.player.border.Border;
+import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.display.shop.ShopItem;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.territory.Polygon;
@@ -371,6 +371,7 @@ public class ConfigLoader implements GameConfig {
         List<EntityType> types = new ArrayList<>();
         for (String s : configYml.getStringList(BLACKLISTED_PROJECTILES_KEY)) {
             EntityType entityType = EntityType.valueOf(s.toUpperCase());
+            System.out.println(s);
             types.add(entityType);
         }
 

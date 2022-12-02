@@ -1,4 +1,4 @@
-package me.cedric.siegegame.border;
+package me.cedric.siegegame.player.border.blockers;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.ListenerPriority;
@@ -9,9 +9,8 @@ import com.comphenix.protocol.wrappers.BlockPosition;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.enums.Permissions;
 import me.cedric.siegegame.model.SiegeGameMatch;
-import me.cedric.siegegame.model.map.GameMap;
+import me.cedric.siegegame.player.border.Border;
 import me.cedric.siegegame.player.GamePlayer;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 public class BlockChangePacketAdapter extends PacketAdapter {
@@ -40,19 +39,17 @@ public class BlockChangePacketAdapter extends PacketAdapter {
         if (gamePlayer == null)
             return;
 
-        GameMap gameMap = match.getGameMap();
-
         if (player.hasPermission(Permissions.BORDER_BYPASS.getPermission()))
             return;
 
-        if (gameMap.getMapBorder().canLeave())
-            return;
+        for (Border border : gamePlayer.getBorderHandler().getBorders()) {
+            if (border.blockChangesAllowed())
+                continue;
 
-        boolean isWall = gamePlayer.getBorderHandler().getFakeBlockManager().getBlocks().stream().anyMatch(iFakeBlock ->
-                iFakeBlock.getLocation().equals(new Location(player.getWorld(), location.getX(), location.getY(), location.getZ())));
-
-        if (isWall)
-            event.setCancelled(true);
+            if (border.getBoundingBox().getMaxX() == location.getX() || border.getBoundingBox().getMinX() == location.getX() ||
+                    border.getBoundingBox().getMaxZ() == location.getZ() || border.getBoundingBox().getMinZ() == location.getZ())
+                event.setCancelled(true);
+        }
 
     }
 

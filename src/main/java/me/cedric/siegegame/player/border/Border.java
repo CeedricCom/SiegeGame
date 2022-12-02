@@ -1,5 +1,6 @@
-package me.cedric.siegegame.border;
+package me.cedric.siegegame.player.border;
 
+import me.cedric.siegegame.util.BoundingBox;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
@@ -12,6 +13,7 @@ public class Border {
     @NotNull private final UUID uniqueId;
     private boolean blockBreakAllowed = false;
     private boolean blockPlaceAllowed = false;
+    private boolean allowBlockChanges = true;
     private boolean canLeave = false;
     private boolean inverse = false;
 
@@ -69,6 +71,14 @@ public class Border {
 
     public void setBlockPlaceAllowed(boolean blockPlaceAllowed) {
         this.blockPlaceAllowed = blockPlaceAllowed;
+    }
+
+    public void setAllowBlockChanges(boolean allowBlockChanges) {
+        this.allowBlockChanges = allowBlockChanges;
+    }
+
+    public boolean blockChangesAllowed() {
+        return allowBlockChanges;
     }
 
     public void setCanLeave(boolean canLeave) {

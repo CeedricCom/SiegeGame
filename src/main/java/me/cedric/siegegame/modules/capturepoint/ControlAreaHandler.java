@@ -1,14 +1,6 @@
 package me.cedric.siegegame.modules.capturepoint;
 
-import com.sk89q.worldedit.*;
-import com.sk89q.worldedit.bukkit.BukkitAdapter;
-import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.world.World;
-import com.sk89q.worldedit.world.block.BlockType;
-import com.sk89q.worldedit.world.block.BlockTypes;
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.border.fake.FakeBlockManager;
-import me.cedric.siegegame.border.fakeblock.IFakeBlock;
 import me.cedric.siegegame.display.ColorUtil;
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.model.map.GameMap;
@@ -40,15 +32,13 @@ public abstract class ControlAreaHandler implements Listener {
     protected int midpointZ;
     protected final Cuboid cuboid;
     protected final GameMap map;
-    protected final BlockType whiteWool = BlockTypes.WHITE_WOOL;
     protected final int maxStages = 10;
     protected final int ticksBetweenStages = 20;
     protected final int stagesPerDegrade = 1;
     protected Team teamOnCap;
-    protected final World editWorld;
     protected final org.bukkit.World bukkitWorld;
     protected final SiegeGamePlugin plugin;
-    protected BlockVector3 center;
+    protected Location center;
     protected ControlAreaBlockers blockers = new ControlAreaBlockers();
 
     public ControlAreaHandler(SiegeGamePlugin plugin, Cuboid cuboid, int maxStages, int groundLayer, GameMap map, String name, String displayName) {
@@ -56,7 +46,6 @@ public abstract class ControlAreaHandler implements Listener {
         this.plugin = plugin;
         this.groundLayer = groundLayer;
         this.bukkitWorld = map.getWorld();
-        this.editWorld = BukkitAdapter.adapt(bukkitWorld);
         this.map = map;
         this.cuboid = cuboid;
         this.displayName = displayName;
@@ -66,7 +55,7 @@ public abstract class ControlAreaHandler implements Listener {
         fillArray = new int[length];
         fill(length);
         fillArray = shuffle(fillArray.length, fillArray);
-        center = BlockVector3.at(midpointX+cuboid.getMinX(),groundLayer,midpointZ+cuboid.getMinZ());
+        center = new Location(bukkitWorld, midpointX + cuboid.getMinX(), groundLayer, midpointZ + cuboid.getMinZ());
     }
     //fills the array from 1 to n
     public void fill(int n) {
@@ -102,29 +91,24 @@ public abstract class ControlAreaHandler implements Listener {
     //This will fill a control area with a single layer of the primary block at ground layer
     //and a single layer of the secondary block one above ground layer
     public void generate() {
-        try {
-            for (int x = (int) cuboid.getMinX(); x < cuboid.getMaxX(); x++) {
-                for (int z = (int) cuboid.getMinZ(); z < cuboid.getMaxZ(); z++) {
-                    //editWorld.setBlock(BlockVector3.at(x, groundLayer, z), whiteWool.getDefaultState());
-                    bukkitWorld.getBlockAt(x, groundLayer, z).setType(Material.WHITE_WOOL);
-                    WorldGame worldGame = plugin.getGameManager().getCurrentMatch().getWorldGame();
-                    for (GamePlayer gamePlayer : worldGame.getPlayers()) {
-                        gamePlayer.getBorderHandler().getFakeBlockManager().addBlock(Material.WHITE_WOOL, map.getWorld(), x, this.groundLayer, z);
-                    }
+        for (int x = (int) cuboid.getMinX(); x < cuboid.getMaxX(); x++) {
+            for (int z = (int) cuboid.getMinZ(); z < cuboid.getMaxZ(); z++) {
+                //editWorld.setBlock(BlockVector3.at(x, groundLayer, z), whiteWool.getDefaultState());
+                bukkitWorld.getBlockAt(x, groundLayer, z).setType(Material.WHITE_WOOL);
+                WorldGame worldGame = plugin.getGameManager().getCurrentMatch().getWorldGame();
+                for (GamePlayer gamePlayer : worldGame.getPlayers()) {
+                    gamePlayer.getFakeBlockManager().addBlock(Material.WHITE_WOOL, map.getWorld(), x, this.groundLayer, z);
                 }
             }
+        }
 
-            // Beacon
-            editWorld.setBlock(BlockVector3.at(midpointX+cuboid.getMinX(),groundLayer,midpointZ+cuboid.getMinZ()), BlockTypes.BEACON.getDefaultState());
+        // Beacon
+        bukkitWorld.getBlockAt((int) (midpointX + cuboid.getMinX()), groundLayer, (int) (midpointZ + cuboid.getMinZ())).setType(Material.BEACON);
 
-            for(int x = midpointX-1;x<=midpointX+1;x++) {
-                for(int z=midpointZ-1;z<=midpointZ+1;z++) {
-                    editWorld.setBlock(BlockVector3.at(x+cuboid.getMinX(),this.groundLayer-1,z+cuboid.getMinZ()),BlockTypes.IRON_BLOCK.getDefaultState());
-                }
+        for(int x = midpointX-1;x<=midpointX+1;x++) {
+            for(int z=midpointZ-1;z<=midpointZ+1;z++) {
+                bukkitWorld.getBlockAt((int) (x + cuboid.getMinX()),this.groundLayer-1, (int) (z + cuboid.getMinZ())).setType(Material.IRON_BLOCK);
             }
-
-        } catch (WorldEditException e) {
-            e.printStackTrace();
         }
 
         blockers.stopInteractions(plugin, this, map);

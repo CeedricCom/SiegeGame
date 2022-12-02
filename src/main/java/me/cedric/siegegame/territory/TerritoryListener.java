@@ -101,7 +101,6 @@ public class TerritoryListener implements Listener {
     }
 
     private void evaluateCancel(Player player, Location location, Cancellable event) {
-
         GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
 
         if (gamePlayer == null)

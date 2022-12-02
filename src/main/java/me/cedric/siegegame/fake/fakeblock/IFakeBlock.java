@@ -1,4 +1,4 @@
-package me.cedric.siegegame.border.fakeblock;
+package me.cedric.siegegame.fake.fakeblock;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

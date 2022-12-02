@@ -30,7 +30,7 @@ public class DeathManager {
 
     public void initialise() {
         plugin.getServer().getPluginManager().registerEvents(new RespawnListener(this), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new Limiters(plugin, this), plugin);
+        plugin.getServer().getPluginManager().registerEvents(new DeathLimiters(plugin, this), plugin);
     }
 
     public void makeSpectator(Player player) {
