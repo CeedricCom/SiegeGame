@@ -45,7 +45,7 @@ public final class SiegeGamePlugin extends BukkitPlugin {
 
     @Override
     public void onPluginDisable() {
-        gameManager.endGame();
+        gameManager.endGame(true, false);
     }
 
     public ApiPlugin getApiPlugin() {

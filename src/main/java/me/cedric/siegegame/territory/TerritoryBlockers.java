@@ -24,14 +24,14 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TerritoryListener implements Listener {
+public class TerritoryBlockers implements Listener {
 
     private final Territory territory;
     private final WorldGame worldGame;
 
     private final static List<Material> interactProhibited = new ArrayList<>();
 
-    public TerritoryListener(WorldGame worldGame, Territory territory) {
+    public TerritoryBlockers(WorldGame worldGame, Territory territory) {
         this.worldGame = worldGame;
         this.territory = territory;
     }

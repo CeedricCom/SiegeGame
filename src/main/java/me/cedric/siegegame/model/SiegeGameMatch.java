@@ -5,7 +5,7 @@ import me.cedric.siegegame.death.DeathManager;
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.model.map.GameMap;
 import me.cedric.siegegame.model.teams.Team;
-import me.cedric.siegegame.territory.TerritoryListener;
+import me.cedric.siegegame.territory.TerritoryBlockers;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -25,7 +25,7 @@ public class SiegeGameMatch {
         this.deathManager = new DeathManager(plugin, worldGame);
 
         for (Team team : worldGame.getTeams()) {
-            TerritoryListener blockers = new TerritoryListener(worldGame, team.getTerritory());
+            TerritoryBlockers blockers = new TerritoryBlockers(worldGame, team.getTerritory());
             plugin.getServer().getPluginManager().registerEvents(blockers, plugin);
         }
     }
@@ -60,14 +60,10 @@ public class SiegeGameMatch {
         deathManager.initialise();
     }
 
-    public void endGameNoUnload() {
+    public void endGame(boolean unload) {
         deathManager.shutdown();
         worldGame.endGame();
-    }
-
-    public void endGame() {
-        deathManager.shutdown();
-        worldGame.endGame();
-        gameMap.unload();
+        if (unload)
+            gameMap.unload();
     }
 }

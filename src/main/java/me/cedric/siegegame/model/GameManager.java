@@ -50,9 +50,9 @@ public final class GameManager {
     public void startNextGame() {
         boolean wait = false;
         if (getCurrentMatch() != null) {
-            endGameNoUnload();
+            endGame(false, true); // Do not unload now. We will unload later with no players
             wait = true;
-            Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Next game starting in 30 seconds!");
+            Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Next game starting in 15 seconds!");
         }
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> {
@@ -67,21 +67,27 @@ public final class GameManager {
             currentMatch.startGame();
 
             Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Starting next game...");
+
+            if (lastMatch == null)
+                return;
+
             Bukkit.getScheduler().runTaskLater(plugin, () -> lastMatch.getGameMap().unload(), 10 * 20);
-        }, wait ? 30 * 20 : 10);
+        }, wait ? 15 * 20 : 10);
     }
 
-    public void endGameNoUnload() {
-        currentMatch.endGameNoUnload();
+    public void endGame(boolean unload, boolean loadNextMap) {
+        currentMatch.endGame(unload);
         lastMatch = currentMatch;
         gameMatchQueue.add(currentMatch);
         currentMatch = null;
-    }
 
-    public void endGame() {
-        currentMatch.endGame();
-        lastMatch = currentMatch;
-        gameMatchQueue.add(currentMatch);
-        currentMatch = null;
+        if (loadNextMap) {
+            SiegeGameMatch match = getNextMatch();
+
+            if (match == null)
+                return;
+
+            match.getGameMap().load();
+        }
     }
 }

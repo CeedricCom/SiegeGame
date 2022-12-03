@@ -51,21 +51,22 @@ public class FileMapLoader {
         bukkitWorld.setGameRule(GameRule.DO_MOB_SPAWNING, false);
         bukkitWorld.setDifficulty(Difficulty.NORMAL);
         bukkitWorld.setClearWeatherDuration(Integer.MAX_VALUE);
+        bukkitWorld.setKeepSpawnInMemory(false);
 
         return isLoaded();
     }
 
     public void unload() {
-        if (bukkitWorld == null)
+        if (!isLoaded())
             return;
 
-        CompletableFuture.runAsync(() -> Bukkit.unloadWorld(bukkitWorld, false)).thenRunAsync(() -> {
-            if (activeWorldFolder != null)
-                delete(activeWorldFolder);
+        Bukkit.unloadWorld(bukkitWorld, false);
 
-            bukkitWorld = null;
-            activeWorldFolder = null;
-        });
+        if (activeWorldFolder != null)
+            delete(activeWorldFolder);
+
+        bukkitWorld = null;
+        activeWorldFolder = null;
     }
 
     public boolean isLoaded() {

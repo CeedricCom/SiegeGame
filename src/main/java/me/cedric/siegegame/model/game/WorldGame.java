@@ -2,16 +2,16 @@ package me.cedric.siegegame.model.game;
 
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.death.DeathManager;
 import me.cedric.siegegame.display.shop.ShopGUI;
-import me.cedric.siegegame.modules.capturepoint.ControlAreaModule;
 import me.cedric.siegegame.modules.lunarclient.LunarClientModule;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.PlayerManager;
 import me.cedric.siegegame.model.teams.Team;
+import me.cedric.siegegame.territory.TerritoryBlockers;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -28,6 +28,7 @@ public class WorldGame {
     private final PlayerManager playerManager;
     private final ShopGUI shopGUI;
     private final List<Module> modules = new ArrayList<>();
+    private final List<TerritoryBlockers> territoryBlockers = new ArrayList<>();
 
     public WorldGame(SiegeGamePlugin plugin) {
         this.plugin = plugin;
@@ -144,6 +145,12 @@ public class WorldGame {
             gamePlayer.getBukkitPlayer().teleport(gamePlayer.getTeam().getSafeSpawn());
         }
 
+        for (Team team : getTeams()) {
+            TerritoryBlockers blockers = new TerritoryBlockers(this, team.getTerritory());
+            territoryBlockers.add(blockers);
+            plugin.getServer().getPluginManager().registerEvents(blockers, plugin);
+        }
+
         initialiseModules();
 
         for (Module module : modules)
@@ -177,7 +184,11 @@ public class WorldGame {
         for (Module module : modules)
             module.onEndGame(plugin, this);
 
+        for (TerritoryBlockers blockers : territoryBlockers)
+            HandlerList.unregisterAll(blockers);
+
         playerManager.clear();
+        territoryBlockers.clear();
     }
 
 
