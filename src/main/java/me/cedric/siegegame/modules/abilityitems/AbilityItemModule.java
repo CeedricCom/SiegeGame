@@ -65,11 +65,6 @@ public class AbilityItemModule implements Module {
             abilityItem.initialise(plugin);
     }
 
-    @Override
-    public void shutdown(SiegeGamePlugin plugin, WorldGame worldGame) {
-
-    }
-
     private Location generateLocation(SiegeGamePlugin plugin, WorldGame worldGame, Location location, int offset) {
         Location loc = null;
         while (!isLocationValid(loc, plugin, worldGame)) {

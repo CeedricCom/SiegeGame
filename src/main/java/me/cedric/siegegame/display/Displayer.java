@@ -130,7 +130,7 @@ public class Displayer {
     }
 
     public void displayLoss() {
-
+        gamePlayer.getBukkitPlayer().sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "DEFEAT", ChatColor.RED + "u folded gg ez dog");
     }
 }
 

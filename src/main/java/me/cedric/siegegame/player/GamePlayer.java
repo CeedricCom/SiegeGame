@@ -1,6 +1,8 @@
 package me.cedric.siegegame.player;
 
+import com.lunarclient.bukkitapi.LunarClientAPI;
 import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.modules.lunarclient.LunarClientSupport;
 import me.cedric.siegegame.player.border.PlayerBorderHandler;
 import me.cedric.siegegame.fake.FakeBlockManager;
 import me.cedric.siegegame.display.Displayer;
@@ -19,6 +21,7 @@ public class GamePlayer {
     private final PlayerBorderHandler playerBorderHandler;
     private final FakeBlockManager fakeBlockManager;
     private final Displayer displayer;
+    private final boolean lunarClient;
     private boolean dead = false;
     private Team team;
 
@@ -29,6 +32,7 @@ public class GamePlayer {
         this.playerBorderHandler = new PlayerBorderHandler(plugin, this);
         this.displayer = new Displayer(plugin, this);
         this.fakeBlockManager = new FakeBlockManager(plugin, getBukkitPlayer());
+        this.lunarClient = LunarClientAPI.getInstance().isRunningLunarClient(uuid);
     }
 
     public Player getBukkitPlayer() {
@@ -69,6 +73,10 @@ public class GamePlayer {
 
     public FakeBlockManager getFakeBlockManager() {
         return fakeBlockManager;
+    }
+
+    public boolean isLunarClient() {
+        return lunarClient;
     }
 
     public void grantNightVision() {

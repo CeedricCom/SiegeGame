@@ -18,11 +18,6 @@ public class ControlAreaModule implements Module {
     }
 
     @Override
-    public void shutdown(SiegeGamePlugin plugin, WorldGame worldGame) {
-        controlTask.cancel();
-    }
-
-    @Override
     public void onStartGame(SiegeGamePlugin plugin, WorldGame worldGame) {
         startControlAreas(plugin, worldGame);
     }

@@ -5,6 +5,7 @@ import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.death.DeathManager;
 import me.cedric.siegegame.display.shop.ShopGUI;
 import me.cedric.siegegame.modules.capturepoint.ControlAreaModule;
+import me.cedric.siegegame.modules.lunarclient.LunarClientModule;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.PlayerManager;
 import me.cedric.siegegame.model.teams.Team;
@@ -35,7 +36,7 @@ public class WorldGame {
     }
 
     private void registerModules() {
-        modules.add(new ControlAreaModule());
+        modules.add(new LunarClientModule());
     }
 
     private void initialiseModules() {

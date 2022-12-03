@@ -116,6 +116,9 @@ public class DeathManager {
         if (worldGame == null)
             return;
 
+        if (gamePlayer == null)
+            return;
+
         Player player = gamePlayer.getBukkitPlayer();
         player.setFlying(false);
         player.setExp(0);

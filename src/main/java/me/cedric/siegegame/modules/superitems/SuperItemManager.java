@@ -104,12 +104,6 @@ public class SuperItemManager implements Module {
     }
 
     @Override
-    public void shutdown(SiegeGamePlugin plugin, WorldGame worldGame) {
-        for (SuperItem superItem : superItems)
-            superItem.remove();
-    }
-
-    @Override
     public void onStartGame(SiegeGamePlugin plugin, WorldGame worldGame) {
         assignSuperItems(true);
     }

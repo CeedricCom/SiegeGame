@@ -44,6 +44,8 @@ public class PlayerListener implements Listener {
         }
 
         player.getInventory().clear();
+        player.setFlying(false);
+        player.setAllowFlight(false);
         player.setLevel(0);
     }
 
