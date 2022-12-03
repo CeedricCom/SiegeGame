@@ -6,15 +6,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Queue;
 import java.util.Set;
 
 public final class GameManager {
 
     private final Set<SiegeGameMatch> siegeGameMatches = new HashSet<>();
-    private final Queue<SiegeGameMatch> gameMatchQueue = new ArrayDeque<>();
     private final SiegeGamePlugin plugin;
+    private Queue<SiegeGameMatch> gameMatchQueue = new ArrayDeque<>();
     private SiegeGameMatch currentMatch;
     private SiegeGameMatch lastMatch = null;
 
@@ -25,6 +28,12 @@ public final class GameManager {
     public void addGame(SiegeGameMatch siegeGameMatch) {
         siegeGameMatches.add(siegeGameMatch);
         gameMatchQueue.add(siegeGameMatch);
+    }
+
+    public void shuffleQueue() {
+        List<SiegeGameMatch> shuffled = new ArrayList<>(gameMatchQueue);
+        Collections.shuffle(shuffled);
+        gameMatchQueue = new ArrayDeque<>(shuffled);
     }
 
     public void removeGame(String identifier) {

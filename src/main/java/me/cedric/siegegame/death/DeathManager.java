@@ -24,7 +24,6 @@ public class DeathManager {
     private final SiegeGamePlugin plugin;
     private final HashMap<UUID, RespawnTask> deadPlayers = new HashMap<>();
     private final WorldGame worldGame;
-
     private final RespawnListener respawnListener;
     private final DeathLimiters deathLimiters;
 

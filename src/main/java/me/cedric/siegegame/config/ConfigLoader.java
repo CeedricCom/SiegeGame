@@ -37,7 +37,6 @@ import org.bukkit.util.Vector;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -77,12 +76,7 @@ public class ConfigLoader implements GameConfig {
     private static final String MAPS_SECTION_TEAMS_SAFE_SPAWN_Z1 = "z";
     private static final String MAPS_SECTION_TEAMS_SAFE_SPAWN_YAW = "yaw";
     private static final String MAPS_SECTION_TEAMS_SAFE_SPAWN_PITCH = "pitch";
-    private static final String MAPS_SECTION_SUPER_ITEM_LIST_KEY = "super-items";
     private static final String MAPS_SECTION_TERRITORY_KEY = "territory";
-    private static final String MAPS_SECTION_TERRITORY_X1_KEY = "x1";
-    private static final String MAPS_SECTION_TERRITORY_Z1_KEY = "z1";
-    private static final String MAPS_SECTION_TERRITORY_X2_KEY = "x2";
-    private static final String MAPS_SECTION_TERRITORY_Z2_KEY = "z2";
 
     private FileConfig shopYml;
     private static final String SHOP_SECTION_KEY = "shop";
@@ -151,6 +145,7 @@ public class ConfigLoader implements GameConfig {
             loadWorld(worldName, mapSection);
         }
 
+        plugin.getGameManager().shuffleQueue();
         plugin.getLogger().info("Maps loaded.");
     }
 

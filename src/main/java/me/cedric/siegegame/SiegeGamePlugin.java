@@ -35,7 +35,7 @@ public final class SiegeGamePlugin extends BukkitPlugin {
 
         apiPlugin.registerCommand(new SiegeGameCommand(this), "siegegame", "sg", "siegeg");
         apiPlugin.registerCommand(new ResourcesCommand(this), "resources", "r", "rs");
-        apiPlugin.registerCommand(new RallyCommand(this), "rally", "here");
+        apiPlugin.registerCommand(new RallyCommand(this), "rally");
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
             new SiegeGameExpansion(this).register();

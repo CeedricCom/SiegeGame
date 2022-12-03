@@ -7,6 +7,7 @@ import org.bukkit.Difficulty;
 import org.bukkit.GameRule;
 import org.bukkit.World;
 import org.bukkit.WorldCreator;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
@@ -59,6 +60,9 @@ public class FileMapLoader {
     public void unload() {
         if (!isLoaded())
             return;
+
+        for (Player player : bukkitWorld.getPlayers())
+            player.kick();
 
         Bukkit.unloadWorld(bukkitWorld, false);
 

@@ -2,6 +2,7 @@ package me.cedric.siegegame.model.game;
 
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.death.DeathManager;
 import me.cedric.siegegame.display.shop.ShopGUI;
 import me.cedric.siegegame.modules.lunarclient.LunarClientModule;
 import me.cedric.siegegame.player.GamePlayer;
@@ -29,11 +30,13 @@ public class WorldGame {
     private final ShopGUI shopGUI;
     private final List<Module> modules = new ArrayList<>();
     private final List<TerritoryBlockers> territoryBlockers = new ArrayList<>();
+    private final DeathManager deathManager;
 
     public WorldGame(SiegeGamePlugin plugin) {
         this.plugin = plugin;
         this.shopGUI = new ShopGUI(this);
         this.playerManager = new PlayerManager(plugin);
+        this.deathManager = new DeathManager(plugin, this);
     }
 
     private void registerModules() {
@@ -156,10 +159,13 @@ public class WorldGame {
         for (Module module : modules)
             module.onStartGame(plugin, this);
 
+        deathManager.initialise();
         updateAllScoreboards();
     }
 
     public void endGame() {
+        deathManager.shutdown();
+
         for (GamePlayer gamePlayer : getPlayers()) {
 
             gamePlayer.reset();
