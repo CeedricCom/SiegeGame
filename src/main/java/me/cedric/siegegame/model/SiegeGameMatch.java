@@ -1,6 +1,7 @@
 package me.cedric.siegegame.model;
 
 import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.death.DeathManager;
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.model.map.GameMap;
 import me.cedric.siegegame.model.teams.Team;
@@ -14,12 +15,14 @@ public class SiegeGameMatch {
     private final WorldGame worldGame;
     private final GameMap gameMap;
     private final String identifier;
+    private final DeathManager deathManager;
 
     public SiegeGameMatch(SiegeGamePlugin plugin, WorldGame worldGame, GameMap gameMap, String identifier) {
         this.plugin = plugin;
         this.worldGame = worldGame;
         this.gameMap = gameMap;
         this.identifier = identifier;
+        this.deathManager = new DeathManager(plugin, worldGame);
 
         for (Team team : worldGame.getTeams()) {
             TerritoryListener blockers = new TerritoryListener(worldGame, team.getTerritory());
@@ -54,11 +57,16 @@ public class SiegeGameMatch {
         }
 
         worldGame.startGame();
-        plugin.getDeathManager().setWorldGame(worldGame);
+        deathManager.initialise();
+    }
+
+    public void endGameNoUnload() {
+        deathManager.shutdown();
+        worldGame.endGame();
     }
 
     public void endGame() {
-        plugin.getDeathManager().reviveAll();
+        deathManager.shutdown();
         worldGame.endGame();
         gameMap.unload();
     }

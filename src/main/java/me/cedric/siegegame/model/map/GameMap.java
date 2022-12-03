@@ -48,10 +48,6 @@ public class GameMap {
         return fileMapLoader.isLoaded();
     }
 
-    public void resetMap() {
-        fileMapLoader.restoreFromSource();
-    }
-
     public boolean load() {
         if (!fileMapLoader.load())
             return false;

@@ -7,3 +7,4 @@ softdepend:
 depend:
   - NBTAPI
   - ProtocolLib
+  - LunarClient-API

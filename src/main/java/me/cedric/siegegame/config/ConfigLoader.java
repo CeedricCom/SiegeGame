@@ -175,7 +175,7 @@ public class ConfigLoader implements GameConfig {
         Vector corner1Vector = new Vector(x1, y1, z1);
         Vector corner2Vector = new Vector(x2, y2, z2);
 
-        FileMapLoader fileMapLoader = new FileMapLoader(new File(Bukkit.getWorldContainer().getParentFile(), worldName));
+        FileMapLoader fileMapLoader = new FileMapLoader(plugin, new File(Bukkit.getWorldContainer().getParentFile(), worldName));
         Border border = new Border(new BoundingBox(fileMapLoader.getWorld(), corner1Vector, corner2Vector));
         GameMap gameMap = new GameMap(fileMapLoader, displayName, new HashSet<>(), border, defaultSpawn);
         WorldGame worldGame = new WorldGame(plugin);

@@ -10,6 +10,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.HandlerList;
 import org.bukkit.potion.PotionEffect;
 
 import java.util.ArrayList;
@@ -22,15 +23,21 @@ public class DeathManager {
 
     private final SiegeGamePlugin plugin;
     private final HashMap<UUID, RespawnTask> deadPlayers = new HashMap<>();
-    private WorldGame worldGame = null;
+    private final WorldGame worldGame;
 
-    public DeathManager(SiegeGamePlugin plugin) {
+    private final RespawnListener respawnListener;
+    private final DeathLimiters deathLimiters;
+
+    public DeathManager(SiegeGamePlugin plugin, WorldGame worldGame) {
         this.plugin = plugin;
+        this.worldGame = worldGame;
+        this.respawnListener = new RespawnListener(this);
+        this.deathLimiters = new DeathLimiters(this);
     }
 
     public void initialise() {
-        plugin.getServer().getPluginManager().registerEvents(new RespawnListener(this), plugin);
-        plugin.getServer().getPluginManager().registerEvents(new DeathLimiters(plugin, this), plugin);
+        plugin.getServer().getPluginManager().registerEvents(respawnListener, plugin);
+        plugin.getServer().getPluginManager().registerEvents(deathLimiters, plugin);
     }
 
     public void makeSpectator(Player player) {
@@ -144,10 +151,14 @@ public class DeathManager {
         gamePlayer.setDead(false);
     }
 
-    public void reviveAll() {
+    public void shutdown() {
         for (UUID uuid : deadPlayers.keySet()) {
             revivePlayer(uuid);
         }
+
+        HandlerList.unregisterAll(respawnListener);
+        HandlerList.unregisterAll(deathLimiters);
+        deadPlayers.clear();
     }
 
     public boolean isPlayerDead(UUID uuid) {
@@ -164,9 +175,5 @@ public class DeathManager {
 
     public WorldGame getWorldGame() {
         return worldGame;
-    }
-
-    public void setWorldGame(WorldGame worldGame) {
-        this.worldGame = worldGame;
     }
 }

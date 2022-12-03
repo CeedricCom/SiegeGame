@@ -12,7 +12,6 @@ import me.cedric.siegegame.death.DeathManager;
 import me.cedric.siegegame.display.placeholderapi.SiegeGameExpansion;
 import me.cedric.siegegame.player.PlayerListener;
 import me.cedric.siegegame.model.GameManager;
-import me.cedric.siegegame.model.SiegeGameMatch;
 import me.deltaorion.bukkit.plugin.plugin.BukkitPlugin;
 import me.deltaorion.common.plugin.ApiPlugin;
 import org.bukkit.Bukkit;
@@ -22,14 +21,12 @@ public final class SiegeGamePlugin extends BukkitPlugin {
     private ApiPlugin apiPlugin;
     private ConfigLoader configLoader;
     private GameManager gameManager;
-    private DeathManager deathManager;
 
     @Override
     public void onPluginEnable() {
         this.apiPlugin = this;
         this.gameManager = new GameManager(this);
         this.configLoader = new ConfigLoader(this);
-        deathManager = new DeathManager(this);
 
         this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         this.getServer().getPluginManager().registerEvents(new PlayerBorderListener(this), this);
@@ -44,13 +41,11 @@ public final class SiegeGamePlugin extends BukkitPlugin {
             new SiegeGameExpansion(this).register();
 
         configLoader.initializeAndLoad();
-        deathManager.initialise();
     }
 
     @Override
     public void onPluginDisable() {
-        for (SiegeGameMatch match : gameManager.getLoadedMatches())
-            match.endGame();
+        gameManager.endGame();
     }
 
     public ApiPlugin getApiPlugin() {
@@ -63,9 +58,5 @@ public final class SiegeGamePlugin extends BukkitPlugin {
 
     public GameConfig getGameConfig() {
         return configLoader;
-    }
-
-    public DeathManager getDeathManager() {
-        return deathManager;
     }
 }

@@ -1,5 +1,6 @@
 package me.cedric.siegegame.model.map;
 
+import me.cedric.siegegame.SiegeGamePlugin;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
@@ -9,6 +10,7 @@ import org.bukkit.WorldCreator;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 public class FileMapLoader {
 
@@ -16,9 +18,11 @@ public class FileMapLoader {
     private File activeWorldFolder;
     private World bukkitWorld = null;
     private int number = 1;
+    private final SiegeGamePlugin plugin;
 
-    public FileMapLoader(File source) {
+    public FileMapLoader(SiegeGamePlugin plugin, File source) {
         this.source = source;
+        this.plugin = plugin;
     }
 
     public boolean load() {
@@ -48,23 +52,20 @@ public class FileMapLoader {
         bukkitWorld.setDifficulty(Difficulty.NORMAL);
         bukkitWorld.setClearWeatherDuration(Integer.MAX_VALUE);
 
-
         return isLoaded();
     }
 
     public void unload() {
-        if (bukkitWorld != null)
-            Bukkit.unloadWorld(bukkitWorld, false);
-        if (activeWorldFolder != null)
-            delete(activeWorldFolder);
+        if (bukkitWorld == null)
+            return;
 
-        bukkitWorld = null;
-        activeWorldFolder = null;
-    }
+        CompletableFuture.runAsync(() -> Bukkit.unloadWorld(bukkitWorld, false)).thenRunAsync(() -> {
+            if (activeWorldFolder != null)
+                delete(activeWorldFolder);
 
-    public boolean restoreFromSource() {
-        unload();
-        return load();
+            bukkitWorld = null;
+            activeWorldFolder = null;
+        });
     }
 
     public boolean isLoaded() {

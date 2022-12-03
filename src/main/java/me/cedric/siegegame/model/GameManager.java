@@ -50,7 +50,7 @@ public final class GameManager {
     public void startNextGame() {
         boolean wait = false;
         if (getCurrentMatch() != null) {
-            endGame();
+            endGameNoUnload();
             wait = true;
             Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Next game starting in 30 seconds!");
         }
@@ -67,10 +67,18 @@ public final class GameManager {
             currentMatch.startGame();
 
             Bukkit.broadcastMessage(ChatColor.DARK_AQUA + "Starting next game...");
+            Bukkit.getScheduler().runTaskLater(plugin, () -> lastMatch.getGameMap().unload(), 10 * 20);
         }, wait ? 30 * 20 : 10);
     }
 
-    private void endGame() {
+    public void endGameNoUnload() {
+        currentMatch.endGameNoUnload();
+        lastMatch = currentMatch;
+        gameMatchQueue.add(currentMatch);
+        currentMatch = null;
+    }
+
+    public void endGame() {
         currentMatch.endGame();
         lastMatch = currentMatch;
         gameMatchQueue.add(currentMatch);

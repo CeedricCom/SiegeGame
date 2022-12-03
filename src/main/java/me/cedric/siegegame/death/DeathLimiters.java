@@ -27,10 +27,8 @@ import org.bukkit.event.player.PlayerInteractEvent;
 public class DeathLimiters implements Listener {
 
     private final DeathManager deathManager;
-    private final SiegeGamePlugin plugin;
 
-    public DeathLimiters(SiegeGamePlugin plugin, DeathManager deathManager) {
-        this.plugin = plugin;
+    public DeathLimiters(DeathManager deathManager) {
         this.deathManager = deathManager;
     }
 
