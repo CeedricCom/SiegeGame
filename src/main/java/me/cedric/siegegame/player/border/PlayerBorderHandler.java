@@ -3,7 +3,6 @@ package me.cedric.siegegame.player.border;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.player.border.blockers.EntityTracker;
 import me.cedric.siegegame.util.BoundingBox;
-import me.cedric.siegegame.fake.FakeBorderWall;
 import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -40,30 +39,6 @@ public class PlayerBorderHandler {
 
     public void removeBorder(Border key) {
         borders.remove(key);
-    }
-
-    public boolean isCollidingAnyBorder(Location location) {
-        for (Map.Entry<Border, FakeBorderWall> entry : borders.entrySet()) {
-            Border border = entry.getKey();
-            if (border.getBoundingBox().isColliding(location.clone().toVector()))
-                return true;
-        }
-        return false;
-    }
-
-    public Set<Border> getCollidingBorder(Location location) {
-        Set<Border> b = new HashSet<>();
-        for (Map.Entry<Border, FakeBorderWall> entry : borders.entrySet()) {
-            Border border = entry.getKey();
-
-            BoundingBox borderBox = border.getBoundingBox();
-            int expand = border.isInverse() ? 1 : -1;
-
-            if (borderBox.clone().expand(expand).isColliding(location))
-                b.add(entry.getValue().getBorder());
-        }
-
-        return b;
     }
 
     public GamePlayer getPlayer() {

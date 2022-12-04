@@ -13,6 +13,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.awt.*;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -28,7 +29,6 @@ public class LunarClientSupport {
             currentPlayerPos.put("x", bukkitPlayer.getLocation().getX());
             currentPlayerPos.put("y", bukkitPlayer.getLocation().getX());
             currentPlayerPos.put("z", bukkitPlayer.getLocation().getX());
-            currentPlayerPos.put("world", bukkitPlayer.getLocation().getX());
 
             teamView.put(gamePlayer.getUUID(), currentPlayerPos);
         }

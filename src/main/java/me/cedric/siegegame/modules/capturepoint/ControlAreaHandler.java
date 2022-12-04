@@ -97,7 +97,7 @@ public abstract class ControlAreaHandler implements Listener {
                 bukkitWorld.getBlockAt(x, groundLayer, z).setType(Material.WHITE_WOOL);
                 WorldGame worldGame = plugin.getGameManager().getCurrentMatch().getWorldGame();
                 for (GamePlayer gamePlayer : worldGame.getPlayers()) {
-                    gamePlayer.getFakeBlockManager().addBlock(Material.WHITE_WOOL, map.getWorld(), x, this.groundLayer, z);
+                    gamePlayer.getFakeBlockManager().addBlock(Material.WHITE_WOOL, map.getWorld(), x, this.groundLayer, z, true);
                 }
             }
         }

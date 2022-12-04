@@ -5,6 +5,7 @@ import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.teams.Team;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -47,6 +48,7 @@ public class PlayerListener implements Listener {
         player.setFlying(false);
         player.setAllowFlight(false);
         player.setLevel(0);
+        player.sendMessage(ChatColor.DARK_AQUA + "Welcome to ceedric.com Use " + ChatColor.GOLD + "/resources" + ChatColor.DARK_AQUA + " for gear.");
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

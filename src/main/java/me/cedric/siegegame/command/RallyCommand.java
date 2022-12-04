@@ -45,10 +45,9 @@ public class RallyCommand extends FunctionalCommand {
             return;
 
         WorldGame worldGame = match.getWorldGame();
-
         GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
 
-        if (!gamePlayer.hasTeam())
+        if (gamePlayer == null || !gamePlayer.hasTeam())
             return;
 
         LunarClientSupport.sendTemporaryWaypoint(plugin, gamePlayer.getTeam(), player.getLocation(), 30 * 20);

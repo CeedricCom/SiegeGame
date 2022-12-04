@@ -36,10 +36,6 @@ public final class GameManager {
         gameMatchQueue = new ArrayDeque<>(shuffled);
     }
 
-    public void removeGame(String identifier) {
-        siegeGameMatches.removeIf(siegeGameMatch -> siegeGameMatch.getIdentifier().equalsIgnoreCase(identifier));
-    }
-
     public SiegeGameMatch getNextMatch() {
         return gameMatchQueue.peek();
     }

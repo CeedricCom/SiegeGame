@@ -38,8 +38,8 @@ public class FakeBlockManager {
         this.plugin = plugin;
     }
 
-    public void addBlock(Material material, World world, int x, int y, int z) {
-        IFakeBlock block = new FakeBlock(material,world,x,y,z);
+    public void addBlock(Material material, World world, int x, int y, int z, boolean immutable) {
+        IFakeBlock block = immutable ? new FakeBlock(material,world,x,y,z) : new ImmutableFakeBlock(material,world,x,y,z);
         block.setVisible(true);
         IFakeBlock prev = blocks.get(block.getLocation());
         if (prev == null) {
@@ -89,7 +89,7 @@ public class FakeBlockManager {
     public void setMaterial(World world, int x, int y, int z, Material material) {
         IFakeBlock block = getBlockAt(world,x,y,z);
         if(block==null) {
-            addBlock(material,world,x,y,z);
+            addBlock(material, world, x, y, z, false);
             return;
         }
 

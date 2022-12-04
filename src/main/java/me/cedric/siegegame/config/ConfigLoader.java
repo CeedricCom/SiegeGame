@@ -170,8 +170,11 @@ public class ConfigLoader implements GameConfig {
         Vector corner1Vector = new Vector(x1, y1, z1);
         Vector corner2Vector = new Vector(x2, y2, z2);
 
-        FileMapLoader fileMapLoader = new FileMapLoader(plugin, new File(Bukkit.getWorldContainer().getParentFile(), worldName));
+        FileMapLoader fileMapLoader = new FileMapLoader(new File(Bukkit.getWorldContainer().getParentFile(), worldName));
         Border border = new Border(new BoundingBox(fileMapLoader.getWorld(), corner1Vector, corner2Vector));
+        border.setCanLeave(false);
+        border.setAllowBlockChanges(false);
+        border.setInverse(false);
         GameMap gameMap = new GameMap(fileMapLoader, displayName, new HashSet<>(), border, defaultSpawn);
         WorldGame worldGame = new WorldGame(plugin);
 
@@ -186,7 +189,7 @@ public class ConfigLoader implements GameConfig {
         factories.forEach(gameMap::addTeam);
         factories.forEach(teamFactory -> worldGame.addTeam(new Team(worldGame, teamFactory)));
 
-        plugin.getGameManager().addGame(new SiegeGameMatch(plugin, worldGame, gameMap, section.getName()));
+        plugin.getGameManager().addGame(new SiegeGameMatch(plugin, worldGame, gameMap));
     }
 
     private List<ShopItem> loadShop(ConfigSection section) {
@@ -282,6 +285,7 @@ public class ConfigLoader implements GameConfig {
             int z2 = spawnAreaSection.getInt(MAPS_SECTION_TEAMS_SPAWN_Z2);
             Border safeArea = new Border(new BoundingBox(null, x1, y1, z1, x2, y2, z2));
             safeArea.setCanLeave(true);
+            safeArea.setAllowBlockChanges(true);
             safeArea.setInverse(true);
 
             ConfigSection safeSpawnSection = currentTeamSection.getConfigurationSection(MAPS_SECTION_TEAMS_SAFE_SPAWN);
@@ -383,7 +387,6 @@ public class ConfigLoader implements GameConfig {
         List<EntityType> types = new ArrayList<>();
         for (String s : configYml.getStringList(BLACKLISTED_PROJECTILES_KEY)) {
             EntityType entityType = EntityType.valueOf(s.toUpperCase());
-            System.out.println(s);
             types.add(entityType);
         }
 

@@ -4,6 +4,7 @@ import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.model.map.GameMap;
 import me.cedric.siegegame.model.teams.Team;
+import me.cedric.siegegame.util.RandomString;
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -12,13 +13,13 @@ public class SiegeGameMatch {
     private final SiegeGamePlugin plugin;
     private final WorldGame worldGame;
     private final GameMap gameMap;
-    private final String identifier;
+    private final String matchID;
 
-    public SiegeGameMatch(SiegeGamePlugin plugin, WorldGame worldGame, GameMap gameMap, String identifier) {
+    public SiegeGameMatch(SiegeGamePlugin plugin, WorldGame worldGame, GameMap gameMap) {
         this.plugin = plugin;
         this.worldGame = worldGame;
         this.gameMap = gameMap;
-        this.identifier = identifier;
+        this.matchID = RandomString.make(5);
     }
 
     public WorldGame getWorldGame() {
@@ -29,8 +30,8 @@ public class SiegeGameMatch {
         return gameMap.getWorld();
     }
 
-    public String getIdentifier() {
-        return identifier;
+    public String getMatchID() {
+        return matchID;
     }
 
     public GameMap getGameMap() {

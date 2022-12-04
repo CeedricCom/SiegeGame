@@ -1,6 +1,6 @@
 package me.cedric.siegegame.model.map;
 
-import me.cedric.siegegame.SiegeGamePlugin;
+import net.kyori.adventure.text.Component;
 import org.apache.commons.io.FileUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Difficulty;
@@ -11,7 +11,6 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
 
 public class FileMapLoader {
 
@@ -19,11 +18,9 @@ public class FileMapLoader {
     private File activeWorldFolder;
     private World bukkitWorld = null;
     private int number = 1;
-    private final SiegeGamePlugin plugin;
 
-    public FileMapLoader(SiegeGamePlugin plugin, File source) {
+    public FileMapLoader(File source) {
         this.source = source;
-        this.plugin = plugin;
     }
 
     public boolean load() {
@@ -50,6 +47,7 @@ public class FileMapLoader {
         bukkitWorld.setGameRule(GameRule.DO_IMMEDIATE_RESPAWN, true);
         bukkitWorld.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
         bukkitWorld.setGameRule(GameRule.DO_MOB_SPAWNING, false);
+        bukkitWorld.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
         bukkitWorld.setDifficulty(Difficulty.NORMAL);
         bukkitWorld.setClearWeatherDuration(Integer.MAX_VALUE);
         bukkitWorld.setKeepSpawnInMemory(false);
@@ -62,7 +60,7 @@ public class FileMapLoader {
             return;
 
         for (Player player : bukkitWorld.getPlayers())
-            player.kick();
+            player.kick(Component.text("Restarting..."));
 
         Bukkit.unloadWorld(bukkitWorld, false);
 

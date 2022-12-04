@@ -20,9 +20,12 @@ public class EntityTracker {
     }
 
     public void setLastPosition(UUID uuid, Location location) {
-        if (!lastSafes.containsKey(uuid))
-            lastSafes.put(uuid, location);
-        lastSafes.replace(uuid, location);
+        Location withInts = new Location(location.getWorld(), location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        if (!lastSafes.containsKey(uuid)) {
+            lastSafes.put(uuid, withInts);
+            return;
+        }
+        lastSafes.replace(uuid, withInts);
     }
 
     public boolean isTracking(UUID uuid) {

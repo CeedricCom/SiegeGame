@@ -7,6 +7,7 @@ import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.enums.Permissions;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.player.GamePlayer;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -51,13 +52,11 @@ public class PlayerBorderListener implements Listener {
             return;
 
         PlayerBorderHandler handler = gamePlayer.getBorderHandler();
-        Location location = gamePlayer.getBukkitPlayer().getLocation();
 
-        if (event.hasChangedBlock()) {
+        if (event.hasChangedBlock())
             handler.getBorders().forEach(border -> handler.getBorderDisplay(border).update());
-        }
 
-        if (handler.getCollidingBorder(location).stream().anyMatch(border -> !analyseMove(gamePlayer, border)))
+        if (handler.getBorders().stream().anyMatch(border -> !analyseMove(event.getTo(), border)))
             rollback(gamePlayer);
 
         gamePlayer.getBorderHandler().getEntityTracker().setLastPosition(event.getPlayer().getUniqueId(), event.getTo().clone());
@@ -72,14 +71,13 @@ public class PlayerBorderListener implements Listener {
         if (gameMatch == null)
             return;
 
-        if (!(projectile.getShooter() instanceof Player))
+        if (!(projectile.getShooter() instanceof Player player))
             return;
 
         List<EntityType> projectiles = plugin.getGameConfig().getBlacklistedProjectiles();
         if (!projectiles.contains(projectile.getType()))
             return;
 
-        Player player = (Player) projectile.getShooter();
         GamePlayer gamePlayer = gameMatch.getWorldGame().getPlayer(player.getUniqueId());
 
         gamePlayer.getBorderHandler().getEntityTracker().trackEntity(projectile);
@@ -87,28 +85,23 @@ public class PlayerBorderListener implements Listener {
         followTask.runTaskTimer(plugin, 0, 1);
     }
 
-    private boolean analyseMove(GamePlayer player, Border gameBorder) {
-        if (!BoundingBox.fromBukkit(player.getBukkitPlayer()).isColliding(gameBorder.getBoundingBox())) {
-            if (!gameBorder.canLeave()) {
-                return false;
-            } else {
-                if (!gameBorder.getBoundingBox().isColliding(BoundingBox.fromBukkit(player.getBukkitPlayer()))) {
-                    return gameBorder.canLeave();
-                }
-            }
-        }
+    private boolean analyseMove(Location location, Border border) {
+        if (border.canLeave()) // if you can leave the border, movement is always good
+            return true;
 
-        return true;
+        // If you are inside a border and it is not inverse (regular border), movement is good
+        // Otherwise, you are inside an inverse border, movement is bad
+        if (border.getBoundingBox().isColliding(location))
+            return !border.isInverse();
+
+        // If we get here player is outside any borders and should be teleported to last safe
+        return false;
     }
 
     private void rollback(GamePlayer player) {
         EntityTracker entityTracker = player.getBorderHandler().getEntityTracker();
-        if (entityTracker.getLastPosition(player.getUUID()) == null) {
-            if (player.hasTeam())
-                player.getBukkitPlayer().teleport(player.getTeam().getSafeSpawn());
-            return;
-        }
         player.getBukkitPlayer().teleport(entityTracker.getLastPosition(player.getUUID()));
+        player.getBukkitPlayer().sendMessage(ChatColor.RED + "You have been rolled back for getting through a border.");
     }
 
     private boolean shouldCheck(GamePlayer gamePlayer) {

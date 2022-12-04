@@ -12,6 +12,10 @@ public class ImmutableFakeBlock implements IFakeBlock {
         this.block = block;
     }
 
+    public ImmutableFakeBlock(Material material, World world, int x, int y, int z) {
+        this(new FakeBlock(material, world, x, y, z));
+    }
+
     @Override
     public Material getMaterial() {
         return block.getMaterial();
@@ -19,7 +23,7 @@ public class ImmutableFakeBlock implements IFakeBlock {
 
     @Override
     public boolean setMaterial(Material material) {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     @Override
@@ -39,7 +43,7 @@ public class ImmutableFakeBlock implements IFakeBlock {
 
     @Override
     public boolean setVisible(boolean visible) {
-        throw new UnsupportedOperationException();
+        return block.isVisible();
     }
 }
 

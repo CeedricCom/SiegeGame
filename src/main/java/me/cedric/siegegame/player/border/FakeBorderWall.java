@@ -1,5 +1,6 @@
-package me.cedric.siegegame.fake;
+package me.cedric.siegegame.player.border;
 
+import me.cedric.siegegame.fake.FakeBlockManager;
 import me.cedric.siegegame.player.border.Border;
 import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.player.GamePlayer;
@@ -175,7 +176,7 @@ public class FakeBorderWall {
             for (int y = wall.minY; y < wall.maxY; y++) {
                 int x = wall.getX(xz);
                 int z = wall.getZ(xz);
-                manager.addBlock(material, world, x, y, z);
+                manager.addBlock(material, world, x, y, z, border.blockChangesAllowed());
             }
         }
     }
@@ -224,7 +225,7 @@ public class FakeBorderWall {
             for (int y = minY; y < maxY; y++) {
                 int x = newWall.getX(xz);
                 int z = newWall.getZ(xz);
-                manager.addBlock(material,world, x, y, z);
+                manager.addBlock(material,world, x, y, z, border.blockChangesAllowed());
             }
         }
     }
@@ -234,7 +235,7 @@ public class FakeBorderWall {
             for (int y = newWall.minY; y < newWall.maxY; y++) {
                 int x = newWall.getX(xz);
                 int z = newWall.getZ(xz);
-                manager.addBlock(material,world, x, y, z);
+                manager.addBlock(material,world, x, y, z, border.blockChangesAllowed());
             }
         }
     }

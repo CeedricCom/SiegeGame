@@ -8,8 +8,9 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.wrappers.BlockPosition;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.enums.Permissions;
+import me.cedric.siegegame.fake.fakeblock.IFakeBlock;
+import me.cedric.siegegame.fake.fakeblock.ImmutableFakeBlock;
 import me.cedric.siegegame.model.SiegeGameMatch;
-import me.cedric.siegegame.player.border.Border;
 import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.entity.Player;
 
@@ -42,17 +43,11 @@ public class BlockChangePacketAdapter extends PacketAdapter {
         if (player.hasPermission(Permissions.BORDER_BYPASS.getPermission()))
             return;
 
-        for (Border border : gamePlayer.getBorderHandler().getBorders()) {
-            if (border.blockChangesAllowed())
-                continue;
+        IFakeBlock fakeBlock = gamePlayer.getFakeBlockManager().getBlockAt(player.getWorld(), location.getX(), location.getY(), location.getZ());
 
-            if (border.getBoundingBox().getMaxX() == location.getX() || border.getBoundingBox().getMinX() == location.getX() ||
-                    border.getBoundingBox().getMaxZ() == location.getZ() || border.getBoundingBox().getMinZ() == location.getZ())
-                event.setCancelled(true);
-        }
-
+        if (fakeBlock instanceof ImmutableFakeBlock)
+            event.setCancelled(true);
     }
-
 }
 
 
