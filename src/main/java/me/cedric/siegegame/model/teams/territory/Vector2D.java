@@ -1,6 +1,4 @@
-package me.cedric.siegegame.territory;
-
-import org.bukkit.World;
+package me.cedric.siegegame.model.teams.territory;
 
 public class Vector2D {
 

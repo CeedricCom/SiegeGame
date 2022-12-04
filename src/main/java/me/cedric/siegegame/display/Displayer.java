@@ -1,13 +1,12 @@
 package me.cedric.siegegame.display;
 
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.display.placeholderapi.Placeholder;
 import me.cedric.siegegame.enums.Messages;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.territory.Territory;
+import me.cedric.siegegame.model.teams.territory.Territory;
 import me.deltaorion.bukkit.display.actionbar.ActionBar;
 import me.deltaorion.bukkit.display.bossbar.BarColor;
 import me.deltaorion.bukkit.display.bossbar.EBossBar;

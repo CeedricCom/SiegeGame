@@ -1,4 +1,4 @@
-package me.cedric.siegegame.death;
+package me.cedric.siegegame.model.game.death;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;

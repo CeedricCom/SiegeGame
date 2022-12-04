@@ -1,7 +1,7 @@
 package me.cedric.siegegame.model.teams;
 
 import me.cedric.siegegame.player.border.Border;
-import me.cedric.siegegame.territory.Territory;
+import me.cedric.siegegame.model.teams.territory.Territory;
 import org.bukkit.Location;
 
 import java.awt.Color;

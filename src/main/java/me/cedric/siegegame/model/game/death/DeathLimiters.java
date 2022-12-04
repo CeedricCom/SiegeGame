@@ -1,7 +1,6 @@
-package me.cedric.siegegame.death;
+package me.cedric.siegegame.model.game.death;
 
 import com.destroystokyo.paper.event.player.PlayerLaunchProjectileEvent;
-import me.cedric.siegegame.SiegeGamePlugin;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

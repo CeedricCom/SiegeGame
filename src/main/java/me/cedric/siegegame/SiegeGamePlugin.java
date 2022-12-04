@@ -8,7 +8,6 @@ import me.cedric.siegegame.command.ResourcesCommand;
 import me.cedric.siegegame.command.SiegeGameCommand;
 import me.cedric.siegegame.config.ConfigLoader;
 import me.cedric.siegegame.config.GameConfig;
-import me.cedric.siegegame.death.DeathManager;
 import me.cedric.siegegame.display.placeholderapi.SiegeGameExpansion;
 import me.cedric.siegegame.player.PlayerListener;
 import me.cedric.siegegame.model.GameManager;

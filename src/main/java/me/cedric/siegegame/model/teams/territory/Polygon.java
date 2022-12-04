@@ -1,4 +1,4 @@
-package me.cedric.siegegame.territory;
+package me.cedric.siegegame.model.teams.territory;
 
 import me.cedric.siegegame.model.map.GameMap;
 import org.bukkit.World;

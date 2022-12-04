@@ -4,7 +4,6 @@ import com.lunarclient.bukkitapi.LunarClientAPI;
 import com.lunarclient.bukkitapi.nethandler.client.LCPacketTeammates;
 import com.lunarclient.bukkitapi.nethandler.shared.LCPacketWaypointAdd;
 import com.lunarclient.bukkitapi.nethandler.shared.LCPacketWaypointRemove;
-import com.lunarclient.bukkitapi.object.LCWaypoint;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.GamePlayer;
@@ -12,8 +11,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
-import java.awt.*;
-import java.nio.charset.StandardCharsets;
+import java.awt.Color;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;

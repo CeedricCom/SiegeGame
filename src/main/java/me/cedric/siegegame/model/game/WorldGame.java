@@ -2,13 +2,13 @@ package me.cedric.siegegame.model.game;
 
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.death.DeathManager;
+import me.cedric.siegegame.model.game.death.DeathManager;
 import me.cedric.siegegame.display.shop.ShopGUI;
 import me.cedric.siegegame.modules.lunarclient.LunarClientModule;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.PlayerManager;
 import me.cedric.siegegame.model.teams.Team;
-import me.cedric.siegegame.territory.TerritoryBlockers;
+import me.cedric.siegegame.model.teams.territory.TerritoryBlockers;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

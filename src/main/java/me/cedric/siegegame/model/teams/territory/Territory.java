@@ -1,4 +1,4 @@
-package me.cedric.siegegame.territory;
+package me.cedric.siegegame.model.teams.territory;
 
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.player.GamePlayer;

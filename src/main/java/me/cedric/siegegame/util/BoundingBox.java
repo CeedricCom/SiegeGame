@@ -1,7 +1,7 @@
 package me.cedric.siegegame.util;
 
 import com.google.common.base.MoreObjects;
-import me.cedric.siegegame.territory.Vector2D;
+import me.cedric.siegegame.model.teams.territory.Vector2D;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;

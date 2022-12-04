@@ -1,4 +1,4 @@
-package me.cedric.siegegame.death;
+package me.cedric.siegegame.model.game.death;
 
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.SiegeGameMatch;
