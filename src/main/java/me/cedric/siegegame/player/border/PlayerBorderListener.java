@@ -58,8 +58,8 @@ public class PlayerBorderListener implements Listener {
 
         if (handler.getBorders().stream().anyMatch(border -> !analyseMove(event.getTo(), border)))
             rollback(gamePlayer);
-
-        gamePlayer.getBorderHandler().getEntityTracker().setLastPosition(event.getPlayer().getUniqueId(), event.getTo().clone());
+        else // Only set last position IF it is good rather than always doing it. This ensures this because you either roll the person back or they are safe
+            gamePlayer.getBorderHandler().getEntityTracker().setLastPosition(event.getPlayer().getUniqueId(), event.getTo().clone());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
