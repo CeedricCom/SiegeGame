@@ -3,7 +3,6 @@ package me.cedric.siegegame.player.border;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.player.border.blockers.EntityTracker;
 import me.cedric.siegegame.player.border.blockers.ProjectileFollowTask;
-import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.enums.Permissions;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.player.GamePlayer;

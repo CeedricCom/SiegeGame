@@ -115,6 +115,9 @@ public class TerritoryBlockers implements Listener {
         if (gamePlayer.isDead() || !gamePlayer.hasTeam())
             event.setCancelled(true);
 
+        if (gamePlayer.hasTeam() && gamePlayer.getTeam().getSafeArea().getBoundingBox().isColliding(location))
+            event.setCancelled(true);
+
         if (gamePlayer.getTeam().getIdentifier().equalsIgnoreCase(territory.getTeam().getConfigKey()))
             return;
 
