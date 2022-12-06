@@ -1,5 +1,7 @@
 package me.cedric.siegegame.model.game;
 
+import com.github.sirblobman.combatlogx.api.ICombatManager;
+import com.github.sirblobman.combatlogx.api.object.UntagReason;
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.game.death.DeathManager;
@@ -146,6 +148,10 @@ public class WorldGame {
         for (GamePlayer gamePlayer : getPlayers()) {
             gamePlayer.reset();
             gamePlayer.getBukkitPlayer().teleport(gamePlayer.getTeam().getSafeSpawn());
+
+            ICombatManager combatManager = plugin.getCombatLogX().getCombatManager();
+            if (combatManager.isInCombat(gamePlayer.getBukkitPlayer()))
+                combatManager.untag(gamePlayer.getBukkitPlayer(), UntagReason.EXPIRE);
         }
 
         for (Team team : getTeams()) {

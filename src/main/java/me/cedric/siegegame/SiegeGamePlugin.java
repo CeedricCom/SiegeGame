@@ -1,6 +1,7 @@
 package me.cedric.siegegame;
 
 import com.comphenix.protocol.ProtocolLibrary;
+import com.github.sirblobman.combatlogx.api.ICombatLogX;
 import me.cedric.siegegame.command.RallyCommand;
 import me.cedric.siegegame.player.border.blockers.BlockChangePacketAdapter;
 import me.cedric.siegegame.player.border.PlayerBorderListener;
@@ -14,6 +15,8 @@ import me.cedric.siegegame.model.GameManager;
 import me.deltaorion.bukkit.plugin.plugin.BukkitPlugin;
 import me.deltaorion.common.plugin.ApiPlugin;
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
 
 public final class SiegeGamePlugin extends BukkitPlugin {
 
@@ -57,5 +60,11 @@ public final class SiegeGamePlugin extends BukkitPlugin {
 
     public GameConfig getGameConfig() {
         return configLoader;
+    }
+
+    public ICombatLogX getCombatLogX() {
+        PluginManager pluginManager = Bukkit.getPluginManager();
+        Plugin plugin = pluginManager.getPlugin("CombatLogX");
+        return (ICombatLogX) plugin;
     }
 }

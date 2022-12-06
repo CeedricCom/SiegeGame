@@ -1,5 +1,6 @@
 package me.cedric.siegegame.player;
 
+import com.github.sirblobman.combatlogx.api.ICombatManager;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.model.SiegeGameMatch;
@@ -174,8 +175,13 @@ public class PlayerListener implements Listener {
         BoundingBox teamSafeArea = team.getSafeArea().getBoundingBox();
 
         if (damagerSafeArea.isColliding(damager.getLocation()) || damagerSafeArea.isColliding(player.getLocation())
-                || teamSafeArea.isColliding(damager.getLocation()) || teamSafeArea.isColliding(player.getLocation()))
-            event.setCancelled(true);
+                || teamSafeArea.isColliding(damager.getLocation()) || teamSafeArea.isColliding(player.getLocation())) {
+            // They are either both in the safe area or one is in there - dont care which
+            // If both are tag simply allow pvp
+            ICombatManager combatManager = plugin.getCombatLogX().getCombatManager();
+            if (!(combatManager.isInCombat(damager) && combatManager.isInCombat(player)))
+                event.setCancelled(true);
+        }
     }
 
 }
