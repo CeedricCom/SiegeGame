@@ -19,6 +19,7 @@ import org.bukkit.event.player.PlayerBucketEmptyEvent;
 import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -51,12 +52,32 @@ public class TerritoryBlockers implements Listener {
             return;
 
         if (territory.isInside(to) && !territory.isInside(event.getFrom())) {
-            gamePlayer.getDisplayer().displayInsideEnemyClaims(worldGame, territory);
+            gamePlayer.getDisplayer().displayInsideClaims(worldGame, territory);
             return;
         }
 
         if (territory.isInside(event.getFrom()) && !territory.isInside(to))
-            gamePlayer.getDisplayer().removeDisplayInsideEnemyClaims();
+            gamePlayer.getDisplayer().removeDisplayInsideClaims();
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
+    public void onTeleport(PlayerTeleportEvent event) {
+        Player player = event.getPlayer();
+
+        GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
+
+        Location to = event.getTo();
+
+        if (gamePlayer == null)
+            return;
+
+        if (territory.isInside(to)) {
+            gamePlayer.getDisplayer().displayInsideClaims(worldGame, territory);
+            return;
+        }
+
+        if (territory.isInside(event.getFrom()) && !territory.isInside(to))
+            gamePlayer.getDisplayer().removeDisplayInsideClaims();
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

@@ -104,7 +104,7 @@ public class Displayer {
             gamePlayer.getBukkitPlayer().sendMessage(xpLevels);
     }
 
-    public void displayInsideEnemyClaims(WorldGame worldGame, Territory territory) {
+    public void displayInsideClaims(WorldGame worldGame, Territory territory) {
         Message message = Messages.CLAIMS_ENTERED;
         Team team = worldGame.getTeam(territory.getTeam().getConfigKey());
         String s = String.format(message.toString(), ColorUtil.getRelationalColor(gamePlayer.getTeam(), team) + team.getName());
@@ -116,7 +116,7 @@ public class Displayer {
         bossBar.setColor(BarColor.YELLOW);
     }
 
-    public void removeDisplayInsideEnemyClaims() {
+    public void removeDisplayInsideClaims() {
         apiPlayer.removeBossBar();
     }
 
