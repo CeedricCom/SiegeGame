@@ -10,6 +10,11 @@ public class Vector2D {
         this.z = z;
     }
 
+    public Vector2D(double x, double z) {
+        this.x = (int) x;
+        this.z = (int) z;
+    }
+
     public int getX() {
         return x;
     }
@@ -38,6 +43,22 @@ public class Vector2D {
         this.z -= v.getZ();
     }
 
+    public void setX(int x) {
+        this.x = x;
+    }
+
+    public void setX(double x) {
+        this.x = (int) x;
+    }
+
+    public void setZ(int z) {
+        this.z = z;
+    }
+
+    public void setZ(double z) {
+        this.z = (int) z;
+    }
+
     @Override
     public String toString() {
         return x + "," + z;
@@ -49,5 +70,10 @@ public class Vector2D {
             return false;
         Vector2D other = (Vector2D) obj;
         return other.getX() == this.x && other.getZ() == this.z;
+    }
+
+    @Override
+    public Vector2D clone() {
+        return new Vector2D(x, z);
     }
 }

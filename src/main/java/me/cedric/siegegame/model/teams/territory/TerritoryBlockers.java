@@ -39,6 +39,10 @@ public class TerritoryBlockers implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onMove(PlayerMoveEvent event) {
         Player player = event.getPlayer();
+
+        if (!event.hasChangedBlock())
+            return;
+
         GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
 
         Location to = event.getTo();
