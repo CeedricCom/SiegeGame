@@ -1,6 +1,6 @@
 package me.cedric.siegegame.player;
 
-import com.github.sirblobman.combatlogx.api.ICombatManager;
+import com.github.sirblobman.combatlogx.api.manager.ICombatManager;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.model.SiegeGameMatch;
@@ -17,6 +17,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
 public class PlayerListener implements Listener {
@@ -40,6 +41,12 @@ public class PlayerListener implements Listener {
             if (gamePlayer.hasTeam()) {
                 player.teleport(gamePlayer.getTeam().getSafeSpawn());
                 gamePlayer.getDisplayer().updateScoreboard();
+            }
+
+            if (plugin.getGameManager().getKitStorage().hasKit(player.getUniqueId())) {
+                ItemStack[] kit = plugin.getGameManager().getKitStorage().getKit(player.getUniqueId());
+                gamePlayer.setKit(kit);
+                gamePlayer.getBukkitPlayer().getInventory().setContents(kit);
             }
 
             gamePlayer.grantNightVision();
@@ -140,14 +147,11 @@ public class PlayerListener implements Listener {
 
     @EventHandler
     public void onHit(EntityDamageByEntityEvent event) {
-        if (!(event.getDamager() instanceof Player))
+        if (!(event.getDamager() instanceof Player damager))
             return;
 
-        if (!(event.getEntity() instanceof Player))
+        if (!(event.getEntity() instanceof Player player))
             return;
-
-        Player damager = (Player) event.getDamager();
-        Player player = (Player) event.getEntity();
 
         SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
 

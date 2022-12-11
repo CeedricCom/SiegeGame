@@ -9,6 +9,7 @@ import me.cedric.siegegame.display.Displayer;
 import me.cedric.siegegame.model.teams.Team;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -24,6 +25,7 @@ public class GamePlayer {
     private final boolean lunarClient;
     private boolean dead = false;
     private Team team;
+    private ItemStack[] kit;
 
     public GamePlayer(UUID uuid, SiegeGamePlugin plugin) {
         this.uuid = uuid;
@@ -77,6 +79,14 @@ public class GamePlayer {
 
     public boolean isLunarClient() {
         return lunarClient;
+    }
+
+    public ItemStack[] getKit() {
+        return kit;
+    }
+
+    public void setKit(ItemStack[] kit) {
+        this.kit = kit;
     }
 
     public void grantNightVision() {

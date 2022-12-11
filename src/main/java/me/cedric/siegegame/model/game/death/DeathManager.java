@@ -11,11 +11,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -148,6 +150,10 @@ public class DeathManager {
 
         deadPlayers.remove(gamePlayer.getUUID());
         gamePlayer.setDead(false);
+
+        ItemStack[] kit = plugin.getGameManager().getKitStorage().getKit(player.getUniqueId());
+        if (kit != null)
+            gamePlayer.getBukkitPlayer().getInventory().setContents(kit);
     }
 
     public void shutdown() {
@@ -174,5 +180,9 @@ public class DeathManager {
 
     public WorldGame getWorldGame() {
         return worldGame;
+    }
+
+    private void setPlayerKit(Player player, ItemStack[] kit) {
+
     }
 }

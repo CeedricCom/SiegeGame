@@ -1,7 +1,8 @@
 package me.cedric.siegegame.model.game;
 
-import com.github.sirblobman.combatlogx.api.ICombatManager;
+import com.github.sirblobman.combatlogx.api.manager.ICombatManager;
 import com.github.sirblobman.combatlogx.api.object.UntagReason;
+import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.game.death.DeathManager;
@@ -11,6 +12,7 @@ import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.PlayerManager;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.model.teams.territory.TerritoryBlockers;
+import me.cedric.siegegame.player.kits.KitGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -30,6 +32,7 @@ public class WorldGame {
     private final Set<Team> teams = new HashSet<>();
     private final PlayerManager playerManager;
     private final ShopGUI shopGUI;
+    private final KitGUI kitGUI;
     private final List<Module> modules = new ArrayList<>();
     private final List<TerritoryBlockers> territoryBlockers = new ArrayList<>();
     private final DeathManager deathManager;
@@ -37,6 +40,7 @@ public class WorldGame {
     public WorldGame(SiegeGamePlugin plugin) {
         this.plugin = plugin;
         this.shopGUI = new ShopGUI(this);
+        this.kitGUI = new KitGUI(plugin, this);
         this.playerManager = new PlayerManager(plugin);
         this.deathManager = new DeathManager(plugin, this);
     }
@@ -133,6 +137,10 @@ public class WorldGame {
 
     public ShopGUI getShopGUI() {
         return shopGUI;
+    }
+
+    public ChestGui getKitGUI() {
+        return kitGUI.getKitGUI();
     }
 
     public Team getTeam(String identifier) {

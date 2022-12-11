@@ -30,6 +30,10 @@ public class Polygon {
     }
 
     public boolean isColliding(Vector2D v, World world) {
-        return boxes.stream().anyMatch(box -> box.isColliding(v) && world.equals(gameMap.getWorld()));
+        for (Box2D box : boxes) {
+            if (box.isColliding(v) && world.equals(gameMap.getWorld()))
+                return true;
+        }
+        return false;
     }
 }

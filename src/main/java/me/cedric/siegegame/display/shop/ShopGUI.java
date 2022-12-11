@@ -17,7 +17,6 @@ public class ShopGUI {
     private String guiName = "Shop";
     private ChestGui chestGui;
     private StaticPane pane;
-    private int rows = 3;
 
     public ShopGUI(WorldGame worldGame) {
         this.worldGame = worldGame;
@@ -38,11 +37,12 @@ public class ShopGUI {
         shopItems.removeIf(shopItem -> shopItem.getDisplayItem().equals(item));
     }
 
-    public List<ShopItem> getButtons() {
+    public List<ShopItem> getShopItems() {
         return new ArrayList<>(shopItems);
     }
 
     private void createGUI() {
+        int rows = 3;
         this.chestGui = new ChestGui(rows, guiName);
         this.pane = new StaticPane(0, 0, 9, rows);
         chestGui.addPane(pane);

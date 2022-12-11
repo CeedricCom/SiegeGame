@@ -2,6 +2,7 @@ package me.cedric.siegegame.model;
 
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.player.kits.KitStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
@@ -20,9 +21,11 @@ public final class GameManager {
     private Queue<SiegeGameMatch> gameMatchQueue = new ArrayDeque<>();
     private SiegeGameMatch currentMatch;
     private SiegeGameMatch lastMatch = null;
+    private final KitStorage kitStorage;
 
     public GameManager(SiegeGamePlugin plugin) {
         this.plugin = plugin;
+        this.kitStorage = new KitStorage(plugin);
     }
 
     public void addGame(SiegeGameMatch siegeGameMatch) {
@@ -94,5 +97,9 @@ public final class GameManager {
 
             match.getGameMap().load();
         }
+    }
+
+    public KitStorage getKitStorage() {
+        return kitStorage;
     }
 }

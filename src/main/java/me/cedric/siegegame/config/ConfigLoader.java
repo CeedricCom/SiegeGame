@@ -1,5 +1,7 @@
 package me.cedric.siegegame.config;
 
+import de.tr7zw.nbtapi.NBTCompound;
+import de.tr7zw.nbtapi.NBTItem;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.player.border.Border;
 import me.cedric.siegegame.util.BoundingBox;
@@ -244,6 +246,10 @@ public class ConfigLoader implements GameConfig {
             }
 
             ItemStack item = itemBuilder.build();
+            NBTItem nbtItem = new NBTItem(item);
+            NBTCompound compound = nbtItem.addCompound("siegegame-item");
+            compound.setString("identifier", key);
+
             ShopItem button = new ShopItem(gamePlayer -> {
                 Player player = gamePlayer.getBukkitPlayer();
                 if (includesItem) {
@@ -252,15 +258,15 @@ public class ConfigLoader implements GameConfig {
                     }
 
                     if (includesItemExact)
-                        gamePlayer.getBukkitPlayer().getInventory().addItem(item.clone());
+                        gamePlayer.getBukkitPlayer().getInventory().addItem(nbtItem.getItem().clone());
                     else
-                        gamePlayer.getBukkitPlayer().getInventory().addItem(new ItemStack(item.getType(), amount));
+                        gamePlayer.getBukkitPlayer().getInventory().addItem(new ItemStack(nbtItem.getItem().getType(), amount));
                 }
 
                 for (String command : commands) {
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
                 }
-            }, item, price, slot);
+            }, nbtItem.getItem().clone(), price, slot, includesItemExact);
 
             shopItems.add(button);
         }
