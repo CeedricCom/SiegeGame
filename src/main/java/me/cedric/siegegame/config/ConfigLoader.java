@@ -90,6 +90,7 @@ public class ConfigLoader implements GameConfig {
     private static final String SHOP_SECTION_ENCHANTMENTS_KEY = "enchantments";
     private static final String SHOP_SECTION_HIDE_ITEM_FLAGS_KEY = "item-flags";
     private static final String SHOP_SECTION_COMMAND_LIST_KEY = "commands";
+    private static final String SHOP_SECTION_CUSTOM_NBT = "custom-nbt";
     private static final String SHOP_SECTION_INCLUDES_ITEM = "includes-item";
     private static final String SHOP_SECTION_INCLUDES_ITEM_EXACT = "includes-item-exact";
     private static final String SHOP_SECTION_POTION_EFFECTS_KEY = "potion-effects";
@@ -107,6 +108,8 @@ public class ConfigLoader implements GameConfig {
     private static final String START_COMMANDS_KEY = "start-game-commands";
     private static final String END_COMMANDS_KEY = "end-game-commands";
     private static final String BLACKLISTED_PROJECTILES_KEY = "blacklisted-projectiles";
+    private static final String SUPER_BREAKER_TIMER = "super-breaker-time";
+    private static final String SUPER_BREAKER_COOLDOWN = "super-breaker-cooldown";
 
     public ConfigLoader(SiegeGamePlugin plugin) {
         this.plugin = plugin;
@@ -212,6 +215,7 @@ public class ConfigLoader implements GameConfig {
             List<String> itemFlags = configSection.getStringList(SHOP_SECTION_HIDE_ITEM_FLAGS_KEY);
             List<String> enchantments = configSection.getStringList(SHOP_SECTION_ENCHANTMENTS_KEY);
             List<String> commands = configSection.getStringList(SHOP_SECTION_COMMAND_LIST_KEY);
+            List<String> nbtValues = configSection.getStringList(SHOP_SECTION_CUSTOM_NBT);
             boolean includesItem = Boolean.parseBoolean(configSection.getString(SHOP_SECTION_INCLUDES_ITEM));
             boolean includesItemExact = Boolean.parseBoolean(configSection.getString(SHOP_SECTION_INCLUDES_ITEM_EXACT));
 
@@ -255,6 +259,12 @@ public class ConfigLoader implements GameConfig {
             NBTCompound compound = nbtItem.addCompound("siegegame-item");
             compound.setString("identifier", key);
             compound.setString("map-id", worldName);
+
+            for (String s : nbtValues) {
+                String[] nbt = s.split(";");
+                compound.setString(nbt[0], nbt[1]);
+            }
+
 
             ShopItem button = new ShopItem(gamePlayer -> {
                 Player player = gamePlayer.getBukkitPlayer();
@@ -392,6 +402,16 @@ public class ConfigLoader implements GameConfig {
     @Override
     public int getRespawnTimer() {
         return configYml.getInt(RESPAWN_TIMER_KEY);
+    }
+
+    @Override
+    public int getSuperBreakerCooldown() {
+        return configYml.getInt(SUPER_BREAKER_COOLDOWN);
+    }
+
+    @Override
+    public int getSuperBreakerTimer() {
+        return configYml.getInt(SUPER_BREAKER_TIMER);
     }
 
     @Override

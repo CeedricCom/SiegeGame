@@ -12,10 +12,6 @@ public class ControlAreaModule implements Module {
 
     private ControlTask controlTask;
 
-    @Override
-    public void initialise(SiegeGamePlugin plugin, WorldGame worldGame) {
-
-    }
 
     @Override
     public void onStartGame(SiegeGamePlugin plugin, WorldGame worldGame) {

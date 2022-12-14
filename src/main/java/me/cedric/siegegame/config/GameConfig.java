@@ -14,6 +14,10 @@ public interface GameConfig {
 
     int getRespawnTimer();
 
+    int getSuperBreakerCooldown();
+
+    int getSuperBreakerTimer();
+
     List<EntityType> getBlacklistedProjectiles();
 
     void reloadConfig();

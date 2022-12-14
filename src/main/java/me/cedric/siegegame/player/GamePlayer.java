@@ -2,7 +2,6 @@ package me.cedric.siegegame.player;
 
 import com.lunarclient.bukkitapi.LunarClientAPI;
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.modules.lunarclient.LunarClientSupport;
 import me.cedric.siegegame.player.border.PlayerBorderHandler;
 import me.cedric.siegegame.fake.FakeBlockManager;
 import me.cedric.siegegame.display.Displayer;
@@ -10,7 +9,6 @@ import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.kits.PlayerKitManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -23,7 +21,6 @@ public class GamePlayer {
     private final PlayerBorderHandler playerBorderHandler;
     private final FakeBlockManager fakeBlockManager;
     private final Displayer displayer;
-    private final boolean lunarClient;
     private boolean dead = false;
     private Team team;
     private PlayerKitManager playerKitManager;
@@ -35,7 +32,6 @@ public class GamePlayer {
         this.playerBorderHandler = new PlayerBorderHandler(plugin, this);
         this.displayer = new Displayer(plugin, this);
         this.fakeBlockManager = new FakeBlockManager(plugin, getBukkitPlayer());
-        this.lunarClient = LunarClientAPI.getInstance().isRunningLunarClient(uuid);
     }
 
     public Player getBukkitPlayer() {
@@ -79,7 +75,7 @@ public class GamePlayer {
     }
 
     public boolean isLunarClient() {
-        return lunarClient;
+        return LunarClientAPI.getInstance().isRunningLunarClient(uuid);
     }
 
     public PlayerKitManager getPlayerKitManager() {

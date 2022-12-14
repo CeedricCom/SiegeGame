@@ -29,6 +29,7 @@ public class AbilityItemModule implements Module {
 
     @Override
     public void onStartGame(SiegeGamePlugin plugin, WorldGame worldGame) {
+        registerAbilities();
         // spawn an abilityitem every 30 seconds
         task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
             Random r = new Random();
@@ -56,13 +57,6 @@ public class AbilityItemModule implements Module {
     @Override
     public void onEndGame(SiegeGamePlugin plugin, WorldGame worldGame) {
         task.cancel();
-    }
-
-    @Override
-    public void initialise(SiegeGamePlugin plugin, WorldGame worldGame) {
-        registerAbilities();
-        for (AbilityItem abilityItem : abilityItems)
-            abilityItem.initialise(plugin);
     }
 
     private Location generateLocation(SiegeGamePlugin plugin, WorldGame worldGame, Location location, int offset) {

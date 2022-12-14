@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.game.death.DeathManager;
 import me.cedric.siegegame.display.shop.ShopGUI;
+import me.cedric.siegegame.modules.abilityitems.SuperBreakerModule;
 import me.cedric.siegegame.modules.lunarclient.LunarClientModule;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.PlayerManager;
@@ -52,12 +53,7 @@ public class WorldGame {
 
     private void registerModules() {
         modules.add(new LunarClientModule());
-    }
-
-    private void initialiseModules() {
-        registerModules();
-        for (Module module : modules)
-            module.initialise(plugin, this);
+        modules.add(new SuperBreakerModule());
     }
 
     public String getMapIdentifier() {
@@ -184,7 +180,7 @@ public class WorldGame {
             plugin.getServer().getPluginManager().registerEvents(blockers, plugin);
         }
 
-        initialiseModules();
+        registerModules();
 
         for (Module module : modules)
             module.onStartGame(plugin, this);

@@ -16,7 +16,7 @@ public class QxtiStick implements AbilityItem {
     private NamespacedKey namespacedKey;
 
     @Override
-    public void initialise(SiegeGamePlugin plugin) {
+    public void onStartGame(SiegeGamePlugin plugin) {
         namespacedKey = new NamespacedKey(plugin, "siegegame");
     }
 

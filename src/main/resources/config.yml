@@ -2,6 +2,8 @@ levels-per-kill: 10
 points-per-kill: 500
 points-to-end: 10000
 respawn-timer: 15
+super-breaker-cooldown: 90
+super-breaker-timer: 11
 start-game-commands: []
 end-game-commands: []
 respawn-commands: []

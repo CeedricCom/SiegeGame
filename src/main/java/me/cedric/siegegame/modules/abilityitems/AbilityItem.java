@@ -8,7 +8,7 @@ import org.bukkit.persistence.PersistentDataType;
 
 public interface AbilityItem {
 
-    void initialise(SiegeGamePlugin plugin);
+    void onStartGame(SiegeGamePlugin plugin);
 
     ItemStack getItem();
 
