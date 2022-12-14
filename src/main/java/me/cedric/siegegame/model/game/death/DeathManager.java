@@ -151,7 +151,7 @@ public class DeathManager {
         deadPlayers.remove(gamePlayer.getUUID());
         gamePlayer.setDead(false);
 
-        ItemStack[] kit = plugin.getGameManager().getKitStorage().getKit(player.getUniqueId());
+        ItemStack[] kit = gamePlayer.getPlayerKitManager().getKit(worldGame.getMapIdentifier()).getContents();
         if (kit != null)
             gamePlayer.getBukkitPlayer().getInventory().setContents(kit);
     }

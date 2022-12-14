@@ -7,6 +7,7 @@ import me.cedric.siegegame.player.border.PlayerBorderHandler;
 import me.cedric.siegegame.fake.FakeBlockManager;
 import me.cedric.siegegame.display.Displayer;
 import me.cedric.siegegame.model.teams.Team;
+import me.cedric.siegegame.player.kits.PlayerKitManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -25,7 +26,7 @@ public class GamePlayer {
     private final boolean lunarClient;
     private boolean dead = false;
     private Team team;
-    private ItemStack[] kit;
+    private PlayerKitManager playerKitManager;
 
     public GamePlayer(UUID uuid, SiegeGamePlugin plugin) {
         this.uuid = uuid;
@@ -81,12 +82,12 @@ public class GamePlayer {
         return lunarClient;
     }
 
-    public ItemStack[] getKit() {
-        return kit;
+    public PlayerKitManager getPlayerKitManager() {
+        return playerKitManager;
     }
 
-    public void setKit(ItemStack[] kit) {
-        this.kit = kit;
+    public void setPlayerKitManager(PlayerKitManager playerKitManager) {
+        this.playerKitManager = playerKitManager;
     }
 
     public void grantNightVision() {

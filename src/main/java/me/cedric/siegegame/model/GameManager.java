@@ -18,10 +18,10 @@ public final class GameManager {
 
     private final Set<SiegeGameMatch> siegeGameMatches = new HashSet<>();
     private final SiegeGamePlugin plugin;
+    private final KitStorage kitStorage;
     private Queue<SiegeGameMatch> gameMatchQueue = new ArrayDeque<>();
     private SiegeGameMatch currentMatch;
     private SiegeGameMatch lastMatch = null;
-    private final KitStorage kitStorage;
 
     public GameManager(SiegeGamePlugin plugin) {
         this.plugin = plugin;
@@ -53,6 +53,10 @@ public final class GameManager {
 
     public Set<SiegeGameMatch> getLoadedMatches() {
         return ImmutableSet.copyOf(siegeGameMatches);
+    }
+
+    public KitStorage getKitStorage() {
+        return kitStorage;
     }
 
     public void startNextGame() {
@@ -97,9 +101,5 @@ public final class GameManager {
 
             match.getGameMap().load();
         }
-    }
-
-    public KitStorage getKitStorage() {
-        return kitStorage;
     }
 }

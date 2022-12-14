@@ -32,6 +32,7 @@ public class PlayerListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
+        plugin.getGameManager().getKitStorage().addKitManager(player.getUniqueId());
         if (match != null) {
             match.getWorldGame().addPlayer(player.getUniqueId());
             GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
@@ -43,10 +44,10 @@ public class PlayerListener implements Listener {
                 gamePlayer.getDisplayer().updateScoreboard();
             }
 
-            if (plugin.getGameManager().getKitStorage().hasKit(player.getUniqueId())) {
-                ItemStack[] kit = plugin.getGameManager().getKitStorage().getKit(player.getUniqueId());
-                gamePlayer.setKit(kit);
-                gamePlayer.getBukkitPlayer().getInventory().setContents(kit);
+            if (plugin.getGameManager().getKitStorage().hasKitManager(player.getUniqueId())) {
+                ItemStack[] kit = gamePlayer.getPlayerKitManager().getKit(match.getWorldGame().getMapIdentifier()).getContents();
+                if (kit != null)
+                    gamePlayer.getBukkitPlayer().getInventory().setContents(kit);
             }
 
             gamePlayer.grantNightVision();

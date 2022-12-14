@@ -7,22 +7,16 @@ import de.tr7zw.nbtapi.NBTCompound;
 import de.tr7zw.nbtapi.NBTItem;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.display.shop.ShopItem;
+import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.game.WorldGame;
+import me.cedric.siegegame.player.GamePlayer;
 import me.deltaorion.bukkit.item.ItemBuilder;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.PotionMeta;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class KitGUI {
 
@@ -59,8 +53,9 @@ public class KitGUI {
                 .build(),
                 event -> {
                     Player player = (Player) event.getWhoClicked();
+                    GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
                     ItemStack[] inventory = player.getInventory().getContents();
-                    plugin.getGameManager().getKitStorage().setKit(player.getUniqueId(), inventory);
+                    gamePlayer.getPlayerKitManager().setKit(inventory, worldGame, worldGame.getMapIdentifier());
                     player.sendMessage(ChatColor.GREEN + "Kit set!");
                     player.playSound(Sound.sound(Key.key("entity.player.levelup"), Sound.Source.PLAYER, 1.0F, 1.5F));
                     player.closeInventory();
@@ -73,7 +68,7 @@ public class KitGUI {
         chestGui.addPane(staticPane);
     }
 
-    public ChestGui getKitGUI() {
+    public ChestGui getChestGUI() {
         return chestGui.copy();
     }
 }

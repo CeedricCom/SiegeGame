@@ -13,7 +13,9 @@ shop:
       - unbreaking;3
     item-flags:
       - 'hide_attributes'
-    includes-item: true
+    includes-item: 'true'
+    includes-item-exact: 'true'
     commands:
       - 'bom dia'
+    maps: ['all']
 shop-name: 'Shop'

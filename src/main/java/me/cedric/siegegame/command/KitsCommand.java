@@ -30,7 +30,11 @@ public class KitsCommand extends FunctionalCommand {
             return;
 
         SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
-        match.getWorldGame().getKitGUI().show(player);
+
+        if (match == null)
+            return;
+
+        match.getWorldGame().getKitGUI().getChestGUI().show(player);
     }
 }
 

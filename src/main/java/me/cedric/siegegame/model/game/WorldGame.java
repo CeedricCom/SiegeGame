@@ -12,11 +12,14 @@ import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.PlayerManager;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.model.teams.territory.TerritoryBlockers;
+import me.cedric.siegegame.player.kits.Kit;
 import me.cedric.siegegame.player.kits.KitGUI;
+import me.cedric.siegegame.player.kits.PlayerKitManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -32,16 +35,18 @@ public class WorldGame {
     private final Set<Team> teams = new HashSet<>();
     private final PlayerManager playerManager;
     private final ShopGUI shopGUI;
-    private final KitGUI kitGUI;
     private final List<Module> modules = new ArrayList<>();
     private final List<TerritoryBlockers> territoryBlockers = new ArrayList<>();
     private final DeathManager deathManager;
+    private final String mapIdentifier;
+    private final KitGUI kitGUI;
 
-    public WorldGame(SiegeGamePlugin plugin) {
+    public WorldGame(SiegeGamePlugin plugin, String mapIdentifier) {
         this.plugin = plugin;
         this.shopGUI = new ShopGUI(this);
-        this.kitGUI = new KitGUI(plugin, this);
         this.playerManager = new PlayerManager(plugin);
+        this.mapIdentifier = mapIdentifier;
+        this.kitGUI = new KitGUI(plugin, this);
         this.deathManager = new DeathManager(plugin, this);
     }
 
@@ -53,6 +58,10 @@ public class WorldGame {
         registerModules();
         for (Module module : modules)
             module.initialise(plugin, this);
+    }
+
+    public String getMapIdentifier() {
+        return mapIdentifier;
     }
 
     public void addPlayer(UUID uuid) {
@@ -139,8 +148,8 @@ public class WorldGame {
         return shopGUI;
     }
 
-    public ChestGui getKitGUI() {
-        return kitGUI.getKitGUI();
+    public KitGUI getKitGUI() {
+        return kitGUI;
     }
 
     public Team getTeam(String identifier) {
@@ -156,6 +165,16 @@ public class WorldGame {
         for (GamePlayer gamePlayer : getPlayers()) {
             gamePlayer.reset();
             gamePlayer.getBukkitPlayer().teleport(gamePlayer.getTeam().getSafeSpawn());
+
+            if (!plugin.getGameManager().getKitStorage().hasKitManager(gamePlayer.getUUID()))
+                plugin.getGameManager().getKitStorage().addKitManager(gamePlayer.getUUID());
+
+            PlayerKitManager kitManager = plugin.getGameManager().getKitStorage().getKitManager(gamePlayer.getUUID());
+            gamePlayer.setPlayerKitManager(kitManager);
+
+            Kit kit = kitManager.getKit(getMapIdentifier());
+            if (kit != null)
+                gamePlayer.getBukkitPlayer().getInventory().setContents(kit.getContents());
 
             ICombatManager combatManager = plugin.getCombatLogX().getCombatManager();
             if (combatManager.isInCombat(gamePlayer.getBukkitPlayer()))

@@ -64,7 +64,6 @@ public class ConfigLoader implements GameConfig {
     private static final String MAPS_SECTION_WORLD_TEAMS_KEY = "teams";
     private static final String MAPS_SECTION_WORLD_TEAMS_NAME = "name";
     private static final String MAPS_SECTION_WORLD_TEAMS_COLOR = "color";
-    private static final String MAPS_SECTION_WORLD_TEAMS_TOWN = "town";
     private static final String MAPS_SECTION_TEAMS_SPAWN = "spawn-area";
     private static final String MAPS_SECTION_TEAMS_SPAWN_X1 = "x1";
     private static final String MAPS_SECTION_TEAMS_SPAWN_Y1 = "y1";
@@ -96,6 +95,7 @@ public class ConfigLoader implements GameConfig {
     private static final String SHOP_SECTION_POTION_EFFECTS_KEY = "potion-effects";
     private static final String SHOP_SECTION_POTION_COLOR_KEY = "potion-color";
     private static final String SHOP_SECTION_AMOUNT_KEY = "amount";
+    private static final String SHOP_SECTION_SELECTED_MAPS = "maps";
 
     private FileConfig configYml;
     private static final String CONFIG_POINTS_PER_KILL_KEY = "points-per-kill";
@@ -178,11 +178,11 @@ public class ConfigLoader implements GameConfig {
         border.setAllowBlockChanges(false);
         border.setInverse(false);
         GameMap gameMap = new GameMap(fileMapLoader, displayName, new HashSet<>(), border, defaultSpawn);
-        WorldGame worldGame = new WorldGame(plugin);
+        WorldGame worldGame = new WorldGame(plugin, worldName);
 
         ConfigSection teamsSection = section.getConfigurationSection(MAPS_SECTION_WORLD_TEAMS_KEY);
 
-        List<ShopItem> shopItems = loadShop(shopYml.getConfigurationSection(SHOP_SECTION_KEY));
+        List<ShopItem> shopItems = loadShop(shopYml.getConfigurationSection(SHOP_SECTION_KEY), worldName);
         String shopName = shopYml.getString(SHOP_SECTION_SHOP_NAME_KEY);
         worldGame.getShopGUI().setGUIName(ChatColor.translateAlternateColorCodes('&', shopName));
         shopItems.stream().forEach(shopItem -> worldGame.getShopGUI().addItem(shopItem));
@@ -194,10 +194,15 @@ public class ConfigLoader implements GameConfig {
         plugin.getGameManager().addGame(new SiegeGameMatch(plugin, worldGame, gameMap));
     }
 
-    private List<ShopItem> loadShop(ConfigSection section) {
+    private List<ShopItem> loadShop(ConfigSection section, String worldName) {
         List<ShopItem> shopItems = new ArrayList<>();
         for (String key : section.getKeys(false)) {
             ConfigSection configSection = section.getConfigurationSection(key);
+            List<String> maps = configSection.getStringList(SHOP_SECTION_SELECTED_MAPS);
+
+            if (!maps.contains("all") && !maps.contains(worldName))
+                continue;
+
             String material = configSection.getString(SHOP_SECTION_MATERIAL_KEY);
             int slot = configSection.getInt(SHOP_SECTION_SLOT_KEY);
             int price = configSection.getInt(SHOP_SECTION_PRICE_KEY);
@@ -249,6 +254,7 @@ public class ConfigLoader implements GameConfig {
             NBTItem nbtItem = new NBTItem(item);
             NBTCompound compound = nbtItem.addCompound("siegegame-item");
             compound.setString("identifier", key);
+            compound.setString("map-id", worldName);
 
             ShopItem button = new ShopItem(gamePlayer -> {
                 Player player = gamePlayer.getBukkitPlayer();
