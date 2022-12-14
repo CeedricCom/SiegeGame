@@ -108,7 +108,7 @@ public class ConfigLoader implements GameConfig {
     private static final String START_COMMANDS_KEY = "start-game-commands";
     private static final String END_COMMANDS_KEY = "end-game-commands";
     private static final String BLACKLISTED_PROJECTILES_KEY = "blacklisted-projectiles";
-    private static final String SUPER_BREAKER_TIMER = "super-breaker-time";
+    private static final String SUPER_BREAKER_TIMER = "super-breaker-timer";
     private static final String SUPER_BREAKER_COOLDOWN = "super-breaker-cooldown";
 
     public ConfigLoader(SiegeGamePlugin plugin) {

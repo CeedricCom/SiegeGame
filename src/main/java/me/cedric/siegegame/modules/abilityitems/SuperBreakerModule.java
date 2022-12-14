@@ -9,6 +9,7 @@ import me.cedric.siegegame.player.GamePlayer;
 import net.kyori.adventure.sound.Sound;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -62,6 +63,10 @@ public class SuperBreakerModule implements Module, Listener {
             return;
 
         ItemStack item = player.getInventory().getItemInMainHand();
+
+        if (item.getType().equals(Material.AIR))
+            return;
+
         NBTItem nbtItem = new NBTItem(item);
         NBTCompound compound = nbtItem.getCompound("siegegame-item");
 
@@ -89,7 +94,7 @@ public class SuperBreakerModule implements Module, Listener {
         player.sendActionBar(ChatColor.GREEN + "You have activated the " + ChatColor.GOLD + "Super Breaker");
         putOnCooldown(player.getUniqueId());
 
-        Bukkit.getScheduler().runTaskLater(plugin, () -> item.addEnchantment(Enchantment.DIG_SPEED, previousEfficiency), secondsOfSuperBreaker * 20L);
+        Bukkit.getScheduler().runTaskLater(plugin, () -> item.addEnchantment(Enchantment.DIG_SPEED, Math.min(previousEfficiency, 5)), secondsOfSuperBreaker * 20L);
     }
 
     private void putOnCooldown(UUID uuid) {
