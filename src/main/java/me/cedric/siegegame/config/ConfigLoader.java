@@ -144,14 +144,14 @@ public class ConfigLoader implements GameConfig {
                 continue;
             }
 
-            loadWorld(worldName, mapSection);
+            loadWorld(worldName, mapSection, mapKey);
         }
 
         plugin.getGameManager().shuffleQueue();
         plugin.getLogger().info("Maps loaded.");
     }
 
-    public void loadWorld(String worldName, ConfigSection section) {
+    public void loadWorld(String worldName, ConfigSection section, String mapID) {
         ConfigSection defaultSpawnSection = section.getConfigurationSection(MAPS_SECTION_DEFAULT_SPAWN_KEY);
         int x = defaultSpawnSection.getInt(MAPS_SECTION_DEFAULT_SPAWN_X);
         int y = defaultSpawnSection.getInt(MAPS_SECTION_DEFAULT_SPAWN_Y);
@@ -178,7 +178,7 @@ public class ConfigLoader implements GameConfig {
         border.setAllowBlockChanges(false);
         border.setInverse(false);
         GameMap gameMap = new GameMap(fileMapLoader, displayName, new HashSet<>(), border, defaultSpawn);
-        WorldGame worldGame = new WorldGame(plugin, worldName);
+        WorldGame worldGame = new WorldGame(plugin, mapID);
 
         ConfigSection teamsSection = section.getConfigurationSection(MAPS_SECTION_WORLD_TEAMS_KEY);
 
@@ -412,6 +412,11 @@ public class ConfigLoader implements GameConfig {
         } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public List<String> getMapIDs() {
+        return mapsYml.getConfigurationSection(MAPS_SECTION_KEY).getKeys(false).stream().toList();
     }
 }
 

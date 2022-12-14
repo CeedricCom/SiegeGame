@@ -18,4 +18,6 @@ public interface GameConfig {
 
     void reloadConfig();
 
+    List<String> getMapIDs();
+
 }

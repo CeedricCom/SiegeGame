@@ -2,7 +2,7 @@ package me.cedric.siegegame;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.github.sirblobman.combatlogx.api.ICombatLogX;
-import me.cedric.siegegame.command.KitsCommand;
+import me.cedric.siegegame.command.kits.KitsCommand;
 import me.cedric.siegegame.command.RallyCommand;
 import me.cedric.siegegame.player.border.blockers.BlockChangePacketAdapter;
 import me.cedric.siegegame.player.border.PlayerBorderListener;

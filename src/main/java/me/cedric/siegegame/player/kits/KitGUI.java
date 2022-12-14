@@ -55,7 +55,7 @@ public class KitGUI {
                     Player player = (Player) event.getWhoClicked();
                     GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
                     ItemStack[] inventory = player.getInventory().getContents();
-                    gamePlayer.getPlayerKitManager().setKit(inventory, worldGame, worldGame.getMapIdentifier());
+                    gamePlayer.getPlayerKitManager().setKit(inventory, worldGame, "all");
                     player.sendMessage(ChatColor.GREEN + "Kit set!");
                     player.playSound(Sound.sound(Key.key("entity.player.levelup"), Sound.Source.PLAYER, 1.0F, 1.5F));
                     player.closeInventory();

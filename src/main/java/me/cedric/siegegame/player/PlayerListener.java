@@ -2,6 +2,7 @@ package me.cedric.siegegame.player;
 
 import com.github.sirblobman.combatlogx.api.manager.ICombatManager;
 import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.player.kits.Kit;
 import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.teams.Team;
@@ -17,7 +18,6 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 
 public class PlayerListener implements Listener {
@@ -32,11 +32,11 @@ public class PlayerListener implements Listener {
     public void onJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
-        plugin.getGameManager().getKitStorage().addKitManager(player.getUniqueId());
         if (match != null) {
             match.getWorldGame().addPlayer(player.getUniqueId());
             GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
 
+            plugin.getGameManager().getKitStorage().assignKitManager(gamePlayer);
             match.getWorldGame().assignTeam(gamePlayer);
 
             if (gamePlayer.hasTeam()) {
@@ -44,11 +44,12 @@ public class PlayerListener implements Listener {
                 gamePlayer.getDisplayer().updateScoreboard();
             }
 
-            if (plugin.getGameManager().getKitStorage().hasKitManager(player.getUniqueId())) {
-                ItemStack[] kit = gamePlayer.getPlayerKitManager().getKit(match.getWorldGame().getMapIdentifier()).getContents();
-                if (kit != null)
-                    gamePlayer.getBukkitPlayer().getInventory().setContents(kit);
+            Kit kit = gamePlayer.getPlayerKitManager().getKit(match.getWorldGame().getMapIdentifier());
+            if (kit != null) {
+                player.sendMessage(ChatColor.DARK_AQUA + "A kit has been found. Setting it...");
+                Bukkit.getScheduler().runTaskLater(plugin, () -> gamePlayer.getBukkitPlayer().getInventory().setContents(kit.getContents()), 20L);
             }
+
 
             gamePlayer.grantNightVision();
         }
@@ -64,8 +65,12 @@ public class PlayerListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
-        if (match != null)
+        if (match != null) {
+            GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
+            if (gamePlayer != null)
+                plugin.getGameManager().getKitStorage().saveKits(match.getWorldGame().getPlayer(player.getUniqueId()));
             match.getWorldGame().removePlayer(player.getUniqueId());
+        }
 
         for (PotionEffect potionEffect : player.getActivePotionEffects())
             player.removePotionEffect(potionEffect.getType());

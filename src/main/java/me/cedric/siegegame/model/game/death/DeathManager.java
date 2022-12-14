@@ -4,6 +4,7 @@ import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.player.kits.Kit;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
@@ -151,9 +152,9 @@ public class DeathManager {
         deadPlayers.remove(gamePlayer.getUUID());
         gamePlayer.setDead(false);
 
-        ItemStack[] kit = gamePlayer.getPlayerKitManager().getKit(worldGame.getMapIdentifier()).getContents();
+        Kit kit = gamePlayer.getPlayerKitManager().getKit(worldGame.getMapIdentifier());
         if (kit != null)
-            gamePlayer.getBukkitPlayer().getInventory().setContents(kit);
+            gamePlayer.getBukkitPlayer().getInventory().setContents(kit.getContents());
     }
 
     public void shutdown() {

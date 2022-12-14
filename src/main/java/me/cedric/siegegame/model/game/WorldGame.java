@@ -166,11 +166,8 @@ public class WorldGame {
             gamePlayer.reset();
             gamePlayer.getBukkitPlayer().teleport(gamePlayer.getTeam().getSafeSpawn());
 
-            if (!plugin.getGameManager().getKitStorage().hasKitManager(gamePlayer.getUUID()))
-                plugin.getGameManager().getKitStorage().addKitManager(gamePlayer.getUUID());
-
-            PlayerKitManager kitManager = plugin.getGameManager().getKitStorage().getKitManager(gamePlayer.getUUID());
-            gamePlayer.setPlayerKitManager(kitManager);
+            plugin.getGameManager().getKitStorage().assignKitManager(gamePlayer);
+            PlayerKitManager kitManager = gamePlayer.getPlayerKitManager();
 
             Kit kit = kitManager.getKit(getMapIdentifier());
             if (kit != null)
