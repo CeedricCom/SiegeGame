@@ -87,7 +87,7 @@ public class Displayer {
 
         TextComponent textComponent = Component.text("")
                 .color(TextColor.color(88, 140, 252))
-                .append(Component.text(Messages.PREFIX.toString() + " ")
+                .append(Component.text(Messages.PREFIX + " ")
                 .append(Component.text(ColorUtil.getRelationalColor(gamePlayer.getTeam(), killerTeam) + killer.getName())
                 .append(Component.text(" has killed ", TextColor.color(252, 252, 53)))
                 .append(Component.text(ColorUtil.getRelationalColor(gamePlayer.getTeam(), dead.getTeam()) + dead.getBukkitPlayer().getName() + " "))
@@ -102,6 +102,18 @@ public class Displayer {
 
         if (killerTeam.equals(gamePlayer.getTeam()))
             gamePlayer.getBukkitPlayer().sendMessage(xpLevels);
+    }
+
+    public void displayCombatLogKill(GamePlayer dead) {
+        TextComponent textComponent = Component.text("")
+                .color(TextColor.color(88, 140, 252))
+                .append(Component.text(Messages.PREFIX + " ")
+                        .append(Component.text(ColorUtil.getRelationalColor(gamePlayer.getTeam(), dead.getTeam()) + dead.getBukkitPlayer().getName())
+                                .append(Component.text(" has logged out in combat. ", TextColor.color(252, 252, 53)))
+                                .append(Component.text("All other teams have received ", TextColor.color(255, 194, 97)))
+                                .append(Component.text("+" + plugin.getGameConfig().getPointsPerKill() + " points ", TextColor.color(255, 73, 23)))));
+
+        gamePlayer.getBukkitPlayer().sendMessage(textComponent);
     }
 
     public void displayInsideClaims(WorldGame worldGame, Territory territory) {
@@ -130,6 +142,13 @@ public class Displayer {
 
     public void displayLoss() {
         gamePlayer.getBukkitPlayer().sendTitle(ChatColor.RED + "" + ChatColor.BOLD + "DEFEAT", ChatColor.RED + "u folded gg ez dog");
+    }
+
+    public void displayXPGain(GamePlayer gamePlayer) {
+        TextComponent xpLevels = Component.text("")
+                .color(TextColor.color(0, 143, 26))
+                .append(Component.text("+" + plugin.getGameConfig().getLevelsPerKill() + " XP Levels"));
+        gamePlayer.getBukkitPlayer().sendMessage(xpLevels);
     }
 }
 

@@ -1,7 +1,9 @@
 package me.cedric.siegegame.player;
 
+import com.github.sirblobman.combatlogx.api.event.PlayerPunishEvent;
 import com.github.sirblobman.combatlogx.api.manager.ICombatManager;
 import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.player.kits.Kit;
 import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.model.SiegeGameMatch;
@@ -130,6 +132,46 @@ public class PlayerListener implements Listener {
 
         if (team.getPoints() >= plugin.getGameConfig().getPointsToEnd())
             plugin.getGameManager().startNextGame();
+    }
+
+    @EventHandler
+    public void onCombatLog(PlayerPunishEvent event) {
+        Player player = event.getPlayer();
+        SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
+
+        if (match == null)
+            return;
+
+        GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
+        WorldGame worldGame = match.getWorldGame();
+
+        if (gamePlayer == null)
+            return;
+
+        if (!gamePlayer.hasTeam())
+            return;
+
+        // if a player logs out in combat, all the other teams should gain points
+        for (Team team : worldGame.getTeams()) {
+            if (team.equals(gamePlayer.getTeam()))
+                continue;
+
+            team.addPoints(plugin.getGameConfig().getPointsPerKill());
+            worldGame.updateAllScoreboards();
+
+            for (GamePlayer teamPlayer : team.getPlayers()) {
+                int levels = teamPlayer.getBukkitPlayer().getLevel();
+                teamPlayer.getBukkitPlayer().setLevel(levels + plugin.getGameConfig().getLevelsPerKill());
+
+                teamPlayer.getDisplayer().displayCombatLogKill(gamePlayer);
+                teamPlayer.getDisplayer().displayXPGain(gamePlayer);
+            }
+
+            if (team.getPoints() >= plugin.getGameConfig().getPointsToEnd()) {
+                plugin.getGameManager().startNextGame();
+                break; // break the loop here so it doesnt start next map multiple times (in case multiple teams are about to win)
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
