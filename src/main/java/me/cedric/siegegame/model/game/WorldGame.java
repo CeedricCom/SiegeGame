@@ -9,6 +9,7 @@ import me.cedric.siegegame.model.game.death.DeathManager;
 import me.cedric.siegegame.display.shop.ShopGUI;
 import me.cedric.siegegame.modules.abilityitems.SuperBreakerModule;
 import me.cedric.siegegame.modules.lunarclient.LunarClientModule;
+import me.cedric.siegegame.modules.stats.StatsModule;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.PlayerManager;
 import me.cedric.siegegame.model.teams.Team;
@@ -54,6 +55,7 @@ public class WorldGame {
     private void registerModules() {
         modules.add(new LunarClientModule());
         modules.add(new SuperBreakerModule());
+        modules.add(new StatsModule());
     }
 
     public String getMapIdentifier() {
@@ -192,6 +194,9 @@ public class WorldGame {
     public void endGame() {
         deathManager.shutdown();
 
+        for (Module module : modules)
+            module.onEndGame(plugin, this);
+
         for (GamePlayer gamePlayer : getPlayers()) {
 
             gamePlayer.reset();
@@ -212,9 +217,6 @@ public class WorldGame {
 
         for (Team team : teams)
             team.reset();
-
-        for (Module module : modules)
-            module.onEndGame(plugin, this);
 
         for (TerritoryBlockers blockers : territoryBlockers)
             HandlerList.unregisterAll(blockers);
