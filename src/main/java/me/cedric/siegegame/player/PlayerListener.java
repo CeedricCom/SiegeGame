@@ -15,6 +15,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityPotionEffectEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerExpChangeEvent;
@@ -234,6 +235,15 @@ public class PlayerListener implements Listener {
             if (!(combatManager.isInCombat(damager) && combatManager.isInCombat(player)))
                 event.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onEffect(EntityPotionEffectEvent event) {
+        if (!(event.getEntity() instanceof Player))
+            return;
+
+        if (event.getCause().equals(EntityPotionEffectEvent.Cause.BEACON))
+            event.setCancelled(true);
     }
 
 }

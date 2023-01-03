@@ -48,6 +48,9 @@ public class FileMapLoader {
         bukkitWorld.setGameRule(GameRule.SHOW_DEATH_MESSAGES, false);
         bukkitWorld.setGameRule(GameRule.DO_MOB_SPAWNING, false);
         bukkitWorld.setGameRule(GameRule.ANNOUNCE_ADVANCEMENTS, false);
+        bukkitWorld.setGameRule(GameRule.DO_TRADER_SPAWNING, false);
+        bukkitWorld.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
+        bukkitWorld.setTime(12000);
         bukkitWorld.setDifficulty(Difficulty.NORMAL);
         bukkitWorld.setClearWeatherDuration(Integer.MAX_VALUE);
         bukkitWorld.setKeepSpawnInMemory(false);

@@ -49,48 +49,30 @@ public class Kit {
     }
 
     private boolean isFree(ItemStack itemStack, WorldGame worldGame) {
+        ShopItem shopItem = getShopItem(itemStack, worldGame);
+        return shopItem != null && shopItem.getPrice() <= 0;
+    }
 
-        NBTItem nbtItem = new NBTItem(itemStack.clone());
+    private ShopItem getShopItem(ItemStack item, WorldGame worldGame) {
         for (ShopItem shopItem : worldGame.getShopGUI().getShopItems()) {
-            if (shopItem.getPrice() <= 0)
-                continue;
+            if (!hasNBTCompound("siegegame-item", item.clone()))
+                return null;
 
-            String compound = "siegegame-item";
-            if (hasNBTCompound(compound, itemStack.clone())) {
-                // item provided has NBT but shop item doesnt - simply not a match - continue
-                if (!hasNBTCompound(compound, shopItem.getDisplayItem())) // This should never be true if config loader works
-                    continue;
+            NBTItem shopNBT = new NBTItem(shopItem.getDisplayItem());
+            NBTItem nbtItem = new NBTItem(item.clone());
 
-                NBTItem shopNBT = new NBTItem(shopItem.getDisplayItem());
-                String identifier = nbtItem.getCompound("siegegame-item").getString("identifier");
-                String shopItemID = shopNBT.getCompound("siegegame-item").getString("identifier");
+            String identifier = nbtItem.getCompound("siegegame-item").getString("identifier");
+            String shopItemID = shopNBT.getCompound("siegegame-item").getString("identifier");
 
-                if (identifier.equalsIgnoreCase(shopItemID))
-                    return false;
-
-            } else {
-                // Item does not have NBT
-                // return if they are the same type
-                if (!shopItem.includesNBT()) // both dont have NBT
-                    return !shopItem.getDisplayItem().getType().equals(itemStack.getType());
-            }
+            if (identifier.equalsIgnoreCase(shopItemID))
+                return shopItem;
         }
-        return true;
+
+        return null;
     }
 
     private boolean hasNBTCompound(String compound, ItemStack itemStack) {
         NBTItem nbtItem = new NBTItem(itemStack);
         return nbtItem.getCompound(compound) != null;
-    }
-
-    @Override
-    public boolean equals(Object that) {
-        if (that == null)
-            return false;
-
-        if (!(that instanceof Kit other))
-            return false;
-
-        return other.getMapIdentifier().equalsIgnoreCase(getMapIdentifier());
     }
 }
