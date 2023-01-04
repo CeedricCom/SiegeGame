@@ -23,7 +23,6 @@ public class GamePlayer {
     private final Displayer displayer;
     private boolean dead = false;
     private Team team;
-    private PlayerKitManager playerKitManager;
 
     public GamePlayer(UUID uuid, SiegeGamePlugin plugin) {
         this.uuid = uuid;
@@ -76,14 +75,6 @@ public class GamePlayer {
 
     public boolean isLunarClient() {
         return LunarClientAPI.getInstance().isRunningLunarClient(uuid);
-    }
-
-    public PlayerKitManager getPlayerKitManager() {
-        return playerKitManager;
-    }
-
-    public void setPlayerKitManager(PlayerKitManager playerKitManager) {
-        this.playerKitManager = playerKitManager;
     }
 
     public void grantNightVision() {

@@ -2,7 +2,6 @@ package me.cedric.siegegame.model.game;
 
 import com.github.sirblobman.combatlogx.api.manager.ICombatManager;
 import com.github.sirblobman.combatlogx.api.object.UntagReason;
-import com.github.stefvanschie.inventoryframework.gui.type.ChestGui;
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.game.death.DeathManager;
@@ -15,13 +14,11 @@ import me.cedric.siegegame.player.PlayerManager;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.model.teams.territory.TerritoryBlockers;
 import me.cedric.siegegame.player.kits.Kit;
-import me.cedric.siegegame.player.kits.KitGUI;
 import me.cedric.siegegame.player.kits.PlayerKitManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -41,14 +38,12 @@ public class WorldGame {
     private final List<TerritoryBlockers> territoryBlockers = new ArrayList<>();
     private final DeathManager deathManager;
     private final String mapIdentifier;
-    private final KitGUI kitGUI;
 
     public WorldGame(SiegeGamePlugin plugin, String mapIdentifier) {
         this.plugin = plugin;
         this.shopGUI = new ShopGUI(this);
         this.playerManager = new PlayerManager(plugin);
         this.mapIdentifier = mapIdentifier;
-        this.kitGUI = new KitGUI(plugin, this);
         this.deathManager = new DeathManager(plugin, this);
     }
 
@@ -146,10 +141,6 @@ public class WorldGame {
         return shopGUI;
     }
 
-    public KitGUI getKitGUI() {
-        return kitGUI;
-    }
-
     public Team getTeam(String identifier) {
         return teams.stream().filter(team -> team.getIdentifier().equalsIgnoreCase(identifier)).findAny().orElse(null);
     }
@@ -164,12 +155,13 @@ public class WorldGame {
             gamePlayer.reset();
             gamePlayer.getBukkitPlayer().teleport(gamePlayer.getTeam().getSafeSpawn());
 
-            plugin.getGameManager().getKitStorage().assignKitManager(gamePlayer);
-            PlayerKitManager kitManager = gamePlayer.getPlayerKitManager();
+            PlayerKitManager kitManager = plugin.getGameManager().getKitStorage().getKitManager(gamePlayer.getUUID());
 
-            Kit kit = kitManager.getKit(getMapIdentifier());
-            if (kit != null)
-                gamePlayer.getBukkitPlayer().getInventory().setContents(kit.getContents());
+            if (kitManager != null) {
+                Kit kit = kitManager.getKit(getMapIdentifier());
+                if (kit != null)
+                    gamePlayer.getBukkitPlayer().getInventory().setContents(kit.getContents());
+            }
 
             ICombatManager combatManager = plugin.getCombatLogX().getCombatManager();
             if (combatManager.isInCombat(gamePlayer.getBukkitPlayer()))

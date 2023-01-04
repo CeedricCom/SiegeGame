@@ -4,7 +4,6 @@ import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.player.kits.Kit;
 import me.cedric.siegegame.player.kits.PlayerKitManager;
 import me.deltaorion.common.command.CommandException;
 import me.deltaorion.common.command.FunctionalCommand;
@@ -15,11 +14,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 public class KitsCommand extends FunctionalCommand {
 
     private final SiegeGamePlugin plugin;
+    private final HashMap<UUID, Long> cooldowns = new HashMap<>();
 
     public KitsCommand(SiegeGamePlugin plugin) {
         super("siegegame.kits", "/kits", Message.valueOf("Open kits menu"));
@@ -70,9 +72,39 @@ public class KitsCommand extends FunctionalCommand {
         if (gamePlayer == null)
             return;
 
-        PlayerKitManager kitManager = gamePlayer.getPlayerKitManager();
-        kitManager.setKit(player.getInventory().getContents(), worldGame, identifier);
+        if (isOnCooldown(player.getUniqueId())) {
+            long cooldown = getCooldown(player.getUniqueId());
+            player.sendMessage(ChatColor.RED + "You need to wait another " + cooldown + " seconds to do this.");
+            return;
+        }
+
+        plugin.getGameManager().getKitStorage().setKit(player.getUniqueId(), worldGame, player.getInventory().getContents());
         player.sendMessage(ChatColor.GREEN + "Set your current inventory as your kit for map: " + identifier);
+        putOnCooldown(player.getUniqueId());
+    }
+
+    private boolean isOnCooldown(UUID uuid) {
+        if (!cooldowns.containsKey(uuid))
+            return false;
+
+        long lastTime = cooldowns.get(uuid);
+        long currentTime = System.currentTimeMillis();
+
+        return currentTime - lastTime < 15 * 1000L;
+    }
+
+    private void putOnCooldown(UUID uuid) {
+        cooldowns.put(uuid, System.currentTimeMillis());
+    }
+
+    private long getCooldown(UUID uuid) {
+        if (!cooldowns.containsKey(uuid))
+            return 0L;
+
+        long lastTime = cooldowns.get(uuid);
+        long currentTime = System.currentTimeMillis();
+
+        return ((15 * 1000L) - (currentTime - lastTime)) / 1000;
     }
 }
 

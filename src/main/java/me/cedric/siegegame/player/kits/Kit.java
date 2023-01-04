@@ -8,14 +8,17 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 public class Kit {
 
     private final String mapIdentifier;
+    private final UUID uuid;
     private ItemStack[] contents = new ItemStack[0];
 
-    public Kit(String mapIdentifier) {
+    public Kit(String mapIdentifier, UUID kitUUID) {
         this.mapIdentifier = mapIdentifier;
+        this.uuid = kitUUID;
     }
 
     public ItemStack[] getContents() {
@@ -24,6 +27,10 @@ public class Kit {
 
     public void setContents(ItemStack[] contents, WorldGame worldGame) {
         this.contents = removePaidItems(contents, worldGame);
+    }
+
+    public void setContents(ItemStack[] contents) {
+        this.contents = contents;
     }
 
     public String getMapIdentifier() {
@@ -39,7 +46,7 @@ public class Kit {
                 continue;
             }
 
-            if (isFree(item, worldGame))
+            if (isFree(item.clone(), worldGame))
                 newList.add(item);
             else
                 newList.add(new ItemStack(Material.AIR));
@@ -55,8 +62,12 @@ public class Kit {
 
     private ShopItem getShopItem(ItemStack item, WorldGame worldGame) {
         for (ShopItem shopItem : worldGame.getShopGUI().getShopItems()) {
+
+            if (!shopItem.includesNBT() && shopItem.getDisplayItem().getType().equals(item.getType()))
+                return shopItem;
+
             if (!hasNBTCompound("siegegame-item", item.clone()))
-                return null;
+                continue;
 
             NBTItem shopNBT = new NBTItem(shopItem.getDisplayItem());
             NBTItem nbtItem = new NBTItem(item.clone());
@@ -74,5 +85,20 @@ public class Kit {
     private boolean hasNBTCompound(String compound, ItemStack itemStack) {
         NBTItem nbtItem = new NBTItem(itemStack);
         return nbtItem.getCompound(compound) != null;
+    }
+
+    public UUID getKitUUID() {
+        return uuid;
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        if (that == null)
+            return false;
+
+        if (!(that instanceof Kit other))
+            return false;
+
+        return other.getMapIdentifier().equalsIgnoreCase(getMapIdentifier());
     }
 }

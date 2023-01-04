@@ -257,6 +257,7 @@ public class ConfigLoader implements GameConfig {
             ItemStack item = itemBuilder.build();
             NBTItem nbtItem = new NBTItem(item);
             NBTCompound compound = nbtItem.addCompound("siegegame-item");
+
             compound.setString("identifier", key);
             compound.setString("map-id", worldName);
 
@@ -265,6 +266,7 @@ public class ConfigLoader implements GameConfig {
                 compound.setString(nbt[0], nbt[1]);
             }
 
+            nbtItem.mergeCompound(compound);
 
             ShopItem button = new ShopItem(gamePlayer -> {
                 Player player = gamePlayer.getBukkitPlayer();

@@ -5,6 +5,7 @@ import com.github.sirblobman.combatlogx.api.manager.ICombatManager;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.player.kits.Kit;
+import me.cedric.siegegame.player.kits.PlayerKitManager;
 import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.teams.Team;
@@ -39,7 +40,6 @@ public class PlayerListener implements Listener {
             match.getWorldGame().addPlayer(player.getUniqueId());
             GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
 
-            plugin.getGameManager().getKitStorage().assignKitManager(gamePlayer);
             match.getWorldGame().assignTeam(gamePlayer);
 
             if (gamePlayer.hasTeam()) {
@@ -47,15 +47,11 @@ public class PlayerListener implements Listener {
                 gamePlayer.getDisplayer().updateScoreboard();
             }
 
-            Kit kit = gamePlayer.getPlayerKitManager().getKit(match.getWorldGame().getMapIdentifier());
-            if (kit != null) {
-                player.sendMessage(ChatColor.DARK_AQUA + "A kit has been found. Setting it...");
-                Bukkit.getScheduler().runTaskLater(plugin, () -> gamePlayer.getBukkitPlayer().getInventory().setContents(kit.getContents()), 20L);
-            }
-
-
             gamePlayer.grantNightVision();
         }
+
+        String currentMap = match == null ? null : match.getWorldGame().getMapIdentifier();
+        plugin.getGameManager().getKitStorage().load(player, currentMap);
 
         player.getInventory().clear();
         player.setFlying(false);
@@ -68,12 +64,11 @@ public class PlayerListener implements Listener {
     public void onQuit(PlayerQuitEvent event) {
         Player player = event.getPlayer();
         SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
-        if (match != null) {
-            GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
-            if (gamePlayer != null)
-                plugin.getGameManager().getKitStorage().saveKits(match.getWorldGame().getPlayer(player.getUniqueId()));
+
+        if (match != null)
             match.getWorldGame().removePlayer(player.getUniqueId());
-        }
+
+        plugin.getGameManager().getKitStorage().unload(player.getUniqueId());
 
         for (PotionEffect potionEffect : player.getActivePotionEffects())
             player.removePotionEffect(potionEffect.getType());

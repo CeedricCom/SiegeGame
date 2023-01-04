@@ -1,8 +1,5 @@
 package me.cedric.siegegame.player.kits;
 
-import me.cedric.siegegame.model.game.WorldGame;
-import org.bukkit.inventory.ItemStack;
-
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -31,21 +28,15 @@ public class PlayerKitManager {
         return kit;
     }
 
-    public void setKit(ItemStack[] contents, WorldGame worldGame, String mapIdentifier) {
-        Kit kit = getKitExact(mapIdentifier);
-        if (kit == null) {
-            kit = new Kit(mapIdentifier);
-            kits.add(kit);
-        }
-
-        kit.setContents(contents, worldGame);
-    }
-
     public Kit getKitExact(String mapIdentifier) {
         return kits.stream().filter(kit -> kit.getMapIdentifier().equalsIgnoreCase(mapIdentifier)).findAny().orElse(null);
     }
 
-    public UUID getUUID() {
+    public UUID getPlayerUUID() {
         return uuid;
+    }
+
+    public Set<Kit> getKits() {
+        return new HashSet<>(kits);
     }
 }
