@@ -200,11 +200,6 @@ public class WorldGame {
                 gamePlayer.getDisplayer().displayVictory();
             else
                 gamePlayer.getDisplayer().displayLoss();
-
-            gamePlayer.getBukkitPlayer().sendMessage(ChatColor.DARK_AQUA + "[ceedric.com]" + ChatColor.GOLD +
-                    " on gaia gods i would fk u up on eu boxing 1v1 z tier fkin rand dogs i swear my zuesimortal" +
-                    " clicker can put u in 30 hit combo like dog random , I AM GAIA DEMON please dont disrespect me" +
-                    " fkin dog rand i am known gaia player i swear on morudias gods ur a fkin rand ON HYTES ur my fkin dog Z tier dog randoms");
         }
 
         for (Team team : teams)

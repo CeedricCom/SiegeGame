@@ -4,6 +4,7 @@ import de.tr7zw.nbtapi.NBTItem;
 import me.cedric.siegegame.display.shop.ShopItem;
 import me.cedric.siegegame.model.game.WorldGame;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -22,7 +23,7 @@ public class Kit {
     }
 
     public ItemStack[] getContents() {
-        return contents;
+        return copyInventory(contents);
     }
 
     public void setContents(ItemStack[] contents, WorldGame worldGame) {
@@ -30,7 +31,7 @@ public class Kit {
     }
 
     public void setContents(ItemStack[] contents) {
-        this.contents = contents;
+        this.contents = contents.clone();
     }
 
     public String getMapIdentifier() {
@@ -39,7 +40,7 @@ public class Kit {
 
     private ItemStack[] removePaidItems(ItemStack[] items, WorldGame worldGame) {
         List<ItemStack> newList = new ArrayList<>();
-        for (ItemStack item : items) {
+        for (ItemStack item : items.clone()) {
 
             if (item == null || item.getType().equals(Material.AIR)) {
                 newList.add(new ItemStack(Material.AIR));
@@ -100,5 +101,33 @@ public class Kit {
             return false;
 
         return other.getMapIdentifier().equalsIgnoreCase(getMapIdentifier());
+    }
+
+    public static ItemStack[] copyInventory(Player player) {
+        List<ItemStack> items = new ArrayList<>();
+        for (ItemStack itemStack : player.getInventory().getContents()) {
+            if (itemStack == null || itemStack.getType().equals(Material.AIR)) {
+                items.add(new ItemStack(Material.AIR));
+                continue;
+            }
+
+            items.add(itemStack.clone());
+        }
+
+        return items.toArray(new ItemStack[0]);
+    }
+
+    public static ItemStack[] copyInventory(ItemStack[] inventory) {
+        List<ItemStack> items = new ArrayList<>();
+        for (ItemStack itemStack : inventory) {
+            if (itemStack == null || itemStack.getType().equals(Material.AIR)) {
+                items.add(new ItemStack(Material.AIR));
+                continue;
+            }
+
+            items.add(itemStack.clone());
+        }
+
+        return items.toArray(new ItemStack[0]);
     }
 }

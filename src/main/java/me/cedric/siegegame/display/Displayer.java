@@ -104,13 +104,13 @@ public class Displayer {
             gamePlayer.getBukkitPlayer().sendMessage(xpLevels);
     }
 
-    public void displayCombatLogKill(GamePlayer dead) {
+    public void displayCombatLogKill(String dead) {
         TextComponent textComponent = Component.text("")
                 .color(TextColor.color(88, 140, 252))
                 .append(Component.text(Messages.PREFIX + " ")
-                        .append(Component.text(ColorUtil.getRelationalColor(gamePlayer.getTeam(), dead.getTeam()) + dead.getBukkitPlayer().getName())
+                        .append(Component.text(dead, TextColor.color(237, 77, 255))
                                 .append(Component.text(" has logged out in combat. ", TextColor.color(252, 252, 53)))
-                                .append(Component.text("All other teams have received ", TextColor.color(255, 194, 97)))
+                                .append(Component.text("Enemies have received ", TextColor.color(255, 194, 97)))
                                 .append(Component.text("+" + plugin.getGameConfig().getPointsPerKill() + " points ", TextColor.color(255, 73, 23)))));
 
         gamePlayer.getBukkitPlayer().sendMessage(textComponent);

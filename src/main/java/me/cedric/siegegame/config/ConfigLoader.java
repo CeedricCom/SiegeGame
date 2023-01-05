@@ -220,9 +220,9 @@ public class ConfigLoader implements GameConfig {
             boolean includesItemExact = Boolean.parseBoolean(configSection.getString(SHOP_SECTION_INCLUDES_ITEM_EXACT));
 
             List<String> lore = new ArrayList<>();
-            for (String s : listOfLore) {
+            for (String s : listOfLore)
                 lore.add(ChatColor.translateAlternateColorCodes('&', s));
-            }
+
 
             ItemBuilder itemBuilder = new ItemBuilder(EMaterial.matchMaterial(material.toUpperCase()))
                     .setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName))

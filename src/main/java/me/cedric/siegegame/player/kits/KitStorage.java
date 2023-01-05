@@ -1,5 +1,6 @@
 package me.cedric.siegegame.player.kits;
 
+import com.google.common.collect.ImmutableList;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.player.kits.db.KitDatabase;
@@ -28,14 +29,6 @@ public class KitStorage {
         }
     }
 
-    private void addKitManager(UUID uuid) {
-        if (kits.containsKey(uuid))
-            return;
-
-        PlayerKitManager playerKitManager = new PlayerKitManager(uuid);
-        kits.put(uuid, playerKitManager);
-    }
-
     public boolean hasKitManager(UUID uuid) {
         return kits.containsKey(uuid);
     }
@@ -58,7 +51,9 @@ public class KitStorage {
             if (kit == null)
                 return;
 
-            player.getInventory().setContents(kit.getContents());
+            Bukkit.getScheduler().runTask(plugin, () -> player.getInventory().setContents(kit.getContents()));
+
+            kits.put(player.getUniqueId(), kitManager);
         });
 
     }
@@ -72,30 +67,38 @@ public class KitStorage {
         });
     }
 
-    public boolean setKit(UUID uuid, WorldGame worldGame, ItemStack[] contents) {
+    public boolean setKit(UUID uuid, String mapIdentifier, WorldGame worldGame, ItemStack[] contents) {
         PlayerKitManager playerKitManager = kits.get(uuid);
         if (playerKitManager == null) {
             playerKitManager = new PlayerKitManager(uuid);
             kits.put(uuid, playerKitManager);
         }
 
-        Kit kit = playerKitManager.getKitExact(worldGame.getMapIdentifier());
+        Kit kit = playerKitManager.getKit(mapIdentifier);
         if (kit == null) {
-            kit = new Kit(worldGame.getMapIdentifier(), UUID.randomUUID());
+            kit = new Kit(mapIdentifier, UUID.randomUUID());
             playerKitManager.addKit(kit);
         }
 
         kit.setContents(contents, worldGame);
         kitDatabase.save(playerKitManager);
+        System.out.println("saved.");
         return true;
     }
 
-    public void saveAll() {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
-            for (PlayerKitManager kitManager : kits.values()) {
-                kitDatabase.save(kitManager);
-            }
-        });
+    public void removeKit(UUID uuid, String mapIdentifier) {
+        if (!kits.containsKey(uuid))
+            return;
+
+        PlayerKitManager kitManager = kits.get(uuid);
+        Kit kit = kitManager.getKitExact(mapIdentifier);
+
+        // doesnt exist in the first place
+        if (kit == null)
+            return;
+
+        kitManager.removeKit(kit.getMapIdentifier());
+        kitDatabase.delete(kit);
     }
 
 }

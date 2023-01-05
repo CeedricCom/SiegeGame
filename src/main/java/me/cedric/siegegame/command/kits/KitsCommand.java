@@ -1,9 +1,11 @@
 package me.cedric.siegegame.command.kits;
 
+import com.google.common.collect.ImmutableList;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.player.kits.Kit;
 import me.cedric.siegegame.player.kits.PlayerKitManager;
 import me.deltaorion.common.command.CommandException;
 import me.deltaorion.common.command.FunctionalCommand;
@@ -11,9 +13,12 @@ import me.deltaorion.common.command.sent.SentCommand;
 import me.deltaorion.common.locale.message.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -26,7 +31,7 @@ public class KitsCommand extends FunctionalCommand {
     public KitsCommand(SiegeGamePlugin plugin) {
         super("siegegame.kits", "/kits", Message.valueOf("Open kits menu"));
         this.plugin = plugin;
-        registerCompleter(1, sentCommand -> List.of("set"));
+        registerCompleter(1, sentCommand -> List.of("set", "delete"));
         registerCompleter(2, sentCommand -> {
             List<String> maps = new ArrayList<>(plugin.getGameConfig().getMapIDs());
             maps.add("allmaps");
@@ -35,7 +40,7 @@ public class KitsCommand extends FunctionalCommand {
     }
 
     @Override
-    public void commandLogic(SentCommand sentCommand) throws CommandException {
+    public void commandLogic(SentCommand sentCommand) {
         // /kit set allmaps
         if (sentCommand.getSender().isConsole())
             return;
@@ -54,6 +59,7 @@ public class KitsCommand extends FunctionalCommand {
 
         if (sentCommand.getArgs().size() != 2) {
             player.sendMessage(ChatColor.RED + "/kits set <map or allmaps>");
+            player.sendMessage(ChatColor.RED + "/kits delete <map or allmaps>");
             return;
         }
 
@@ -78,7 +84,15 @@ public class KitsCommand extends FunctionalCommand {
             return;
         }
 
-        plugin.getGameManager().getKitStorage().setKit(player.getUniqueId(), worldGame, player.getInventory().getContents());
+        if (sentCommand.getArgs().get(0).asString().equalsIgnoreCase("delete")) {
+            plugin.getGameManager().getKitStorage().removeKit(player.getUniqueId(), identifier);
+            player.sendMessage(ChatColor.GREEN + "Deleted kit for map " + identifier);
+            putOnCooldown(player.getUniqueId());
+            return;
+        }
+
+        plugin.getGameManager().getKitStorage().setKit(player.getUniqueId(), identifier, worldGame, Kit.copyInventory(player));
+        System.out.println("Inventory set!");
         player.sendMessage(ChatColor.GREEN + "Set your current inventory as your kit for map: " + identifier);
         putOnCooldown(player.getUniqueId());
     }

@@ -1,11 +1,7 @@
 package me.cedric.siegegame.player;
 
-import com.github.sirblobman.combatlogx.api.event.PlayerPunishEvent;
 import com.github.sirblobman.combatlogx.api.manager.ICombatManager;
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.model.game.WorldGame;
-import me.cedric.siegegame.player.kits.Kit;
-import me.cedric.siegegame.player.kits.PlayerKitManager;
 import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.teams.Team;
@@ -50,14 +46,14 @@ public class PlayerListener implements Listener {
             gamePlayer.grantNightVision();
         }
 
-        String currentMap = match == null ? null : match.getWorldGame().getMapIdentifier();
-        plugin.getGameManager().getKitStorage().load(player, currentMap);
-
         player.getInventory().clear();
         player.setFlying(false);
         player.setAllowFlight(false);
         player.setLevel(0);
         player.sendMessage(ChatColor.DARK_AQUA + "Welcome to ceedric.com Use " + ChatColor.GOLD + "/resources" + ChatColor.DARK_AQUA + " for gear.");
+
+        String currentMap = match == null ? null : match.getWorldGame().getMapIdentifier();
+        plugin.getGameManager().getKitStorage().load(player, currentMap);
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -119,6 +115,15 @@ public class PlayerListener implements Listener {
 
         GamePlayer dead = match.getWorldGame().getPlayer(event.getPlayer().getUniqueId());
 
+        if (dead == null) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
+                if (gamePlayer == null)
+                    continue;
+                gamePlayer.getDisplayer().displayCombatLogKill(event.getPlayer().getName());
+            }
+        }
+
         for (Player player : Bukkit.getOnlinePlayers()) {
             GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
             if (gamePlayer == null)
@@ -128,46 +133,6 @@ public class PlayerListener implements Listener {
 
         if (team.getPoints() >= plugin.getGameConfig().getPointsToEnd())
             plugin.getGameManager().startNextGame();
-    }
-
-    @EventHandler
-    public void onCombatLog(PlayerPunishEvent event) {
-        Player player = event.getPlayer();
-        SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
-
-        if (match == null)
-            return;
-
-        GamePlayer gamePlayer = match.getWorldGame().getPlayer(player.getUniqueId());
-        WorldGame worldGame = match.getWorldGame();
-
-        if (gamePlayer == null)
-            return;
-
-        if (!gamePlayer.hasTeam())
-            return;
-
-        // if a player logs out in combat, all the other teams should gain points
-        for (Team team : worldGame.getTeams()) {
-            if (team.equals(gamePlayer.getTeam()))
-                continue;
-
-            team.addPoints(plugin.getGameConfig().getPointsPerKill());
-            worldGame.updateAllScoreboards();
-
-            for (GamePlayer teamPlayer : team.getPlayers()) {
-                int levels = teamPlayer.getBukkitPlayer().getLevel();
-                teamPlayer.getBukkitPlayer().setLevel(levels + plugin.getGameConfig().getLevelsPerKill());
-
-                teamPlayer.getDisplayer().displayCombatLogKill(gamePlayer);
-                teamPlayer.getDisplayer().displayXPGain(gamePlayer);
-            }
-
-            if (team.getPoints() >= plugin.getGameConfig().getPointsToEnd()) {
-                plugin.getGameManager().startNextGame();
-                break; // break the loop here so it doesnt start next map multiple times (in case multiple teams are about to win)
-            }
-        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

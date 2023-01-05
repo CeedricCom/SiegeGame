@@ -91,7 +91,7 @@ public class SuperBreakerModule implements Module, Listener {
         int previousEfficiency = item.getEnchantmentLevel(Enchantment.DIG_SPEED);
         item.addUnsafeEnchantment(Enchantment.DIG_SPEED, 10);
         player.playSound(Sound.sound(org.bukkit.Sound.ITEM_TRIDENT_RIPTIDE_3.key(), Sound.Source.PLAYER, 1.0F, 0.1F));
-        player.sendActionBar(ChatColor.GREEN + "You have activated the " + ChatColor.GOLD + "Super Breaker");
+        player.sendActionBar(ChatColor.GREEN + "You have activated " + ChatColor.GOLD + "Super Breaker");
         putOnCooldown(player.getUniqueId());
 
         Bukkit.getScheduler().runTaskLater(plugin, () -> item.addEnchantment(Enchantment.DIG_SPEED, Math.min(previousEfficiency, 5)), secondsOfSuperBreaker * 20L);

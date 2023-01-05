@@ -87,6 +87,22 @@ public class KitDatabase {
         }
     }
 
+    public void delete(Kit kit) {
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            Statement statement = conn.createStatement();
+
+            String deleteKitStatement = "DELETE FROM Kit WHERE Kit.mapName='" + kit.getMapIdentifier() + "';";
+            String deleteItemsStatement = "DELETE FROM KitItem WHERE KitItem.kit='" + kit.getKitUUID().toString() + "';";
+
+            statement.executeUpdate(deleteItemsStatement);
+            statement.executeUpdate(deleteKitStatement);
+
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
     public PlayerKitManager load(UUID uuid) {
         try (Connection conn = DriverManager.getConnection(DB_URL)) {
             Statement statement = conn.createStatement();
@@ -100,10 +116,10 @@ public class KitDatabase {
             }
 
             PlayerKitManager kitManager = new PlayerKitManager(uuid);
+
             for (Kit kit : kits) {
                 ResultSet rs = statement.executeQuery("SELECT * FROM KitItem WHERE KitItem.kit = '" + kit.getKitUUID().toString() + "';");
                 List<ItemStack> contents = new ArrayList<>();
-
                 while (rs.next()) {
                     String serializedItem = rs.getString("item");
                     ItemStack item = serializedItem.isEmpty() ? new ItemStack(Material.AIR) : ItemStack.deserializeBytes(Base64.getDecoder().decode(serializedItem));
