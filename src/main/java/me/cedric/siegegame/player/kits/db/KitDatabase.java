@@ -1,11 +1,8 @@
 package me.cedric.siegegame.player.kits.db;
 
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.model.game.WorldGame;
-import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.kits.Kit;
 import me.cedric.siegegame.player.kits.PlayerKitManager;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -16,9 +13,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 

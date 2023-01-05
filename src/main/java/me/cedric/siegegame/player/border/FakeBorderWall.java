@@ -1,7 +1,6 @@
 package me.cedric.siegegame.player.border;
 
 import me.cedric.siegegame.fake.FakeBlockManager;
-import me.cedric.siegegame.player.border.Border;
 import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.Location;

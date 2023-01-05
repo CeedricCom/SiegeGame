@@ -2,7 +2,6 @@ package me.cedric.siegegame.modules.lunarclient;
 
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.model.teams.Team;
-import me.cedric.siegegame.player.GamePlayer;
 import org.bukkit.scheduler.BukkitRunnable;
 
 public class TeamViewUpdateTask extends BukkitRunnable {

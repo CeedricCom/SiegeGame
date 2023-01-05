@@ -3,14 +3,9 @@ package me.cedric.siegegame.display.placeholderapi;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.display.ColorUtil;
 import me.cedric.siegegame.model.SiegeGameMatch;
-import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.GamePlayer;
-import me.deltaorion.bukkit.item.ItemBuilder;
-import net.md_5.bungee.api.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 @SuppressWarnings("deprecation")
 public enum Placeholder {

@@ -5,7 +5,6 @@ import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.map.GameMap;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.player.GamePlayer;
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

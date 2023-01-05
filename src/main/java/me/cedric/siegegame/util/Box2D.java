@@ -3,7 +3,6 @@ package me.cedric.siegegame.util;
 import com.google.common.base.MoreObjects;
 import me.cedric.siegegame.model.teams.territory.Vector2D;
 import org.bukkit.Location;
-import org.bukkit.World;
 import org.bukkit.util.NumberConversions;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;

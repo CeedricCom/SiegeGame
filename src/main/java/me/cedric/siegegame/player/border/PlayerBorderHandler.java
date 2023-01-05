@@ -2,9 +2,7 @@ package me.cedric.siegegame.player.border;
 
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.player.border.blockers.EntityTracker;
-import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.player.GamePlayer;
-import org.bukkit.Location;
 import org.bukkit.Material;
 
 import java.util.HashMap;

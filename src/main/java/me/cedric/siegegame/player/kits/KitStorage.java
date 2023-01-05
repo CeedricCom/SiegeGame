@@ -1,6 +1,5 @@
 package me.cedric.siegegame.player.kits;
 
-import com.google.common.collect.ImmutableList;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.player.kits.db.KitDatabase;

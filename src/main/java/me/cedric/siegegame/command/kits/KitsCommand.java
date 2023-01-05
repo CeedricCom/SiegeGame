@@ -1,24 +1,18 @@
 package me.cedric.siegegame.command.kits;
 
-import com.google.common.collect.ImmutableList;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.player.GamePlayer;
 import me.cedric.siegegame.player.kits.Kit;
-import me.cedric.siegegame.player.kits.PlayerKitManager;
-import me.deltaorion.common.command.CommandException;
 import me.deltaorion.common.command.FunctionalCommand;
 import me.deltaorion.common.command.sent.SentCommand;
 import me.deltaorion.common.locale.message.Message;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;

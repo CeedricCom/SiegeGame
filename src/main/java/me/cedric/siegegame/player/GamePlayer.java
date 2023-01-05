@@ -6,7 +6,6 @@ import me.cedric.siegegame.player.border.PlayerBorderHandler;
 import me.cedric.siegegame.fake.FakeBlockManager;
 import me.cedric.siegegame.display.Displayer;
 import me.cedric.siegegame.model.teams.Team;
-import me.cedric.siegegame.player.kits.PlayerKitManager;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
