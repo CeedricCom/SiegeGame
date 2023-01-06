@@ -135,25 +135,6 @@ public class PlayerListener implements Listener {
             plugin.getGameManager().startNextGame();
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onCommandProcess(PlayerCommandPreprocessEvent event) {
-        SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
-
-        if (match == null)
-            return;
-
-        GamePlayer player = match.getWorldGame().getPlayer(event.getPlayer().getUniqueId());
-
-        if (player == null || !player.hasTeam())
-            return;
-
-        if (!(event.getMessage().endsWith("t spawn") || event.getMessage().endsWith("town spawn")))
-            return;
-
-        player.getBukkitPlayer().teleport(player.getTeam().getSafeSpawn());
-        event.setCancelled(true);
-    }
-
     @EventHandler
     public void onHit(EntityDamageByEntityEvent event) {
         if (!(event.getDamager() instanceof Player damager))

@@ -2,6 +2,7 @@ package me.cedric.siegegame;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.github.sirblobman.combatlogx.api.ICombatLogX;
+import me.cedric.siegegame.command.SpawnCommand;
 import me.cedric.siegegame.command.kits.KitsCommand;
 import me.cedric.siegegame.command.RallyCommand;
 import me.cedric.siegegame.player.border.blockers.BlockChangePacketAdapter;
@@ -40,6 +41,7 @@ public final class SiegeGamePlugin extends BukkitPlugin {
         apiPlugin.registerCommand(new ResourcesCommand(this), "resources", "r", "rs");
         apiPlugin.registerCommand(new RallyCommand(this), "rally");
         apiPlugin.registerCommand(new KitsCommand(this), "kits", "kit");
+        apiPlugin.registerCommand(new SpawnCommand(this), "t");
 
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
             new SiegeGameExpansion(this).register();
