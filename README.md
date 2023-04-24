@@ -8,15 +8,23 @@ This repository contains the source code for the plugin as well as default confi
 
 # Building
 
+The project should be built using <a href="https://maven.apache.org/">Apache Maven.</a>
+
 1. The project depends on <a href="https://github.com/DeltaOrion/ExternusAPI"> ExternusAPI</a>. Clone this repository and install the API in your maven local repository using `mvn clean install`
-2. The rest of the dependencies are managed by maven, use `mvn clean install` to download them.
-3. Build the project using `mvn package`. This will generate a jar on the project's target folder that can be added to the server.
+2. Build the project by navigating to the project's root folder and executing the command `mvn clean package`. This will generate a jar file in the newly created `target` folder.
 
 # Usage
 
-Firstly, it is important to note that not all functionality previously available in ceedric.com Sieges is managed by this plugin. Some features such as chat and legacy combat are out of the scope of this project (except for team chat, which will be added in the future) and are not handled here. You can view the full plugin list of the Sieges server <a href="https://github.com/CeedricCom/Sieges"> here</a>
+Please note that this plugin does not manage all functionalities previously available in Ceedric.com Sieges. Features such as chat and legacy combat are outside the scope of this project (except for team chat, which is planned for future updates) and are handled by external plugins. For a complete list of Sieges server plugins, visit <a href="https://github.com/CeedricCom/Sieges"> here</a>.
 
-Once you install the plugin, use `/siegeg start`. The plugin will pick a random map from your `maps.yml`, create randomly assigned teams, and start the game. The resources shop can be accessed via `/resources` in-game. The shop and its prices can be customised in the `shop.yml`.
+After installing the plugin, execute the Minecraft command `siegeg start`. The plugin will randomly select a map from your `maps.yml`, create random teams, and initiate the game. Access the resources shop in-game via the Minecraft Command `/resources`. Customize the shop and its prices using the `shop.yml`.
+
+### Installation and Running
+
+Ceedric.com Sieges should be run on a Paper Minecraft Server. The minigame can be installed and run as follows
+
+1. Place the plugin's jar file into the Minecraft Servers `/plugins` folder
+2. Launch the Paper Minecraft Server using `java -jar [server.jar]`
 
 ### Adding maps
 
