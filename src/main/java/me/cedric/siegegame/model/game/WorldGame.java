@@ -34,7 +34,7 @@ public class WorldGame {
     private final Set<Team> teams = new HashSet<>();
     private final PlayerManager playerManager;
     private final ShopGUI shopGUI;
-    private final List<Module> modules = new ArrayList<>();
+    private final Set<Module> modules = new HashSet<>();
     private final List<TerritoryBlockers> territoryBlockers = new ArrayList<>();
     private final DeathManager deathManager;
     private final String mapIdentifier;
@@ -210,6 +210,7 @@ public class WorldGame {
 
         playerManager.clear();
         territoryBlockers.clear();
+        modules.clear();
     }
 
 
