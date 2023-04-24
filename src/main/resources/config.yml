@@ -1,11 +1,23 @@
+# Experience levels is the currency used in /resources menu.
+# This is the amount of levels all players in the team will get
+# after killing an enemy
 levels-per-kill: 10
+
+# Points rewarded to a team after killing an enemy
 points-per-kill: 500
+
+# Amount of points necessary to finish the game
+# First team to achieve this amount wins the game
 points-to-end: 10000
+
+# Time (in seconds) to respawn
 respawn-timer: 15
+
+# Cooldown of the super breaker ability
 super-breaker-cooldown: 90
+
+# How long the super breaker ability will last
 super-breaker-timer: 11
-start-game-commands: []
-end-game-commands: []
-respawn-commands: []
-death-commands: []
+
+# Projectile types that cannot be used within 3 blocks of the world border
 blacklisted-projectiles: []

@@ -1,11 +1,21 @@
 maps:
+  # Map key, make sure this is unique.
+  # If you have multiple maps, have different map keys for each of them.
+  # This key is only for internal identification and won't be displayed
   atiermap:
+    # This should match the name of the world folder in your server's directory
+    # The plugin will copy the world folder with this name and start the game there
     worldname: 'atiermap'
+    # Display name. Currently only used in the scoreboard
     world-display-name: 'S TIER MAP'
+    # Default spawn. This is a failsafe in case something goes wrong with team spawns
+    # May be used for spectators in the future
     defaultspawn:
       x: 812
       y: 170
       z: 1254
+    # World border. Players that get ~20 blocks from the corners of this box will
+    # see a red glass wall stopping them from running away from the map
     worldborder:
       x1: 23
       y1: 5000
@@ -14,9 +24,28 @@ maps:
       y2: -64
       z2: -23
     teams:
+      # Unique team identifier. Keep it unique to each map
+      # The code allows for more than 2 teams, but that is unsupported
+      # as of right now
       gaiarands:
+        # Display name
+        # Currently only used in the scoreboard
         name: 'Gaia Randos'
+        # Team's color. If there are more than 2 teams, the plugin will use this color
+        # instead of red and blue. Keep in mind having more than 2 teams has not been tested
+        # and may cause issues.
         color: '#694200'
+        # Spawn point of this team. When someone in this team dies,
+        # they will respawn in this location
+        safe-spawn:
+          x: -11852
+          y: 84
+          z: -4750
+          yaw: -180
+          pitch: 0
+        # Spawn area of each team. When a player dies, they will
+        # spawn in the safe-spawn and will be inside this box, where
+        # they cannot build or receive damage
         spawn-area:
           x1: 10
           y1: 140
@@ -24,9 +53,30 @@ maps:
           x2: -10
           y2: 120
           z2: -10
+        # A team's territory is an area where only players of that team can build
+        # In order to allow for a bigger range of claim shapes, I have made it so you can set
+        # multiple rectangles as the territory of a team
+        # The format is x1, z1, x2, z2
+        # For instance, if a base's claim is a perfect rectangle for the most part, but at some
+        # point it turns into another rectangle. You can do the following:
+        # territory:
+        #   - "0, 0, 10, 10"
+        #   - "10, 10, 5, 20"
+        # This means that this team's claim is rectangle 1 (x1=0, z1=0, x2 = 10, z2 = 10)
+        # but also rectangle 2 (x1=10, z1=10, x2=5, z2=20).
+        # A point outside of either rectangle is not included in the claim
+        territory:
+          - "-11825, -4769, -11871, -4737"
+      # A second team is necessary to start the game, same process as the above
       datblockers:
         name: 'DATBLOCKERS'
         color: '#420699'
+        safe-spawn:
+          x: -11852
+          y: 84
+          z: -4750
+          yaw: -180
+          pitch: 0
         spawn-area:
           x1: 10
           y1: 140
@@ -34,3 +84,5 @@ maps:
           x2: -10
           y2: 120
           z2: -10
+        territory:
+          - "-11872, -4817, -11823, -4840"

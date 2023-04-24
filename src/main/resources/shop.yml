@@ -1,3 +1,7 @@
+# Name of the shop. This shows up at the name of the resources GUI
+shop-name: 'Shop'
+
+# Shop contents. Currently, it does not support ItemStack deserialization, so these are the only customisation options
 shop:
   diamond_sword:
     material: DIAMOND_SWORD
@@ -18,4 +22,3 @@ shop:
     commands:
       - 'bom dia'
     maps: ['all']
-shop-name: 'Shop'
