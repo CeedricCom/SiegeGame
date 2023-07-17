@@ -216,8 +216,8 @@ public class ConfigLoader implements GameConfig {
             List<String> enchantments = configSection.getStringList(SHOP_SECTION_ENCHANTMENTS_KEY);
             List<String> commands = configSection.getStringList(SHOP_SECTION_COMMAND_LIST_KEY);
             List<String> nbtValues = configSection.getStringList(SHOP_SECTION_CUSTOM_NBT);
-            boolean includesItem = Boolean.parseBoolean(configSection.getString(SHOP_SECTION_INCLUDES_ITEM));
-            boolean includesItemExact = Boolean.parseBoolean(configSection.getString(SHOP_SECTION_INCLUDES_ITEM_EXACT));
+            boolean includesItem = configSection.getBoolean(SHOP_SECTION_INCLUDES_ITEM);
+            boolean includesItemExact = configSection.getBoolean(SHOP_SECTION_INCLUDES_ITEM_EXACT);
 
             List<String> lore = new ArrayList<>();
             for (String s : listOfLore)
