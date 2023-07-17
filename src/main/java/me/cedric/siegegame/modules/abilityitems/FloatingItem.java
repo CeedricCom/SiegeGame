@@ -1,9 +1,10 @@
 package me.cedric.siegegame.modules.abilityitems;
 
-import com.gmail.filoghost.holographicdisplays.api.Hologram;
-import com.gmail.filoghost.holographicdisplays.api.HologramsAPI;
-import com.gmail.filoghost.holographicdisplays.api.line.ItemLine;
+import me.cedric.siegegame.display.placeholderapi.PlaceholderPickupListener;
+import me.filoghost.holographicdisplays.api.hologram.Hologram;
+import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.cedric.siegegame.SiegeGamePlugin;
+import me.filoghost.holographicdisplays.api.hologram.line.ItemHologramLine;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
 
@@ -30,27 +31,20 @@ public class FloatingItem {
         if (isCreated())
             return;
 
-        hologram = HologramsAPI.createHologram(plugin, location);
-        hologram.appendTextLine(title);
-        ItemLine itemLine = hologram.appendItemLine(item);
-        itemLine.setPickupHandler(player -> {
-            if (player.getInventory().firstEmpty() != -1)
-                player.getInventory().addItem(item);
-            else
-                player.getWorld().dropItem(player.getLocation(), item);
-            hologram.delete();
-            hologram = null;
-        });
+        hologram = HolographicDisplaysAPI.get(plugin).createHologram(location);
+        hologram.getLines().appendText(title);
+        ItemHologramLine itemLine = hologram.getLines().appendItem(item);
+        itemLine.setPickupListener(new PlaceholderPickupListener(item, hologram));
 
     }
 
     public boolean isCreated() {
-        return hologram != null;
+        return (!hologram.isDeleted());
     }
 
     public void setLocation(Location location) {
         this.location = location;
         if (isCreated())
-            hologram.teleport(location);
+            hologram.setPosition(location);
     }
 }
