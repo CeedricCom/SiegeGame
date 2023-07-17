@@ -1,6 +1,6 @@
 package me.cedric.siegegame.player;
 
-import com.github.sirblobman.combatlogx.api.ICombatManager;
+import com.github.sirblobman.combatlogx.api.manager.ICombatManager;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.model.SiegeGameMatch;
