@@ -272,7 +272,7 @@ public class ConfigLoader implements GameConfig {
                 Player player = gamePlayer.getBukkitPlayer();
                 if (includesItem) {
                     if (player.getInventory().firstEmpty() == -1) {
-                        player.sendMessage("You do not have any empty inventory slots");
+                        player.sendMessage(ChatColor.RED + "You do not have any empty inventory slots");
                     }
 
                     if (includesItemExact)
