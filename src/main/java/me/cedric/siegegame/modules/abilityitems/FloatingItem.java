@@ -39,7 +39,7 @@ public class FloatingItem {
     }
 
     public boolean isCreated() {
-        return (!hologram.isDeleted());
+        return (hologram != null && !hologram.isDeleted());
     }
 
     public void setLocation(Location location) {
