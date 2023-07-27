@@ -87,7 +87,7 @@ public class Displayer {
 
         TextComponent textComponent = Component.text("")
                 .color(TextColor.color(88, 140, 252))
-                .append(Component.text(Messages.PREFIX + " ")
+                .append(Component.text(Messages.PREFIX.toString())
                 .append(Component.text(ColorUtil.getRelationalColor(gamePlayer.getTeam(), killerTeam) + killer.getName())
                 .append(Component.text(" has killed ", TextColor.color(252, 252, 53)))
                 .append(Component.text(ColorUtil.getRelationalColor(gamePlayer.getTeam(), dead.getTeam()) + dead.getBukkitPlayer().getName() + " "))
@@ -107,7 +107,7 @@ public class Displayer {
     public void displayCombatLogKill(String dead) {
         TextComponent textComponent = Component.text("")
                 .color(TextColor.color(88, 140, 252))
-                .append(Component.text(Messages.PREFIX + " ")
+                .append(Component.text(Messages.PREFIX.toString())
                         .append(Component.text(dead, TextColor.color(237, 77, 255))
                                 .append(Component.text(" has logged out in combat. ", TextColor.color(252, 252, 53)))
                                 .append(Component.text("Enemies have received ", TextColor.color(255, 194, 97)))
