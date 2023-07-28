@@ -16,7 +16,7 @@ public class PlayerKitManager {
     public void addKit(Kit kit) {
         if (kits.containsKey(kit.getMapIdentifier())) {
             Kit k = kits.get(kit.getMapIdentifier());
-            k.setContents(kit.getContents().clone());
+            k.setContents(kit.getContents());
             return;
         }
 

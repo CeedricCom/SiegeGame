@@ -90,9 +90,9 @@ public class WorldGame {
 
         List<GamePlayer> list = new ArrayList<>(playerManager.getPlayers());
 
-        while (list.size() != 0) {
+        while (!list.isEmpty()) {
             for (Team team : teams) {
-                if (list.size() == 0)
+                if (list.isEmpty())
                     break;
 
                 int chosenPlayer = list.size() == 1 ? 0 : r.nextInt(list.size() - 1);
@@ -104,7 +104,7 @@ public class WorldGame {
     }
 
     public void assignTeam(GamePlayer player) {
-        // assign player to team with least amount of players if a team isnt chosen
+        // assign player to team with the least amount of players if a team isn't chosen
         teams.stream()
                 .min(Comparator.comparingInt(value -> value.getPlayers().size()))
                 .ifPresent(selected -> assignTeam(player, selected));
@@ -159,8 +159,10 @@ public class WorldGame {
 
             if (kitManager != null) {
                 Kit kit = kitManager.getKit(getMapIdentifier());
-                if (kit != null)
-                    gamePlayer.getBukkitPlayer().getInventory().setContents(kit.getContents());
+                if (kit != null) {
+                    kit.populateFromRawString(this);
+                    gamePlayer.getBukkitPlayer().getInventory().setContents(kit.getInventoryContents());
+                }
             }
 
             ICombatManager combatManager = plugin.getCombatLogX().getCombatManager();

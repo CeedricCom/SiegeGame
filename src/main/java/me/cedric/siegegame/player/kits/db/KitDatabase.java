@@ -1,6 +1,8 @@
 package me.cedric.siegegame.player.kits.db;
 
 import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.display.shop.ShopItem;
+import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.player.kits.Kit;
 import me.cedric.siegegame.player.kits.PlayerKitManager;
 import org.bukkit.Material;
@@ -23,7 +25,12 @@ public class KitDatabase {
     private final String DB_URL;
     private final File databaseFile;
 
-    private static final String CREATE_TABLES = "CREATE TABLE IF NOT EXISTS SiegePlayer (" + "    uniqueId    VARCHAR(36)        NOT NULL    PRIMARY KEY" + ");" + "CREATE TABLE IF NOT EXISTS Kit (" + "    uniqueId    VARCHAR(36)        NOT NULL    PRIMARY KEY," + "    mapName        VARCHAR(255)," + "    player        VARCHAR(36)," + "" + "    CONSTRAINT FK_Kit_Player FOREIGN KEY (player) REFERENCES SiegePlayer(uniqueId)" + "        ON UPDATE CASCADE ON DELETE CASCADE" + ");" + "CREATE TABLE IF NOT EXISTS KitItem (" + "    slot    INTEGER        NOT NULL," + "    kit        VARCHAR(36)        NOT NULL," + "    item    VARCHAR(1000)," + "    " + "    CONSTRAINT FK_Kit_Item FOREIGN KEY (kit) REFERENCES Kit(uniqueId) " + "        ON UPDATE CASCADE ON DELETE CASCADE," + "    CONSTRAINT Pk_Kit_Item PRIMARY KEY(kit,slot)" + ");";
+    private static final String SCHEMA = "CREATE TABLE IF NOT EXISTS Kit (" +
+            "    uniqueId    VARCHAR(36)        NOT NULL    PRIMARY KEY," +
+            "    player        VARCHAR(36)," +
+            "    mapName        VARCHAR(20)," +
+            "    items       VARCHAR(1000));";
+
     private static final String DROP_TABLES = "DROP TABLE IF EXISTS KitItem;" + "DROP TABLE IF EXISTS Kit;" + "DROP TABLE IF EXISTS SiegePlayer;";
 
 
@@ -46,7 +53,7 @@ public class KitDatabase {
         Connection conn = DriverManager.getConnection(DB_URL);
         Statement statement = conn.createStatement();
 
-        statement.executeUpdate(CREATE_TABLES);
+        statement.executeUpdate(SCHEMA);
 
         statement.close();
         conn.close();
@@ -57,21 +64,12 @@ public class KitDatabase {
             Connection conn = DriverManager.getConnection(DB_URL);
             Statement statement = conn.createStatement();
 
-            String insertUUIDStatement = "MERGE INTO SiegePlayer VALUES('" + kitManager.getPlayerUUID().toString() + "');";
-
-            statement.addBatch(insertUUIDStatement);
-
             for (Kit kit : kitManager.getKits()) {
-                String kitStatement = "MERGE INTO Kit VALUES('" + kit.getKitUUID() + "','" + kit.getMapIdentifier() + "','" + kitManager.getPlayerUUID().toString() + "');";
+                String kitStatement = "MERGE INTO Kit VALUES('" + kit.getKitUUID() + "','"
+                        + kitManager.getPlayerUUID() + "','" +
+                        kit.getMapIdentifier() + "','" +
+                        kit.getRawString() + "');";
                 statement.addBatch(kitStatement);
-
-                ItemStack[] contents = kit.getContents();
-                for (int i = 0; i < contents.length; i++) {
-                    ItemStack item = contents[i];
-                    String serializedItem = item.getType().equals(Material.AIR) ? "" : Base64.getEncoder().encodeToString(item.serializeAsBytes());
-                    String itemStatement = "MERGE INTO KitItem VALUES(" + i + ",'" + kit.getKitUUID().toString() + "','" + serializedItem + "');";
-                    statement.addBatch(itemStatement);
-                }
             }
 
             statement.executeBatch();
@@ -79,22 +77,6 @@ public class KitDatabase {
             conn.close();
         } catch (Exception x) {
             x.printStackTrace();
-        }
-    }
-
-    public void delete(Kit kit) {
-        try (Connection conn = DriverManager.getConnection(DB_URL)) {
-            Statement statement = conn.createStatement();
-
-            String deleteKitStatement = "DELETE FROM Kit WHERE Kit.mapName='" + kit.getMapIdentifier() + "';";
-            String deleteItemsStatement = "DELETE FROM KitItem WHERE KitItem.kit='" + kit.getKitUUID().toString() + "';";
-
-            statement.executeUpdate(deleteItemsStatement);
-            statement.executeUpdate(deleteKitStatement);
-
-            statement.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
@@ -107,23 +89,12 @@ public class KitDatabase {
             while (resultSet.next()) {
                 UUID kitUUID = UUID.fromString(resultSet.getString("uniqueId"));
                 String mapName = resultSet.getString("mapName");
-                kits.add(new Kit(mapName, kitUUID));
+                String rawString = resultSet.getString("items");
+                kits.add(new Kit(mapName, rawString, kitUUID));
             }
 
             PlayerKitManager kitManager = new PlayerKitManager(uuid);
-
-            for (Kit kit : kits) {
-                ResultSet rs = statement.executeQuery("SELECT * FROM KitItem WHERE KitItem.kit = '" + kit.getKitUUID().toString() + "';");
-                List<ItemStack> contents = new ArrayList<>();
-                while (rs.next()) {
-                    String serializedItem = rs.getString("item");
-                    ItemStack item = serializedItem.isEmpty() ? new ItemStack(Material.AIR) : ItemStack.deserializeBytes(Base64.getDecoder().decode(serializedItem));
-                    contents.add(item);
-                }
-
-                kit.setContents(contents.toArray(new ItemStack[0]));
-                kitManager.addKit(kit);
-            }
+            kits.forEach(kitManager::addKit);
 
             return kitManager;
         } catch (SQLException e) {
@@ -131,6 +102,19 @@ public class KitDatabase {
         }
 
         return null;
+    }
+
+    public void delete(Kit kit) {
+        try (Connection conn = DriverManager.getConnection(DB_URL)) {
+            Statement statement = conn.createStatement();
+
+            String deleteKitStatement = "DELETE FROM Kit WHERE Kit.uniqueId='" + kit.getKitUUID() + "';";
+
+            statement.executeUpdate(deleteKitStatement);
+            statement.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 }

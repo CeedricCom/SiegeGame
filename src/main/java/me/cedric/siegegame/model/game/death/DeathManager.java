@@ -159,7 +159,7 @@ public class DeathManager {
 
         Kit kit = kitStorage.getKitManager(player.getUniqueId()).getKit(worldGame.getMapIdentifier());
         if (kit != null)
-            gamePlayer.getBukkitPlayer().getInventory().setContents(kit.getContents());
+            gamePlayer.getBukkitPlayer().getInventory().setContents(kit.getInventoryContents());
     }
 
     public void shutdown() {

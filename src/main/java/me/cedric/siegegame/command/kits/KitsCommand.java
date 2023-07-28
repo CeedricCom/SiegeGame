@@ -85,8 +85,7 @@ public class KitsCommand extends FunctionalCommand {
             return;
         }
 
-        plugin.getGameManager().getKitStorage().setKit(player.getUniqueId(), identifier, worldGame, Kit.copyInventory(player));
-        System.out.println("Inventory set!");
+        plugin.getGameManager().getKitStorage().setKit(player.getUniqueId(), identifier, worldGame, player.getInventory().getContents().clone());
         player.sendMessage(ChatColor.GREEN + "Set your current inventory as your kit for map: " + identifier);
         putOnCooldown(player.getUniqueId());
     }

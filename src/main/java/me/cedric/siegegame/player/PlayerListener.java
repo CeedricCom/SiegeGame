@@ -51,8 +51,7 @@ public class PlayerListener implements Listener {
         player.setLevel(0);
         player.sendMessage(ChatColor.DARK_AQUA + "Welcome to ceedric.com Use " + ChatColor.GOLD + "/resources" + ChatColor.DARK_AQUA + " for gear.");
 
-        String currentMap = match == null ? null : match.getWorldGame().getMapIdentifier();
-        plugin.getGameManager().getKitStorage().load(player, currentMap);
+        plugin.getGameManager().getKitStorage().load(player, match == null ? null : match.getWorldGame());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)

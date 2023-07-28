@@ -36,25 +36,25 @@ public class KitStorage {
         return kits.get(uuid);
     }
 
-    public void load(Player player, String currentMap) {
+    public void load(Player player, WorldGame currentMap) {
+        if (currentMap == null)
+            return;
+
         Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
 
             PlayerKitManager kitManager = kitDatabase.load(player.getUniqueId());
             kits.put(player.getUniqueId(), kitManager);
 
-            if (currentMap == null)
-                return;
-
-            Kit kit = kitManager.getKit(currentMap);
+            Kit kit = kitManager.getKit(currentMap.getMapIdentifier());
 
             if (kit == null)
                 return;
 
-            Bukkit.getScheduler().runTask(plugin, () -> player.getInventory().setContents(kit.getContents()));
-
+            kit.populateFromRawString(currentMap);
             kits.put(player.getUniqueId(), kitManager);
-        });
 
+            Bukkit.getScheduler().runTask(plugin, () -> player.getInventory().setContents(kit.getInventoryContents()));
+        });
     }
 
     public void unload(UUID uuid) {
@@ -66,7 +66,7 @@ public class KitStorage {
         });
     }
 
-    public boolean setKit(UUID uuid, String mapIdentifier, WorldGame worldGame, ItemStack[] contents) {
+    public void setKit(UUID uuid, String mapIdentifier, WorldGame worldGame, ItemStack[] contents) {
         PlayerKitManager playerKitManager = kits.get(uuid);
         if (playerKitManager == null) {
             playerKitManager = new PlayerKitManager(uuid);
@@ -75,14 +75,12 @@ public class KitStorage {
 
         Kit kit = playerKitManager.getKit(mapIdentifier);
         if (kit == null) {
-            kit = new Kit(mapIdentifier, UUID.randomUUID());
+            kit = Kit.fromInventory(contents, worldGame, mapIdentifier);
             playerKitManager.addKit(kit);
         }
 
         kit.setContents(contents, worldGame);
         kitDatabase.save(playerKitManager);
-        System.out.println("saved.");
-        return true;
     }
 
     public void removeKit(UUID uuid, String mapIdentifier) {
@@ -92,7 +90,7 @@ public class KitStorage {
         PlayerKitManager kitManager = kits.get(uuid);
         Kit kit = kitManager.getKitExact(mapIdentifier);
 
-        // doesnt exist in the first place
+        // Doesn't exist in the first place
         if (kit == null)
             return;
 

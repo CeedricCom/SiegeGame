@@ -88,9 +88,12 @@ public final class GameManager {
     }
 
     public void endGame(boolean unload, boolean loadNextMap) {
-        currentMatch.endGame(unload);
+        if (currentMatch != null) {
+            currentMatch.endGame(unload);
+            gameMatchQueue.add(currentMatch);
+        }
+
         lastMatch = currentMatch;
-        gameMatchQueue.add(currentMatch);
         currentMatch = null;
 
         if (loadNextMap) {
