@@ -35,6 +35,7 @@ public class Kit {
         String[] items = rawString.split(",");
         ShopGUI shopGUI = worldGame.getShopGUI();
         List<ShopItem> shopItems = new ArrayList<>();
+
         for (String item : items) {
             String[] s = item.split("-");
 
@@ -43,11 +44,12 @@ public class Kit {
 
             if (itemID.equalsIgnoreCase("empty")) {
                 shopItems.add(slot, null);
+                continue;
             }
 
             ShopItem shopItem = shopGUI.getItem(itemID);
 
-            if (shopItem.getPrice() >= 0)
+            if (shopItem == null || shopItem.getPrice() > 0)
                 continue;
 
             shopItems.add(slot, shopGUI.getItem(itemID));
