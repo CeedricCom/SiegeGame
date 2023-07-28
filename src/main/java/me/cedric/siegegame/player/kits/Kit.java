@@ -45,6 +45,11 @@ public class Kit {
                 shopItems.add(slot, null);
             }
 
+            ShopItem shopItem = shopGUI.getItem(itemID);
+
+            if (shopItem.getPrice() >= 0)
+                continue;
+
             shopItems.add(slot, shopGUI.getItem(itemID));
         }
 
