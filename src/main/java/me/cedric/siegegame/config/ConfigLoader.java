@@ -109,6 +109,7 @@ public class ConfigLoader implements GameConfig {
     private static final String END_COMMANDS_KEY = "end-game-commands";
     private static final String BLACKLISTED_PROJECTILES_KEY = "blacklisted-projectiles";
     private static final String SUPER_BREAKER_TIMER = "super-breaker-timer";
+    private static final String START_GAME_ON_STARTUP = "start-game-on-server-start";
     private static final String SUPER_BREAKER_COOLDOWN = "super-breaker-cooldown";
 
     public ConfigLoader(SiegeGamePlugin plugin) {
@@ -414,6 +415,11 @@ public class ConfigLoader implements GameConfig {
     @Override
     public int getSuperBreakerTimer() {
         return configYml.getInt(SUPER_BREAKER_TIMER);
+    }
+
+    @Override
+    public boolean getStartGameOnServerStartup() {
+        return configYml.getBoolean(START_GAME_ON_STARTUP);
     }
 
     @Override

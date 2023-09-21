@@ -22,6 +22,8 @@ public interface GameConfig {
 
     void reloadConfig();
 
+    boolean getStartGameOnServerStartup();
+
     List<String> getMapIDs();
 
 }

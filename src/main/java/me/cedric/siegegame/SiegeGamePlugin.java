@@ -47,6 +47,9 @@ public final class SiegeGamePlugin extends BukkitPlugin {
             new SiegeGameExpansion(this).register();
 
         configLoader.initializeAndLoad();
+
+        if (getGameConfig().getStartGameOnServerStartup())
+            Bukkit.getScheduler().runTaskLater(this, () -> getGameManager().startNextGame(), 1L);
     }
 
     @Override

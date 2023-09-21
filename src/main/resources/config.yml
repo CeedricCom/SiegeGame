@@ -19,5 +19,8 @@ super-breaker-cooldown: 90
 # How long the super breaker ability will last
 super-breaker-timer: 11
 
+# Whether or not to automatically start the game upon server start up
+start-game-on-server-start: true
+
 # Projectile types that cannot be used within 3 blocks of the world border
 blacklisted-projectiles: []
