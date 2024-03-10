@@ -27,7 +27,6 @@ public class LunarClientModule implements Module {
     @Override
     public void onEndGame(SiegeGamePlugin plugin, WorldGame worldGame) {
         teamViewUpdateTask.cancel();
-        waypointSender.removeAll();
     }
 
     public static boolean isLunarClient(UUID uuid) {
