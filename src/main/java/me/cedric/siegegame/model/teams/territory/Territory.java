@@ -1,7 +1,7 @@
 package me.cedric.siegegame.model.teams.territory;
 
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.model.player.GamePlayer;
 import me.cedric.siegegame.model.teams.TeamFactory;
 import org.bukkit.Location;
 import org.bukkit.World;

@@ -1,6 +1,6 @@
 package me.cedric.siegegame.modules.abilityitems;
 
-import me.cedric.siegegame.display.placeholderapi.PlaceholderPickupListener;
+import me.cedric.siegegame.view.display.placeholderapi.PlaceholderPickupListener;
 import me.filoghost.holographicdisplays.api.hologram.Hologram;
 import me.filoghost.holographicdisplays.api.HolographicDisplaysAPI;
 import me.cedric.siegegame.SiegeGamePlugin;

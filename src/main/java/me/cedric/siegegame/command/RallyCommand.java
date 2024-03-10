@@ -6,7 +6,7 @@ import me.cedric.siegegame.enums.Messages;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.modules.lunarclient.LunarClientSupport;
-import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.model.player.GamePlayer;
 import me.deltaorion.common.command.CommandException;
 import me.deltaorion.common.command.FunctionalCommand;
 import me.deltaorion.common.command.sent.SentCommand;

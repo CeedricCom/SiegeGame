@@ -5,7 +5,7 @@ import de.tr7zw.nbtapi.NBTItem;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.game.Module;
 import me.cedric.siegegame.model.game.WorldGame;
-import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.model.player.GamePlayer;
 import net.kyori.adventure.sound.Sound;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

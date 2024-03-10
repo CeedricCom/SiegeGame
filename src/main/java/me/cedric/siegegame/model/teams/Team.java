@@ -1,8 +1,8 @@
 package me.cedric.siegegame.model.teams;
 
 import com.google.common.collect.ImmutableSet;
-import me.cedric.siegegame.player.border.Border;
-import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.model.player.border.Border;
+import me.cedric.siegegame.model.player.GamePlayer;
 import me.cedric.siegegame.model.teams.territory.Territory;
 import me.cedric.siegegame.model.game.WorldGame;
 import org.bukkit.Location;

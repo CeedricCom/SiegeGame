@@ -1,6 +1,6 @@
 package me.cedric.siegegame.model.map;
 
-import me.cedric.siegegame.player.border.Border;
+import me.cedric.siegegame.model.player.border.Border;
 import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.model.teams.TeamFactory;
 import org.bukkit.Location;

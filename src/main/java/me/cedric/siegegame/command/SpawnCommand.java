@@ -2,7 +2,7 @@ package me.cedric.siegegame.command;
 
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.SiegeGameMatch;
-import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.model.player.GamePlayer;
 import me.deltaorion.common.command.CommandException;
 import me.deltaorion.common.command.FunctionalCommand;
 import me.deltaorion.common.command.sent.SentCommand;

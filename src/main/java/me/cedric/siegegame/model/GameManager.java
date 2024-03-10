@@ -2,7 +2,7 @@ package me.cedric.siegegame.model;
 
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.player.kits.KitStorage;
+import me.cedric.siegegame.model.player.kits.KitStorage;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 

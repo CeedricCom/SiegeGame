@@ -4,17 +4,17 @@ import com.github.sirblobman.combatlogx.api.manager.ICombatManager;
 import com.github.sirblobman.combatlogx.api.object.UntagReason;
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.model.game.death.DeathManager;
-import me.cedric.siegegame.display.shop.ShopGUI;
+import me.cedric.siegegame.controller.death.DeathManager;
+import me.cedric.siegegame.view.display.shop.ShopGUI;
 import me.cedric.siegegame.modules.abilityitems.SuperBreakerModule;
 import me.cedric.siegegame.modules.lunarclient.LunarClientModule;
-import me.cedric.siegegame.modules.stats.StatsModule;
-import me.cedric.siegegame.player.GamePlayer;
-import me.cedric.siegegame.player.PlayerManager;
+import me.cedric.siegegame.controller.stats.StatsController;
+import me.cedric.siegegame.model.player.GamePlayer;
+import me.cedric.siegegame.model.player.PlayerManager;
 import me.cedric.siegegame.model.teams.Team;
-import me.cedric.siegegame.model.teams.territory.TerritoryBlockers;
-import me.cedric.siegegame.player.kits.Kit;
-import me.cedric.siegegame.player.kits.PlayerKitManager;
+import me.cedric.siegegame.controller.TerritoryController;
+import me.cedric.siegegame.model.player.kits.Kit;
+import me.cedric.siegegame.model.player.kits.PlayerKitManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -35,9 +35,10 @@ public class WorldGame {
     private final PlayerManager playerManager;
     private final ShopGUI shopGUI;
     private final Set<Module> modules = new HashSet<>();
-    private final List<TerritoryBlockers> territoryBlockers = new ArrayList<>();
+    private final List<TerritoryController> territoryBlockers = new ArrayList<>();
     private final DeathManager deathManager;
     private final String mapIdentifier;
+    private final StatsController stats;
 
     public WorldGame(SiegeGamePlugin plugin, String mapIdentifier) {
         this.plugin = plugin;
@@ -45,12 +46,12 @@ public class WorldGame {
         this.playerManager = new PlayerManager(plugin);
         this.mapIdentifier = mapIdentifier;
         this.deathManager = new DeathManager(plugin, this);
+        this.stats = new StatsController(plugin, this);
     }
 
     private void registerModules() {
         modules.add(new LunarClientModule());
         modules.add(new SuperBreakerModule());
-        modules.add(new StatsModule());
     }
 
     public String getMapIdentifier() {
@@ -171,7 +172,7 @@ public class WorldGame {
         }
 
         for (Team team : getTeams()) {
-            TerritoryBlockers blockers = new TerritoryBlockers(this, team.getTerritory());
+            TerritoryController blockers = new TerritoryController(this, team.getTerritory());
             territoryBlockers.add(blockers);
             plugin.getServer().getPluginManager().registerEvents(blockers, plugin);
         }
@@ -183,6 +184,7 @@ public class WorldGame {
 
         deathManager.initialise();
         updateAllScoreboards();
+        stats.initialize();
     }
 
     public void endGame() {
@@ -207,12 +209,13 @@ public class WorldGame {
         for (Team team : teams)
             team.reset();
 
-        for (TerritoryBlockers blockers : territoryBlockers)
+        for (TerritoryController blockers : territoryBlockers)
             HandlerList.unregisterAll(blockers);
 
         playerManager.clear();
         territoryBlockers.clear();
         modules.clear();
+        stats.shutdown();
     }
 
 

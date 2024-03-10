@@ -6,7 +6,7 @@ import com.lunarclient.bukkitapi.nethandler.shared.LCPacketWaypointAdd;
 import com.lunarclient.bukkitapi.nethandler.shared.LCPacketWaypointRemove;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.teams.Team;
-import me.cedric.siegegame.player.GamePlayer;
+import me.cedric.siegegame.model.player.GamePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
