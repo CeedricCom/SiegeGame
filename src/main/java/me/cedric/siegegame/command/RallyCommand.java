@@ -1,12 +1,12 @@
 package me.cedric.siegegame.command;
 
-import com.lunarclient.bukkitapi.LunarClientAPI;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.enums.Messages;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.game.WorldGame;
-import me.cedric.siegegame.modules.lunarclient.LunarClientSupport;
 import me.cedric.siegegame.model.player.GamePlayer;
+import me.cedric.siegegame.modules.lunarclient.LunarClientModule;
+import me.cedric.siegegame.modules.lunarclient.WaypointSender;
 import me.deltaorion.common.command.CommandException;
 import me.deltaorion.common.command.FunctionalCommand;
 import me.deltaorion.common.command.sent.SentCommand;
@@ -34,7 +34,7 @@ public class RallyCommand extends FunctionalCommand {
         if (player == null)
             return;
 
-        if (!LunarClientAPI.getInstance().isRunningLunarClient(player.getUniqueId())) {
+        if (!LunarClientModule.isLunarClient(player.getUniqueId())) {
             player.sendMessage(ChatColor.RED + "Lunar Client is required to use this feature.");
             return;
         }
@@ -50,7 +50,7 @@ public class RallyCommand extends FunctionalCommand {
         if (gamePlayer == null || !gamePlayer.hasTeam())
             return;
 
-        LunarClientSupport.sendTemporaryWaypoint(plugin, gamePlayer.getTeam(), player.getLocation(), 30 * 20);
+        WaypointSender.sendTemporaryWaypoint(plugin, gamePlayer.getTeam(), player.getLocation(), "Rally", 30 * 20);
         player.sendMessage(ChatColor.GRAY + Messages.RALLY_SET.toString());
     }
 }

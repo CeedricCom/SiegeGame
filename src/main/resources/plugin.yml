@@ -7,5 +7,5 @@ softdepend:
 depend:
   - NBTAPI
   - ProtocolLib
-  - LunarClient-API
+  - Apollo-Bukkit
   - CombatLogX
