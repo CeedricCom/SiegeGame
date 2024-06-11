@@ -1,4 +1,4 @@
-package me.cedric.siegegame.modules.lunarclient;
+package me.cedric.siegegame.lunarclient;
 
 import com.lunarclient.apollo.Apollo;
 import com.lunarclient.apollo.common.location.ApolloLocation;

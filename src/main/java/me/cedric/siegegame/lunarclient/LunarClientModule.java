@@ -1,12 +1,9 @@
-package me.cedric.siegegame.modules.lunarclient;
+package me.cedric.siegegame.lunarclient;
 
 import com.lunarclient.apollo.Apollo;
-import com.lunarclient.apollo.module.waypoint.WaypointModule;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.game.Module;
 import me.cedric.siegegame.model.game.WorldGame;
-import me.cedric.siegegame.model.player.GamePlayer;
-import org.bukkit.entity.Player;
 
 import java.util.UUID;
 

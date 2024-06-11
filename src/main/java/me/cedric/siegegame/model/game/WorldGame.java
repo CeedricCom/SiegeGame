@@ -7,7 +7,7 @@ import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.controller.death.DeathManager;
 import me.cedric.siegegame.view.display.shop.ShopGUI;
 import me.cedric.siegegame.modules.abilityitems.SuperBreakerModule;
-import me.cedric.siegegame.modules.lunarclient.LunarClientModule;
+import me.cedric.siegegame.lunarclient.LunarClientModule;
 import me.cedric.siegegame.controller.stats.StatsController;
 import me.cedric.siegegame.model.player.GamePlayer;
 import me.cedric.siegegame.model.player.PlayerManager;
