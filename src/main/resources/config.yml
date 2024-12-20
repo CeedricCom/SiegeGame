@@ -24,3 +24,6 @@ start-game-on-server-start: true
 
 # Projectile types that cannot be used within 3 blocks of the world border
 blacklisted-projectiles: []
+
+# The server's IP. Currently only shows up at the bottom of the scoreboard
+server-ip: "ceedric.com"

@@ -49,7 +49,7 @@ public class PlayerListener implements Listener {
         player.setFlying(false);
         player.setAllowFlight(false);
         player.setLevel(0);
-        player.sendMessage(ChatColor.DARK_AQUA + "Welcome to ceedric.com Use " + ChatColor.GOLD + "/resources" + ChatColor.DARK_AQUA + " for gear.");
+        player.sendMessage(ChatColor.DARK_AQUA + "Welcome! Use " + ChatColor.GOLD + "/resources" + ChatColor.DARK_AQUA + " for gear.");
 
         plugin.getGameManager().getKitStorage().load(player, match == null ? null : match.getWorldGame());
     }

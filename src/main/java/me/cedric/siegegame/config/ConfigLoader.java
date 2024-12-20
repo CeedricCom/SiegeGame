@@ -103,6 +103,7 @@ public class ConfigLoader implements GameConfig {
     private static final String CONFIG_POINTS_TO_END_KEY = "points-to-end";
     private static final String CONFIG_LEVELS_PER_KILL_KEY = "levels-per-kill";
     private static final String RESPAWN_TIMER_KEY = "respawn-timer";
+    private static final String SERVER_IP = "server-ip";
     private static final String DEATH_COMMANDS_KEY = "death-commands";
     private static final String RESPAWN_COMMANDS_KEY = "respawn-commands";
     private static final String START_COMMANDS_KEY = "start-game-commands";
@@ -415,6 +416,11 @@ public class ConfigLoader implements GameConfig {
     @Override
     public int getSuperBreakerTimer() {
         return configYml.getInt(SUPER_BREAKER_TIMER);
+    }
+
+    @Override
+    public String getServerIP() {
+        return configYml.getString(SERVER_IP);
     }
 
     @Override

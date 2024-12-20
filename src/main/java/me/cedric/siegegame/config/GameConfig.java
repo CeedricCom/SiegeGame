@@ -18,6 +18,8 @@ public interface GameConfig {
 
     int getSuperBreakerTimer();
 
+    String getServerIP();
+
     List<EntityType> getBlacklistedProjectiles();
 
     void reloadConfig();
