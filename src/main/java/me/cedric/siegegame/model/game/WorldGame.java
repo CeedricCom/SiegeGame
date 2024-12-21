@@ -212,10 +212,11 @@ public class WorldGame {
         for (TerritoryController blockers : territoryBlockers)
             HandlerList.unregisterAll(blockers);
 
+        stats.shutdown();
+
         playerManager.clear();
         territoryBlockers.clear();
         modules.clear();
-        stats.shutdown();
     }
 
 
