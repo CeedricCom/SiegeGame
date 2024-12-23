@@ -78,13 +78,13 @@ public class KitsCommand extends FunctionalCommand {
         }
 
         if (sentCommand.getArgs().get(0).asString().equalsIgnoreCase("delete")) {
-            plugin.getGameManager().getKitStorage().removeKit(player.getUniqueId(), identifier);
+            plugin.getGameManager().getKitController().removeKit(player.getUniqueId(), identifier);
             player.sendMessage(ChatColor.GREEN + "Deleted kit for map " + identifier);
             putOnCooldown(player.getUniqueId());
             return;
         }
 
-        plugin.getGameManager().getKitStorage().setKit(player.getUniqueId(), identifier, worldGame, player.getInventory().getContents().clone());
+        plugin.getGameManager().getKitController().saveKit(player.getUniqueId(), identifier, worldGame, player.getInventory().getContents().clone());
         player.sendMessage(ChatColor.GREEN + "Set your current inventory as your kit for map: " + identifier);
         putOnCooldown(player.getUniqueId());
     }

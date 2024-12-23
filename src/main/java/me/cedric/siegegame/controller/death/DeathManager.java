@@ -5,7 +5,7 @@ import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.model.player.GamePlayer;
 import me.cedric.siegegame.model.player.kits.Kit;
-import me.cedric.siegegame.model.player.kits.KitStorage;
+import me.cedric.siegegame.model.player.kits.KitController;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.title.Title;
 import org.bukkit.Bukkit;
@@ -152,14 +152,14 @@ public class DeathManager {
         deadPlayers.remove(gamePlayer.getUUID());
         gamePlayer.setDead(false);
 
-        KitStorage kitStorage = plugin.getGameManager().getKitStorage();
+        KitController kitController = plugin.getGameManager().getKitController();
 
-        if (!kitStorage.hasKitManager(player.getUniqueId()))
+        if (!kitController.hasKitManager(player.getUniqueId()))
             return;
 
-        Kit kit = kitStorage.getKitManager(player.getUniqueId()).getKit(worldGame.getMapIdentifier());
+        Kit kit = kitController.getKitManager(player.getUniqueId()).getKit(worldGame.getMapIdentifier());
         if (kit != null)
-            gamePlayer.getBukkitPlayer().getInventory().setContents(kit.getInventoryContents());
+            gamePlayer.getBukkitPlayer().getInventory().setContents(kit.getContents().toArray(ItemStack[]::new));
     }
 
     public void shutdown() {

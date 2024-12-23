@@ -1,7 +1,6 @@
 package me.cedric.siegegame.model.player.kits;
 
 import de.tr7zw.nbtapi.NBTItem;
-import me.cedric.siegegame.view.display.shop.ShopGUI;
 import me.cedric.siegegame.view.display.shop.ShopItem;
 import me.cedric.siegegame.model.game.WorldGame;
 import org.bukkit.Material;
@@ -13,86 +12,35 @@ import java.util.UUID;
 
 public class Kit {
 
-    private final String mapIdentifier;
-    private final String rawString;
     private final UUID uuid;
-    private List<ShopItem> contents = new ArrayList<>();
+    private final String mapIdentifier;
+    private final List<ItemStack> contents;
 
-    public Kit(String mapIdentifier, String rawString, UUID kitUUID) {
+    public Kit(String mapIdentifier, List<ItemStack> contents, UUID kitUUID) {
         this.mapIdentifier = mapIdentifier;
         this.uuid = kitUUID;
-        this.rawString = rawString;
-    }
-
-    public void setContents(ItemStack[] contents, WorldGame worldGame) {
-        this.contents = contents(contents, worldGame);
-    }
-
-    public void populateFromRawString(WorldGame worldGame) {
-        if (!contents.isEmpty())
-            return;
-
-        String[] items = rawString.split(",");
-        ShopGUI shopGUI = worldGame.getShopGUI();
-        List<ShopItem> shopItems = new ArrayList<>();
-
-        for (String item : items) {
-            String[] s = item.split("-");
-
-            String itemID = s[0];
-            int slot = Integer.parseInt(s[1]);
-
-            if (itemID.equalsIgnoreCase("empty")) {
-                shopItems.add(slot, null);
-                continue;
-            }
-
-            ShopItem shopItem = shopGUI.getItem(itemID);
-
-            if (shopItem == null || shopItem.getPrice() > 0)
-                continue;
-
-            shopItems.add(slot, shopGUI.getItem(itemID));
-        }
-
-        this.contents = shopItems;
-    }
-
-    public void setContents(List<ShopItem> contents) {
         this.contents = contents;
     }
 
-    public List<ShopItem> getContents() {
-        return new ArrayList<>(contents);
+    public void setContents(List<ItemStack> contents) {
+        this.contents.clear();
+        this.contents.addAll(contents);
     }
 
-    public ItemStack[] getInventoryContents() {
-        List<ItemStack> items = new ArrayList<>();
-        for (ShopItem shopItem : getContents()) {
-            if (shopItem == null) {
-                items.add(null);
-                continue;
-            }
+    public void setContents(ItemStack[] contents, WorldGame worldGame) {
+        setContents(contents(contents, worldGame));
+    }
 
-            if (shopItem.includesNBT())
-                items.add(shopItem.getDisplayItem());
-            else
-                items.add(new ItemStack(shopItem.getDisplayItem().getType(), shopItem.getDisplayItem().getAmount()));
-        }
-
-        return items.toArray(ItemStack[]::new);
+    public List<ItemStack> getContents() {
+        return contents;
     }
 
     public String getMapIdentifier() {
         return mapIdentifier;
     }
 
-    public String getRawString() {
-        return rawString;
-    }
-
-    private static List<ShopItem> contents(ItemStack[] items, WorldGame worldGame) {
-        List<ShopItem> newList = new ArrayList<>();
+    private static List<ItemStack> contents(ItemStack[] items, WorldGame worldGame) {
+        List<ItemStack> newList = new ArrayList<>();
         for (ItemStack item : items.clone()) {
             if (item == null || item.getType().equals(Material.AIR)) {
                 newList.add(null);
@@ -101,11 +49,14 @@ public class Kit {
 
             ShopItem shopItem = getShopItem(item, worldGame);
             if (shopItem == null || shopItem.getPrice() > 0) {
-                newList.add(null);
+                newList.add(new ItemStack(Material.AIR));
                 continue;
             }
 
-            newList.add(shopItem);
+            if (shopItem.includesNBT())
+                newList.add(shopItem.getDisplayItem());
+            else
+                newList.add(new ItemStack(shopItem.getDisplayItem().getType(), shopItem.getDisplayItem().getAmount()));
         }
 
         return newList;
@@ -142,24 +93,9 @@ public class Kit {
         return uuid;
     }
 
-    public static Kit fromInventory(ItemStack[] contents, WorldGame worldGame, String mapIdentifier) {
-        List<ShopItem> shopItemContents = contents(contents, worldGame);
-        StringBuilder items = new StringBuilder();
-
-        int i = 0;
-        for (ShopItem shopItem : shopItemContents) {
-            if (shopItem == null)
-                items.append("empty-").append(i);
-            else
-                items.append(shopItem.getIdentifier()).append("-").append(i);
-
-            if (i < (contents.length - 1))
-                items.append(",");
-
-            i++;
-        }
-
-        return new Kit(mapIdentifier, items.toString(), UUID.randomUUID());
+    public static Kit fromInventory(ItemStack[] inventoryContents, WorldGame worldGame, String mapIdentifier) {
+        List<ItemStack> itemContents = contents(inventoryContents, worldGame);
+        return new Kit(mapIdentifier, itemContents, UUID.randomUUID());
     }
 
     @Override

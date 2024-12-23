@@ -19,6 +19,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -156,13 +157,12 @@ public class WorldGame {
             gamePlayer.reset();
             gamePlayer.getBukkitPlayer().teleport(gamePlayer.getTeam().getSafeSpawn());
 
-            PlayerKitManager kitManager = plugin.getGameManager().getKitStorage().getKitManager(gamePlayer.getUUID());
+            PlayerKitManager kitManager = plugin.getGameManager().getKitController().getKitManager(gamePlayer.getUUID());
 
             if (kitManager != null) {
                 Kit kit = kitManager.getKit(getMapIdentifier());
                 if (kit != null) {
-                    kit.populateFromRawString(this);
-                    gamePlayer.getBukkitPlayer().getInventory().setContents(kit.getInventoryContents());
+                    gamePlayer.getBukkitPlayer().getInventory().setContents(kit.getContents().toArray(ItemStack[]::new));
                 }
             }
 

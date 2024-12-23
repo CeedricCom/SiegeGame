@@ -2,7 +2,7 @@ package me.cedric.siegegame.model;
 
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.model.player.kits.KitStorage;
+import me.cedric.siegegame.model.player.kits.KitController;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
@@ -18,14 +18,14 @@ public final class GameManager {
 
     private final Set<SiegeGameMatch> siegeGameMatches = new HashSet<>();
     private final SiegeGamePlugin plugin;
-    private final KitStorage kitStorage;
     private Queue<SiegeGameMatch> gameMatchQueue = new ArrayDeque<>();
     private SiegeGameMatch currentMatch;
     private SiegeGameMatch lastMatch = null;
+    private final KitController kitController;
 
-    public GameManager(SiegeGamePlugin plugin) {
+    public GameManager(SiegeGamePlugin plugin, KitController kitController) {
         this.plugin = plugin;
-        this.kitStorage = new KitStorage(plugin);
+        this.kitController = kitController;
     }
 
     public void addGame(SiegeGameMatch siegeGameMatch) {
@@ -55,8 +55,8 @@ public final class GameManager {
         return ImmutableSet.copyOf(siegeGameMatches);
     }
 
-    public KitStorage getKitStorage() {
-        return kitStorage;
+    public KitController getKitController() {
+        return kitController;
     }
 
     public void startNextGame() {

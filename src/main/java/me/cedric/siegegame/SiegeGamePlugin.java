@@ -11,6 +11,7 @@ import me.cedric.siegegame.command.ResourcesCommand;
 import me.cedric.siegegame.command.SiegeGameCommand;
 import me.cedric.siegegame.config.ConfigLoader;
 import me.cedric.siegegame.config.GameConfig;
+import me.cedric.siegegame.model.player.kits.db.PersistenceManager;
 import me.cedric.siegegame.view.display.placeholderapi.SiegeGameExpansion;
 import me.cedric.siegegame.model.player.PlayerListener;
 import me.cedric.siegegame.model.GameManager;
@@ -29,7 +30,11 @@ public final class SiegeGamePlugin extends BukkitPlugin {
     @Override
     public void onPluginEnable() {
         this.apiPlugin = this;
-        this.gameManager = new GameManager(this);
+
+        PersistenceManager persistenceManager = new PersistenceManager(this);
+        persistenceManager.initialise();
+
+        this.gameManager = new GameManager(this, persistenceManager.getKitController());
         this.configLoader = new ConfigLoader(this);
 
         this.getServer().getPluginManager().registerEvents(new PlayerListener(this), this);

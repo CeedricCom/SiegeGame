@@ -51,7 +51,7 @@ public class PlayerListener implements Listener {
         player.setLevel(0);
         player.sendMessage(ChatColor.DARK_AQUA + "Welcome! Use " + ChatColor.GOLD + "/resources" + ChatColor.DARK_AQUA + " for gear.");
 
-        plugin.getGameManager().getKitStorage().load(player, match == null ? null : match.getWorldGame());
+        plugin.getGameManager().getKitController().applyPlayerKit(player, match == null ? null : match.getWorldGame());
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
@@ -62,7 +62,7 @@ public class PlayerListener implements Listener {
         if (match != null)
             match.getWorldGame().removePlayer(player.getUniqueId());
 
-        plugin.getGameManager().getKitStorage().unload(player.getUniqueId());
+        plugin.getGameManager().getKitController().unload(player.getUniqueId());
 
         for (PotionEffect potionEffect : player.getActivePotionEffects())
             player.removePotionEffect(potionEffect.getType());

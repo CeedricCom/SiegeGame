@@ -1,5 +1,7 @@
 package me.cedric.siegegame.model.player.kits;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.UUID;
@@ -9,7 +11,7 @@ public class PlayerKitManager {
     private final HashMap<String, Kit> kits = new HashMap<>();
     private final UUID uuid;
 
-    public PlayerKitManager(UUID uuid) {
+    public PlayerKitManager(@NotNull UUID uuid) {
         this.uuid = uuid;
     }
 
