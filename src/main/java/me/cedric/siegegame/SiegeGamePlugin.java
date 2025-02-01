@@ -47,7 +47,7 @@ public final class SiegeGamePlugin extends JavaPlugin {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null)
             new SiegeGameExpansion(this).register();
 
-        configLoader.initializeAndLoad();
+        configLoader.initialiseAndLoad();
 
         if (getGameConfig().getStartGameOnServerStartup())
             Bukkit.getScheduler().runTaskLater(this, () -> getGameManager().startNextGame(), 1L);

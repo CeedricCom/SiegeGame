@@ -29,6 +29,7 @@ public class Displayer {
 
     private final SiegeGamePlugin plugin;
     private final GamePlayer gamePlayer;
+    private Scoreboard scoreboard = null;
 
     public Displayer(SiegeGamePlugin plugin, GamePlayer gamePlayer) {
         this.plugin = plugin;
@@ -45,7 +46,9 @@ public class Displayer {
             return;
 
         List<String> lines = new ArrayList<>();
-        lines.add("");
+
+        lines.add(ChatColor.YELLOW + plugin.getGameConfig().getServerIP());
+        lines.add(ChatColor.RED + "");
 
         List<Team> teams = match.getWorldGame().getTeams().stream().sorted(Comparator.comparing(Team::getName)).collect(Collectors.toList());
 
@@ -54,16 +57,18 @@ public class Displayer {
                     ChatColor.WHITE + team.getPoints() + " points");
         }
 
-        lines.add("");
+        lines.add(ChatColor.BLUE + "");
         lines.add(ChatColor.GOLD + "Map: " + ChatColor.GRAY + match.getGameMap().getDisplayName());
-        lines.add("");
-        lines.add(ChatColor.YELLOW + plugin.getGameConfig().getServerIP());
+        lines.add(ChatColor.DARK_PURPLE + "");
 
-        Scoreboard scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        if (scoreboard == null) {
+            scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+            Objective objective = scoreboard.registerNewObjective("sieges", "dummy",
+                    Component.text(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Sieges"), RenderType.INTEGER);
+            objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        }
 
-        Objective objective = scoreboard.registerNewObjective("sieges", "dummy",
-                Component.text(ChatColor.DARK_AQUA + "" + ChatColor.BOLD + "Sieges"), RenderType.INTEGER);
-        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        Objective objective = scoreboard.getObjective("sieges");
 
         int i = 0;
         for (String line : lines) {

@@ -116,7 +116,7 @@ public class ConfigLoader implements GameConfig {
         this.plugin = plugin;
     }
 
-    public void initializeAndLoad() {
+    public void initialiseAndLoad() {
 
         try {
             setupConfig();
