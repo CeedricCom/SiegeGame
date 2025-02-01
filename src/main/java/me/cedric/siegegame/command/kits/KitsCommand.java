@@ -1,14 +1,17 @@
 package me.cedric.siegegame.command.kits;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.enums.Permissions;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.model.player.GamePlayer;
-import me.deltaorion.common.command.FunctionalCommand;
-import me.deltaorion.common.command.sent.SentCommand;
-import me.deltaorion.common.locale.message.Message;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -16,77 +19,66 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-public class KitsCommand extends FunctionalCommand {
+public class KitsCommand implements Command<CommandSourceStack> {
 
     private final SiegeGamePlugin plugin;
     private final HashMap<UUID, Long> cooldowns = new HashMap<>();
 
     public KitsCommand(SiegeGamePlugin plugin) {
-        super("siegegame.kits", "/kits", Message.valueOf("Open kits menu"));
         this.plugin = plugin;
-        registerCompleter(1, sentCommand -> List.of("set", "delete"));
-        registerCompleter(2, sentCommand -> {
-            List<String> maps = new ArrayList<>(plugin.getGameConfig().getMapIDs());
-            maps.add("allmaps");
-            return maps;
-        });
     }
 
     @Override
-    public void commandLogic(SentCommand sentCommand) {
+    public int run(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
         // /kit set allmaps
-        if (sentCommand.getSender().isConsole())
-            return;
+        CommandSender sender = commandContext.getSource().getSender();
+        if (!sender.hasPermission(Permissions.KITS.getPermission()))
+            return 0;
 
-        Player player = Bukkit.getPlayer(sentCommand.getSender().getUniqueId());
+        if (sender instanceof ConsoleCommandSender)
+            return 0;
 
-        if (player == null)
-            return;
+        Player player = (Player) sender;
 
         SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
 
         if (match == null) {
             player.sendMessage(ChatColor.RED + "You need to be in a match to do this");
-            return;
+            return 0;
         }
 
-        if (sentCommand.getArgs().size() != 2) {
+        String identifier = commandContext.getArgument("set", String.class);
+
+        if (identifier == null) {
             player.sendMessage(ChatColor.RED + "/kits set <map or allmaps>");
             player.sendMessage(ChatColor.RED + "/kits delete <map or allmaps>");
-            return;
+            return 0;
         }
 
         List<String> maps = new ArrayList<>(plugin.getGameConfig().getMapIDs());
         maps.add("allmaps");
 
-        String identifier = sentCommand.getArgs().get(1).asString();
         if (!maps.contains(identifier)) {
             player.sendMessage(ChatColor.RED + "Could not validate map: " + identifier);
-            return;
+            return 0;
         }
 
         WorldGame worldGame = match.getWorldGame();
         GamePlayer gamePlayer = worldGame.getPlayer(player.getUniqueId());
 
         if (gamePlayer == null)
-            return;
+            return 0;
 
         if (isOnCooldown(player.getUniqueId())) {
             long cooldown = getCooldown(player.getUniqueId());
             player.sendMessage(ChatColor.RED + "You need to wait another " + cooldown + " seconds to do this.");
-            return;
-        }
-
-        if (sentCommand.getArgs().get(0).asString().equalsIgnoreCase("delete")) {
-            plugin.getGameManager().getKitController().removeKit(player.getUniqueId(), identifier);
-            player.sendMessage(ChatColor.GREEN + "Deleted kit for map " + identifier);
-            putOnCooldown(player.getUniqueId());
-            return;
+            return 0;
         }
 
         plugin.getGameManager().getKitController().saveKit(player.getUniqueId(), identifier, worldGame, player.getInventory().getContents().clone());
         player.sendMessage(ChatColor.GREEN + "Set your current inventory as your kit for map: " + identifier);
         putOnCooldown(player.getUniqueId());
+        return 0;
     }
 
     private boolean isOnCooldown(UUID uuid) {
