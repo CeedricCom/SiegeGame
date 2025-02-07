@@ -30,6 +30,7 @@ public class Displayer {
     private final SiegeGamePlugin plugin;
     private final GamePlayer gamePlayer;
     private Scoreboard scoreboard = null;
+    private BossBar bossBar = null;
 
     public Displayer(SiegeGamePlugin plugin, GamePlayer gamePlayer) {
         this.plugin = plugin;
@@ -133,15 +134,14 @@ public class Displayer {
 
         gamePlayer.getBukkitPlayer().sendActionBar(Component.text(s));
 
-        BossBar bossBar = BossBar.bossBar(Component.text(ChatColor.YELLOW + "You are currently in " + s + ChatColor.YELLOW + " claims"),
+        bossBar = BossBar.bossBar(Component.text(ChatColor.YELLOW + "You are currently in " + s + ChatColor.YELLOW + " claims"),
                 1, BossBar.Color.YELLOW, BossBar.Overlay.PROGRESS);
         gamePlayer.getBukkitPlayer().showBossBar(bossBar);
     }
 
     public void removeDisplayInsideClaims() {
-        gamePlayer.getBukkitPlayer().activeBossBars().forEach(bossBar -> {
-            gamePlayer.getBukkitPlayer().hideBossBar(bossBar);
-        });
+        gamePlayer.getBukkitPlayer().hideBossBar(bossBar);
+        bossBar = null;
     }
 
     public void displayActionCancelled() {
