@@ -127,6 +127,9 @@ public class Displayer {
     }
 
     public void displayInsideClaims(WorldGame worldGame, Territory territory) {
+        if (bossBar != null)
+            removeDisplayInsideClaims();
+
         String message = Messages.CLAIMS_ENTERED;
         Team team = worldGame.getTeam(territory.getTeam().getConfigKey());
 
