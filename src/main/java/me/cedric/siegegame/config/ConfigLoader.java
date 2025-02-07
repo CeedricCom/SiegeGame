@@ -1,8 +1,11 @@
 package me.cedric.siegegame.config;
 
+import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.NBTCompound;
 import de.tr7zw.nbtapi.NBTItem;
+import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.controller.TerritoryController;
 import me.cedric.siegegame.model.player.border.Border;
 import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.util.ItemBuilder;
@@ -256,18 +259,17 @@ public class ConfigLoader implements GameConfig {
             }
 
             ItemStack item = itemBuilder.build();
-            NBTItem nbtItem = new NBTItem(item);
-            NBTCompound compound = nbtItem.addCompound("siegegame-item");
+            NBT.modify(item, nbt -> {
+                ReadWriteNBT compound = nbt.getOrCreateCompound("siegegame-item");
 
-            compound.setString("identifier", key);
-            compound.setString("map-id", worldName);
+                compound.setString("identifier", key);
+                compound.setString("map-id", worldName);
 
-            for (String s : nbtValues) {
-                String[] nbt = s.split(";");
-                compound.setString(nbt[0], nbt[1]);
-            }
-
-            nbtItem.mergeCompound(compound);
+                for (String s : nbtValues) {
+                    String[] val = s.split(";");
+                    compound.setString(val[0], val[1]);
+                }
+            });
 
             ShopItem button = new ShopItem(gamePlayer -> {
                 Player player = gamePlayer.getBukkitPlayer();
@@ -277,15 +279,15 @@ public class ConfigLoader implements GameConfig {
                     }
 
                     if (includesItemExact)
-                        gamePlayer.getBukkitPlayer().getInventory().addItem(nbtItem.getItem().clone());
+                        gamePlayer.getBukkitPlayer().getInventory().addItem(item.clone());
                     else
-                        gamePlayer.getBukkitPlayer().getInventory().addItem(new ItemStack(nbtItem.getItem().getType(), amount));
+                        gamePlayer.getBukkitPlayer().getInventory().addItem(new ItemStack(item.getType(), amount));
                 }
 
                 for (String command : commands) {
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
                 }
-            }, key, nbtItem.getItem().clone(), price, slot, includesItemExact);
+            }, key, item.clone(), price, slot, includesItemExact);
 
             shopItems.add(button);
         }
