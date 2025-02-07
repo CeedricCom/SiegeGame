@@ -2,14 +2,16 @@ package me.cedric.siegegame;
 
 import com.comphenix.protocol.ProtocolLibrary;
 import com.github.sirblobman.combatlogx.api.ICombatLogX;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.plugin.lifecycle.event.types.LifecycleEvents;
 import me.cedric.siegegame.command.SpawnCommand;
 import me.cedric.siegegame.command.args.ReloadArg;
 import me.cedric.siegegame.command.args.StartGameArg;
 import me.cedric.siegegame.command.kits.DeleteKitArgument;
-import me.cedric.siegegame.command.kits.KitsCommand;
+import me.cedric.siegegame.command.kits.KitSetArgument;
 import me.cedric.siegegame.command.RallyCommand;
+import me.cedric.siegegame.enums.Permissions;
 import me.cedric.siegegame.model.player.border.blockers.BlockChangePacketAdapter;
 import me.cedric.siegegame.model.player.border.PlayerBorderListener;
 import me.cedric.siegegame.command.ResourcesCommand;
@@ -20,6 +22,7 @@ import me.cedric.siegegame.view.display.placeholderapi.SiegeGameExpansion;
 import me.cedric.siegegame.model.player.PlayerListener;
 import me.cedric.siegegame.model.GameManager;
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -74,8 +77,19 @@ public final class SiegeGamePlugin extends JavaPlugin {
                     .build());
 
             commands.registrar().register(Commands.literal("kit")
+                    .requires(source -> source.getSender() instanceof Player &&
+                                                             source.getSender().hasPermission(Permissions.KITS.getPermission()))
+                    .then(Commands.literal("set")
+                            .then(Commands.argument("map", StringArgumentType.word())
+                                    .suggests((context, builder) -> {
+                                        builder.suggest("allmaps");
+                                        getGameConfig().getMapIDs().forEach(builder::suggest);
+                                        return builder.buildFuture();
+                                    })
+                                    .executes(new KitSetArgument(this))
+                            )
+                    )
                     .then(Commands.literal("delete").executes(new DeleteKitArgument(this)))
-                    .executes(new KitsCommand(this))
                     .build());
 
             commands.registrar().register(Commands.literal("resources").executes(new ResourcesCommand(this)).build());

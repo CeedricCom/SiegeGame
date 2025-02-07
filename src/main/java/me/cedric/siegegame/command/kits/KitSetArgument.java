@@ -19,12 +19,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
-public class KitsCommand implements Command<CommandSourceStack> {
+public class KitSetArgument implements Command<CommandSourceStack> {
 
     private final SiegeGamePlugin plugin;
     private final HashMap<UUID, Long> cooldowns = new HashMap<>();
 
-    public KitsCommand(SiegeGamePlugin plugin) {
+    public KitSetArgument(SiegeGamePlugin plugin) {
         this.plugin = plugin;
     }
 
@@ -47,7 +47,7 @@ public class KitsCommand implements Command<CommandSourceStack> {
             return 0;
         }
 
-        String identifier = commandContext.getArgument("set", String.class);
+        String identifier = commandContext.getArgument("map", String.class);
 
         if (identifier == null) {
             player.sendMessage(ChatColor.RED + "/kits set <map or allmaps>");
@@ -105,27 +105,4 @@ public class KitsCommand implements Command<CommandSourceStack> {
         return ((15 * 1000L) - (currentTime - lastTime)) / 1000;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
