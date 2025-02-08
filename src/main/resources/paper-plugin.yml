@@ -1,0 +1,21 @@
+name: SiegeGame
+version: '${project.version}'
+main: me.cedric.siegegame.SiegeGamePlugin
+api-version: '1.21.4'
+dependencies:
+  server:
+    PlaceholderAPI:
+      load: BEFORE
+      required: false
+    NBTAPI:
+      load: BEFORE
+      required: true
+    ProtocolLib:
+      load: BEFORE
+      required: true
+    Apollo-Bukkit:
+      load: BEFORE
+      required: true
+    CombatLogX:
+      load: BEFORE
+      required: true

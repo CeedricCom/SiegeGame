@@ -1,10 +1,14 @@
 package me.cedric.siegegame.config;
 
+import de.tr7zw.nbtapi.NBT;
 import de.tr7zw.nbtapi.NBTCompound;
 import de.tr7zw.nbtapi.NBTItem;
+import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 import me.cedric.siegegame.SiegeGamePlugin;
+import me.cedric.siegegame.controller.TerritoryController;
 import me.cedric.siegegame.model.player.border.Border;
 import me.cedric.siegegame.util.BoundingBox;
+import me.cedric.siegegame.util.ItemBuilder;
 import me.cedric.siegegame.view.display.shop.ShopItem;
 import me.cedric.siegegame.model.teams.Team;
 import me.cedric.siegegame.model.teams.territory.Polygon;
@@ -15,17 +19,14 @@ import me.cedric.siegegame.model.game.WorldGame;
 import me.cedric.siegegame.model.map.GameMap;
 import me.cedric.siegegame.model.map.FileMapLoader;
 import me.cedric.siegegame.model.teams.TeamFactory;
-import me.deltaorion.bukkit.item.EMaterial;
-import me.deltaorion.bukkit.item.ItemBuilder;
-import me.deltaorion.common.config.ConfigSection;
-import me.deltaorion.common.config.FileConfig;
-import me.deltaorion.common.config.InvalidConfigurationException;
-import me.deltaorion.common.config.yaml.YamlAdapter;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import java.awt.Color;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -41,12 +42,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 public class ConfigLoader implements GameConfig {
 
     private final SiegeGamePlugin plugin;
 
-    private FileConfig mapsYml;
+    private YamlConfiguration mapsYml;
     private static final String MAPS_SECTION_KEY = "maps";
     private static final String MAPS_SECTION_WORLD_NAME_KEY = "worldname";
     private static final String MAPS_SECTION_WORLD_DISPLAY_NAME_KEY = "world-display-name";
@@ -79,7 +81,7 @@ public class ConfigLoader implements GameConfig {
     private static final String MAPS_SECTION_TEAMS_SAFE_SPAWN_PITCH = "pitch";
     private static final String MAPS_SECTION_TERRITORY_KEY = "territory";
 
-    private FileConfig shopYml;
+    private YamlConfiguration shopYml;
     private static final String SHOP_SECTION_KEY = "shop";
     private static final String SHOP_SECTION_SHOP_NAME_KEY = "shop-name";
     private static final String SHOP_SECTION_MATERIAL_KEY = "material";
@@ -98,7 +100,7 @@ public class ConfigLoader implements GameConfig {
     private static final String SHOP_SECTION_AMOUNT_KEY = "amount";
     private static final String SHOP_SECTION_SELECTED_MAPS = "maps";
 
-    private FileConfig configYml;
+    private YamlConfiguration configYml;
     private static final String CONFIG_POINTS_PER_KILL_KEY = "points-per-kill";
     private static final String CONFIG_POINTS_TO_END_KEY = "points-to-end";
     private static final String CONFIG_LEVELS_PER_KILL_KEY = "levels-per-kill";
@@ -117,7 +119,7 @@ public class ConfigLoader implements GameConfig {
         this.plugin = plugin;
     }
 
-    public void initializeAndLoad() {
+    public void initialiseAndLoad() {
 
         try {
             setupConfig();
@@ -136,16 +138,16 @@ public class ConfigLoader implements GameConfig {
     }
 
     private void loadMaps() {
-        ConfigSection section = mapsYml.getConfigurationSection(MAPS_SECTION_KEY);
+        ConfigurationSection section = mapsYml.getConfigurationSection(MAPS_SECTION_KEY);
 
         for (String mapKey : mapsYml.getConfigurationSection(MAPS_SECTION_KEY).getKeys(false)) {
 
-            ConfigSection mapSection = section.getConfigurationSection(mapKey);
+            ConfigurationSection mapSection = section.getConfigurationSection(mapKey);
 
             String worldName = mapSection.getString(MAPS_SECTION_WORLD_NAME_KEY);
 
             if (worldName == null) {
-                plugin.getApiPlugin().getPluginLogger().severe("Could not retrieve world name for map key " + mapKey + " - Skipping!");
+                plugin.getLogger().severe("Could not retrieve world name for map key " + mapKey + " - Skipping!");
                 continue;
             }
 
@@ -156,14 +158,14 @@ public class ConfigLoader implements GameConfig {
         plugin.getLogger().info("Maps loaded.");
     }
 
-    public void loadWorld(String worldName, ConfigSection section, String mapID) {
-        ConfigSection defaultSpawnSection = section.getConfigurationSection(MAPS_SECTION_DEFAULT_SPAWN_KEY);
+    public void loadWorld(String worldName, ConfigurationSection section, String mapID) {
+        ConfigurationSection defaultSpawnSection = section.getConfigurationSection(MAPS_SECTION_DEFAULT_SPAWN_KEY);
         int x = defaultSpawnSection.getInt(MAPS_SECTION_DEFAULT_SPAWN_X);
         int y = defaultSpawnSection.getInt(MAPS_SECTION_DEFAULT_SPAWN_Y);
         int z = defaultSpawnSection.getInt(MAPS_SECTION_DEFAULT_SPAWN_Z);
         Location defaultSpawn = new Location(null, x, y, z);
 
-        ConfigSection worldBorderSection = section.getConfigurationSection(MAPS_SECTION_MAP_MAPBORDER_KEY);
+        ConfigurationSection worldBorderSection = section.getConfigurationSection(MAPS_SECTION_MAP_MAPBORDER_KEY);
         int x1 = worldBorderSection.getInt(MAPS_SECTION_MAP_MAPBORDER_X1_KEY);
         int y1 = worldBorderSection.getInt(MAPS_SECTION_MAP_MAPBORDER_Y1_KEY);
         int z1 = worldBorderSection.getInt(MAPS_SECTION_MAP_MAPBORDER_Z1_KEY);
@@ -185,7 +187,7 @@ public class ConfigLoader implements GameConfig {
         GameMap gameMap = new GameMap(fileMapLoader, displayName, new HashSet<>(), border, defaultSpawn);
         WorldGame worldGame = new WorldGame(plugin, mapID);
 
-        ConfigSection teamsSection = section.getConfigurationSection(MAPS_SECTION_WORLD_TEAMS_KEY);
+        ConfigurationSection teamsSection = section.getConfigurationSection(MAPS_SECTION_WORLD_TEAMS_KEY);
 
         List<ShopItem> shopItems = loadShop(shopYml.getConfigurationSection(SHOP_SECTION_KEY), worldName);
         String shopName = shopYml.getString(SHOP_SECTION_SHOP_NAME_KEY);
@@ -199,10 +201,10 @@ public class ConfigLoader implements GameConfig {
         plugin.getGameManager().addGame(new SiegeGameMatch(plugin, worldGame, gameMap));
     }
 
-    private List<ShopItem> loadShop(ConfigSection section, String worldName) {
+    private List<ShopItem> loadShop(ConfigurationSection section, String worldName) {
         List<ShopItem> shopItems = new ArrayList<>();
         for (String key : section.getKeys(false)) {
-            ConfigSection configSection = section.getConfigurationSection(key);
+            ConfigurationSection configSection = section.getConfigurationSection(key);
             List<String> maps = configSection.getStringList(SHOP_SECTION_SELECTED_MAPS);
 
             if (!maps.contains("all") && !maps.contains(worldName))
@@ -226,8 +228,8 @@ public class ConfigLoader implements GameConfig {
                 lore.add(ChatColor.translateAlternateColorCodes('&', s));
 
 
-            ItemBuilder itemBuilder = new ItemBuilder(EMaterial.matchMaterial(material.toUpperCase()))
-                    .setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName))
+            ItemBuilder itemBuilder = new ItemBuilder(Material.matchMaterial(material.toUpperCase()))
+                    .setName(ChatColor.translateAlternateColorCodes('&', displayName))
                     .setLore(lore);
 
             itemBuilder.setAmount(amount);
@@ -242,7 +244,7 @@ public class ConfigLoader implements GameConfig {
                     // messy asf but whatever
                     for (String s : configSection.getStringList(SHOP_SECTION_POTION_EFFECTS_KEY)) {
                         String[] args = s.split(",");
-                        potionMeta.addCustomEffect(new PotionEffect(PotionEffectType.getByKey(NamespacedKey.minecraft(args[0])), Integer.parseInt(args[1]) * 20, Integer.parseInt(args[2]), Boolean.parseBoolean(args[3]), Boolean.parseBoolean(args[4]), Boolean.parseBoolean(args[5])), true);
+                        potionMeta.addCustomEffect(new PotionEffect(Objects.requireNonNull(PotionEffectType.getByKey(NamespacedKey.minecraft(args[0]))), Integer.parseInt(args[1]) * 20, Integer.parseInt(args[2]), Boolean.parseBoolean(args[3]), Boolean.parseBoolean(args[4]), Boolean.parseBoolean(args[5])), true);
                     }
 
                     potionMeta.setColor(bukkitColor(configSection.getString(SHOP_SECTION_POTION_COLOR_KEY)));
@@ -253,22 +255,21 @@ public class ConfigLoader implements GameConfig {
                 String[] s = enchantment.split(";");
                 Enchantment ench = Enchantment.getByKey(NamespacedKey.minecraft(s[0]));
                 int level = Integer.parseInt(s[1]);
-                itemBuilder.addEnchantment(ench, level);
+                itemBuilder.enchant(ench, level);
             }
 
             ItemStack item = itemBuilder.build();
-            NBTItem nbtItem = new NBTItem(item);
-            NBTCompound compound = nbtItem.addCompound("siegegame-item");
+            NBT.modify(item, nbt -> {
+                ReadWriteNBT compound = nbt.getOrCreateCompound("siegegame-item");
 
-            compound.setString("identifier", key);
-            compound.setString("map-id", worldName);
+                compound.setString("identifier", key);
+                compound.setString("map-id", worldName);
 
-            for (String s : nbtValues) {
-                String[] nbt = s.split(";");
-                compound.setString(nbt[0], nbt[1]);
-            }
-
-            nbtItem.mergeCompound(compound);
+                for (String s : nbtValues) {
+                    String[] val = s.split(";");
+                    compound.setString(val[0], val[1]);
+                }
+            });
 
             ShopItem button = new ShopItem(gamePlayer -> {
                 Player player = gamePlayer.getBukkitPlayer();
@@ -278,15 +279,15 @@ public class ConfigLoader implements GameConfig {
                     }
 
                     if (includesItemExact)
-                        gamePlayer.getBukkitPlayer().getInventory().addItem(nbtItem.getItem().clone());
+                        gamePlayer.getBukkitPlayer().getInventory().addItem(item.clone());
                     else
-                        gamePlayer.getBukkitPlayer().getInventory().addItem(new ItemStack(nbtItem.getItem().getType(), amount));
+                        gamePlayer.getBukkitPlayer().getInventory().addItem(new ItemStack(item.getType(), amount));
                 }
 
                 for (String command : commands) {
                     Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
                 }
-            }, key, nbtItem.getItem().clone(), price, slot, includesItemExact);
+            }, key, item.clone(), price, slot, includesItemExact);
 
             shopItems.add(button);
         }
@@ -294,15 +295,15 @@ public class ConfigLoader implements GameConfig {
         return shopItems;
     }
 
-    private List<TeamFactory> loadTeams(WorldGame worldGame, GameMap gameMap, ConfigSection section) {
+    private List<TeamFactory> loadTeams(WorldGame worldGame, GameMap gameMap, ConfigurationSection section) {
         List<TeamFactory> factories = new ArrayList<>();
         for (String key : section.getKeys(false)) {
 
-            ConfigSection currentTeamSection = section.getConfigurationSection(key);
+            ConfigurationSection currentTeamSection = section.getConfigurationSection(key);
             String name = currentTeamSection.getString(MAPS_SECTION_WORLD_TEAMS_NAME);
             String hexColor = currentTeamSection.getString(MAPS_SECTION_WORLD_TEAMS_COLOR);
 
-            ConfigSection spawnAreaSection = currentTeamSection.getConfigurationSection(MAPS_SECTION_TEAMS_SPAWN);
+            ConfigurationSection spawnAreaSection = currentTeamSection.getConfigurationSection(MAPS_SECTION_TEAMS_SPAWN);
             int x1 = spawnAreaSection.getInt(MAPS_SECTION_TEAMS_SPAWN_X1);
             int y1 = spawnAreaSection.getInt(MAPS_SECTION_TEAMS_SPAWN_Y1);
             int z1 = spawnAreaSection.getInt(MAPS_SECTION_TEAMS_SPAWN_Z1);
@@ -314,7 +315,7 @@ public class ConfigLoader implements GameConfig {
             safeArea.setAllowBlockChanges(true);
             safeArea.setInverse(true);
 
-            ConfigSection safeSpawnSection = currentTeamSection.getConfigurationSection(MAPS_SECTION_TEAMS_SAFE_SPAWN);
+            ConfigurationSection safeSpawnSection = currentTeamSection.getConfigurationSection(MAPS_SECTION_TEAMS_SAFE_SPAWN);
             int safeSpawnX = safeSpawnSection.getInt(MAPS_SECTION_TEAMS_SAFE_SPAWN_X1);
             int safeSpawnY = safeSpawnSection.getInt(MAPS_SECTION_TEAMS_SAFE_SPAWN_Y1);
             int safeSpawnZ = safeSpawnSection.getInt(MAPS_SECTION_TEAMS_SAFE_SPAWN_Z1);
@@ -364,10 +365,10 @@ public class ConfigLoader implements GameConfig {
 
     private void cryAndDisable() {
         plugin.getLogger().severe("There was a problem loading the config. Disabling...");
-        plugin.disablePlugin();
+        plugin.getServer().getPluginManager().disablePlugin(plugin);
     }
 
-    private void setupConfig() throws IOException, InvalidConfigurationException {
+    private void setupConfig() throws IOException {
         File mapFile = new File(plugin.getDataFolder(), "maps.yml");
         File shopFile = new File(plugin.getDataFolder(), "shop.yml");
         File configFile = new File(plugin.getDataFolder(), "config.yml");
@@ -379,13 +380,13 @@ public class ConfigLoader implements GameConfig {
         if (!configFile.exists())
             plugin.saveResource("config.yml", false);
 
-        mapsYml = FileConfig.loadConfiguration(new YamlAdapter(), new File(plugin.getDataFolder(), "maps.yml"));
-        shopYml = FileConfig.loadConfiguration(new YamlAdapter(), new File(plugin.getDataFolder(), "shop.yml"));
-        configYml = FileConfig.loadConfiguration(new YamlAdapter(), new File(plugin.getDataFolder(), "config.yml"));
+        mapsYml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "maps.yml"));
+        shopYml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "shop.yml"));
+        configYml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
 
-        mapsYml.mergeDefaults();
-        shopYml.mergeDefaults();
-        configYml.mergeDefaults();
+//        mapsYml.mergeDefaults();
+//        shopYml.mergeDefaults();
+//        configYml.mergeDefaults();
     }
 
     @Override
@@ -441,11 +442,7 @@ public class ConfigLoader implements GameConfig {
 
     @Override
     public void reloadConfig() {
-        try {
-            configYml = FileConfig.loadConfiguration(new YamlAdapter(), new File(plugin.getDataFolder(), "config.yml"));
-        } catch (IOException | InvalidConfigurationException e) {
-            e.printStackTrace();
-        }
+        configYml = YamlConfiguration.loadConfiguration(new File(plugin.getDataFolder(), "config.yml"));
     }
 
     @Override

@@ -1,24 +1,30 @@
 package me.cedric.siegegame.command.args;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.enums.Permissions;
-import me.deltaorion.common.command.CommandException;
-import me.deltaorion.common.command.FunctionalCommand;
-import me.deltaorion.common.command.sent.SentCommand;
-import me.deltaorion.common.locale.message.Message;
+import org.bukkit.command.CommandSender;
 
-public class ReloadArg extends FunctionalCommand {
+public class ReloadArg implements Command<CommandSourceStack> {
 
     private final SiegeGamePlugin plugin;
 
     public ReloadArg(SiegeGamePlugin plugin) {
-        super(Permissions.RELOAD_FILES.getPermission(), "/siegegame reload", Message.valueOf("Reloads siegegame config"));
         this.plugin = plugin;
     }
 
     @Override
-    public void commandLogic(SentCommand sentCommand) throws CommandException {
+    public int run(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
+        CommandSender sender = commandContext.getSource().getSender();
+        if (!sender.hasPermission(Permissions.RELOAD_FILES.getPermission())) {
+            sender.sendMessage("No permission.");
+            return 0;
+        }
+
         plugin.getGameConfig().reloadConfig();
-        sentCommand.getSender().sendMessage("Reloaded");
+        return 0;
     }
 }

@@ -1,49 +1,46 @@
 package me.cedric.siegegame.command;
 
+import com.mojang.brigadier.Command;
+import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import io.papermc.paper.command.brigadier.CommandSourceStack;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.model.SiegeGameMatch;
 import me.cedric.siegegame.model.player.GamePlayer;
-import me.deltaorion.common.command.CommandException;
-import me.deltaorion.common.command.FunctionalCommand;
-import me.deltaorion.common.command.sent.SentCommand;
-import org.bukkit.Bukkit;
+import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.List;
-
-public class SpawnCommand extends FunctionalCommand {
+public class SpawnCommand implements Command<CommandSourceStack> {
 
     private SiegeGamePlugin plugin;
 
     public SpawnCommand(SiegeGamePlugin plugin) {
-        super("siegegame.spawn");
         this.plugin = plugin;
-        registerCompleter(1, sentCommand -> List.of("spawn"));
     }
 
     @Override
-    public void commandLogic(SentCommand sentCommand) throws CommandException {
-        if (sentCommand.getSender().isConsole())
-            return;
-
-        if (sentCommand.getArgs().size() < 1 || !sentCommand.getArgs().get(0).asString().equalsIgnoreCase("spawn"))
-            return;
+    public int run(CommandContext<CommandSourceStack> commandContext) throws CommandSyntaxException {
+        CommandSender sender = commandContext.getSource().getSender();
+        if (sender instanceof ConsoleCommandSender)
+            return 0;
 
         SiegeGameMatch match = plugin.getGameManager().getCurrentMatch();
 
         if (match == null)
-            return;
+            return 0;
 
-        Player bukkitPlayer = Bukkit.getPlayer(sentCommand.getSender().getUniqueId());
+        Player bukkitPlayer = (Player) sender;
 
         if (bukkitPlayer == null)
-            return;
+            return 0;
 
         GamePlayer player = match.getWorldGame().getPlayer(bukkitPlayer.getUniqueId());
 
         if (player == null || !player.hasTeam())
-            return;
+            return 0;
 
         player.getBukkitPlayer().teleport(player.getTeam().getSafeSpawn());
+        return 0;
     }
 }
