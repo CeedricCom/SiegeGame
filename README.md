@@ -10,8 +10,7 @@ This repository contains the source code for the plugin as well as default confi
 
 The project should be built using <a href="https://maven.apache.org/">Apache Maven.</a>
 
-1. The project depends on <a href="https://github.com/DeltaOrion/ExternusAPI"> ExternusAPI</a>. Clone this repository and install the API in your maven local repository using `mvn clean install`
-2. Build the project by navigating to the project's root folder and executing the command `mvn clean package`. This will generate a jar file in the newly created `target` folder.
+1. Build the project by navigating to the project's root folder and executing the command `mvn clean package`. This will generate a jar file in the newly created `target` folder.
 
 # Usage
 
