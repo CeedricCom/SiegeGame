@@ -5,6 +5,8 @@ import com.github.sirblobman.combatlogx.api.object.UntagReason;
 import com.google.common.collect.ImmutableSet;
 import me.cedric.siegegame.SiegeGamePlugin;
 import me.cedric.siegegame.controller.death.DeathManager;
+import me.cedric.siegegame.event.SiegeGameMatchEndEvent;
+import me.cedric.siegegame.event.SiegeGameMatchStartEvent;
 import me.cedric.siegegame.view.display.shop.ShopGUI;
 import me.cedric.siegegame.modules.abilityitems.SuperBreakerModule;
 import me.cedric.siegegame.lunarclient.LunarClientModule;
@@ -177,6 +179,9 @@ public class WorldGame {
             plugin.getServer().getPluginManager().registerEvents(blockers, plugin);
         }
 
+        SiegeGameMatchStartEvent event = new SiegeGameMatchStartEvent(plugin.getGameManager().getCurrentMatch());
+        Bukkit.getPluginManager().callEvent(event);
+
         registerModules();
 
         for (Module module : modules)
@@ -188,6 +193,9 @@ public class WorldGame {
     }
 
     public void endGame() {
+        SiegeGameMatchEndEvent event = new SiegeGameMatchEndEvent(plugin.getGameManager().getCurrentMatch());
+        Bukkit.getPluginManager().callEvent(event);
+
         deathManager.shutdown();
 
         for (Module module : modules)
@@ -219,5 +227,12 @@ public class WorldGame {
         modules.clear();
     }
 
+    public void addModule(Module module) {
+        modules.add(module);
+    }
+
+    public void removeModule(Module module) {
+        modules.remove(module);
+    }
 
 }

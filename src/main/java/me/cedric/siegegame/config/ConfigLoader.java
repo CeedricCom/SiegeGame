@@ -1,11 +1,8 @@
 package me.cedric.siegegame.config;
 
 import de.tr7zw.nbtapi.NBT;
-import de.tr7zw.nbtapi.NBTCompound;
-import de.tr7zw.nbtapi.NBTItem;
 import de.tr7zw.nbtapi.iface.ReadWriteNBT;
 import me.cedric.siegegame.SiegeGamePlugin;
-import me.cedric.siegegame.controller.TerritoryController;
 import me.cedric.siegegame.model.player.border.Border;
 import me.cedric.siegegame.util.BoundingBox;
 import me.cedric.siegegame.util.ItemBuilder;

@@ -32,8 +32,11 @@ public final class SiegeGamePlugin extends JavaPlugin {
     private ConfigLoader configLoader;
     private GameManager gameManager;
 
+    private static SiegeGamePlugin instance;
+
     @Override
     public void onEnable() {
+        instance = this;
         PersistenceManager persistenceManager = new PersistenceManager(this);
         persistenceManager.initialise();
 
@@ -102,5 +105,9 @@ public final class SiegeGamePlugin extends JavaPlugin {
         PluginManager pluginManager = Bukkit.getPluginManager();
         Plugin plugin = pluginManager.getPlugin("CombatLogX");
         return (ICombatLogX) plugin;
+    }
+
+    public static SiegeGamePlugin getInstance() {
+        return instance;
     }
 }
